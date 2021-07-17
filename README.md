@@ -9,5 +9,6 @@ In order to run this you'll need to put either:
 in the same folder.
 
 You can use the spec files with pyinstaller to create executables:
-pyinstaller remove_po_rtl_heb_win.spec
-pyinstaller install_po_rtl_heb_win.spec
+`pyinstaller remove_po_rtl_heb_win.spec`
+
+`pyinstaller install_po_rtl_heb_win.spec`
