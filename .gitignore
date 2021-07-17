@@ -1,0 +1,9 @@
+venv
+dist
+build
+backup
+closecaption_*
+portal_*
+Portal translation*.csv
+__pycache__
+.idea
