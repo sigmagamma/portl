@@ -4,6 +4,7 @@ build
 backup
 closecaption_*
 portal_*
-Portal translation*.csv
+Portal translation - additions.csv
+Portal translation - closedcaption.csv
 __pycache__
 .idea
