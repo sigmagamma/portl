@@ -12,6 +12,7 @@ You can then run install_po_rtl_heb_win.py for a windows installation.
 remove_po_rtl_heb_win.py removes an existing windows installation.
 
 You can use the spec files with pyinstaller to create executables:
+
 `pyinstaller remove_po_rtl_heb_win.spec`
 
 `pyinstaller install_po_rtl_heb_win.spec`
