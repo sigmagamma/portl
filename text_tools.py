@@ -22,10 +22,7 @@ def rearrange_multiple_lines(s,max_chars):
         if len(line) > leng:
             leng = len(line)
     for line in lines:
-        #TODO figure out
-        fill = 	""#u"\u202B"#""#.zfill((50-len(line))).replace("0",u"\u2003")
-        # fill = "|" + fill[1:len(fill)]
-        #result += fill+ 	u"\u202B" + line + u"\u202C" + "<cr>"
+        fill = 	""
         result += fill   + line + "<cr>"
     return result
 def rearrange_single_line(s):
