@@ -1,6 +1,10 @@
 # poRTL
 Portal 1 translation tool for right-to-left languages
 
+This project was created for the Portal 1 Hebrew fan translation, details on which you can find here:
+
+https://www.facebook.com/groups/200491360554968/posts/868793153724782
+
 ## What this does
 * Portal 1 has translations for several languages for subtitles and close captions (the closecaption file)
 as well as other texts (the portal file). However, it does not support right to left languages,
