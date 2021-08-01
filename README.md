@@ -40,3 +40,4 @@ You can use the spec files with pyinstaller to create executables:
 You will have to have closecaption_hebrew.dat and portal_english.txt created
 by the script in the same folder when running pyinstaller.
 
+
