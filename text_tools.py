@@ -17,10 +17,6 @@ def rearrange_multiple_lines(s,max_chars):
         currentLine = word + " " + currentLine
     lines.append(currentLine)
     result = ""
-    leng = 0
-    for line in lines:
-        if len(line) > leng:
-            leng = len(line)
     for line in lines:
         fill = 	""
         result += fill   + line + "<cr>"

@@ -5,10 +5,14 @@ This project was created for the Portal 1 Hebrew fan translation, details on whi
 
 https://www.facebook.com/groups/200491360554968/posts/868793153724782
 
+Or in English here:
+
+https://steamcommunity.com/sharedfiles/filedetails/?id=2554472476
+
 ## What this does
 * Portal 1 has translations for several languages for subtitles and close captions (the closecaption file)
 as well as other texts (the portal file). However, it does not support right to left languages,
-and the text appears out of order. 
+and when creating translations for those text appears out of order. 
 * The program takes a translation file and the source english file and generates relevant content for the RTL language,
 along the way solving the order issue so that the text is readable. It does not handle right-to-left alignment of the text (yet).
 * For the "portal" file, which contains the song, an even simpler approach is taken which doesn't

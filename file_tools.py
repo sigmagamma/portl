@@ -70,6 +70,9 @@ def get_new_captions_path(language):
 def get_compiler_path(steam_path):
     return steam_path + "\steamapps\common\portal\\bin\captioncompiler.exe"
 
+
+def get_resource_folder(steam_path):
+    return steam_path + "\steamapps\common\Portal\portal\\resource"
 def get_english_captions_text_path(steam_path):
     return steam_path + "\steamapps\common\Portal\portal\\resource\closecaption_english.txt"
 
@@ -154,8 +157,7 @@ def write_captions_from_csv(steam_path,compiler_path,language,csv_path):
     translated_lines = tt.read_translation_from_csv(csv_path)
     tt.translate(orig_captions_text_path,translated_path,translated_lines,True)
     move(translated_path,dest_captions_text_path)
-    # Compiler actually takes the local path as under the resources folder, so that's ok
-    subprocess.run([compiler_path,translated_path])
+    subprocess.run([compiler_path,translated_path],cwd=get_resource_folder(steam_path))
 
 def write_additions_from_csv(steam_path,csv_path):
     backup_additions_path = get_backup_additions_path(steam_path)
