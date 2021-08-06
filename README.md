@@ -14,7 +14,7 @@ https://steamcommunity.com/sharedfiles/filedetails/?id=2554472476
 as well as other texts (the portal file). However, it does not support right to left languages,
 and when creating translations for those text appears out of order. 
 * The program takes a translation file and the source english file and generates relevant content for the RTL language,
-along the way solving the order issue so that the text is readable. It does not handle right-to-left alignment of the text (yet).
+along the way solving the order issue so that the text is readable. It also handles right-to-left alignment for the captions (not for the song).
 * For the "portal" file, which contains the song, an even simpler approach is taken which doesn't
 consider multiple lines. Note that this means some lines need to be out of order in the translation file.
 * Finally, the program installs the content into the Portal folder and configures Portal to use it, with some effort made to back up previous files.
@@ -40,4 +40,15 @@ You can use the spec files with pyinstaller to create executables:
 You will have to have closecaption_hebrew.dat and portal_english.txt created
 by the script in the same folder when running pyinstaller.
 
+#Right alignment instructions
+This branch contains code that supports right alignment for the captions (not for the song). For this to work correctly:
+1. It is assumed you're running Windows 10 with Hebrew support, meaning your default system
+Hebrew font is Tahoma. 
+2. Run applyfonts.reg to change the default font to Miriam Fixed. Restart your PC.
+3. When you start the game, set the game resolution to 1920 * 1080
+
+Once you're done playing, to restore the system font to Tahoma run the removefonts.reg file and restart Windows.
+
+This process is required as the game does not support native right to left alignment, and also does not allow setting the font for Hebrew characters. 
+ 
 

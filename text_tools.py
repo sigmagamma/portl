@@ -18,7 +18,8 @@ def rearrange_multiple_lines(s,max_chars):
     lines.append(currentLine)
     result = ""
     for line in lines:
-        fill = 	""
+        fill_count = 59-len(line)
+        fill = 	"".zfill(fill_count).replace("0", " ")
         result += fill   + line + "<cr>"
     return result
 def rearrange_single_line(s):
@@ -56,9 +57,10 @@ def translate(source,dest,translated_lines,multi_line):
                         new_line = rearrange_multiple_lines(translated,50)
                     else:
                         new_line = rearrange_single_line(translated)
-                    l = l.replace(orig, new_line)
-                    print(l)
+                    l = l.replace(orig, new_line).replace("<I>", "")
+                    #print(l)
             dest_file.write(l)
+
 
 
 
