@@ -40,7 +40,7 @@ You can use the spec files with pyinstaller to create executables:
 You will have to have closecaption_hebrew.dat and portal_english.txt created
 by the script in the same folder when running pyinstaller.
 
-#Right alignment instructions
+##Right alignment instructions
 This branch contains code that supports right alignment for the captions (not for the song). For this to work correctly:
 1. It is assumed you're running Windows 10 with Hebrew support, meaning your default system
 Hebrew font is Tahoma. 
