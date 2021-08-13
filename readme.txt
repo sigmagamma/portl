@@ -8,7 +8,7 @@ should look similar to D:\Program Files (x86)\Steam\steamapps\common\Portal\port
 D:\Program Files (x86)\Steam\steamapps\common\Portal\portal\cfg
 4. It is assumed you're running Windows 10 with Hebrew support, meaning your default system
 Hebrew font is Tahoma.
-5. Run applyfonts.reg to change the default font to Miriam Fixed. Restart your PC.
+5. *** The following changes the display font for your entire system. *** Run applyfonts.reg to change the default font to Miriam Fixed. Restart your PC.
 6. When you start the game, set the game resolution to 1920 * 1080
 
 Once you're done playing, to restore the system font to Tahoma run the removefonts.reg file and restart Windows.
