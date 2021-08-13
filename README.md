@@ -40,4 +40,15 @@ You can use the spec files with pyinstaller to create executables:
 You will have to have closecaption_hebrew.dat and portal_english.txt created
 by the script in the same folder when running pyinstaller.
 
+## Development setup
+1. Get Portal: 
+https://store.steampowered.com/app/400/Portal/
+2. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
+3. git clone https://github.com/sigmagamma/portl.git
+4. If you want to change the actual translation, put the relevant csvs in the project folder. Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` and `portal_english.txt` in the project folder.
+5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win.py` and `remove_po_rtl_heb_win.py` perform the patching for windows.
+6. Once you've applied the patch, run the game. You should be able to see subtitles
+in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
+(runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
+7. If you want to work on the right-aligned version, checkout branch `feat-right-align` first. 
 
