@@ -1,5 +1,9 @@
 import csv
 
+## Temporarily hardcoding this for 1366*768. Settings for 1920*1080 were 50,59
+MAX_CHARS_BEFORE_BREAK = 39
+TOTAL_CHARS_IN_LINE = 48
+
 def rearrange_multiple_lines(s,max_chars):
     array = s.split()
     counter = 0
@@ -18,7 +22,7 @@ def rearrange_multiple_lines(s,max_chars):
     lines.append(currentLine)
     result = ""
     for line in lines:
-        fill_count = 59-len(line)
+        fill_count = TOTAL_CHARS_IN_LINE - len(line)
         fill = 	"".zfill(fill_count).replace("0", " ")
         result += fill   + line + "<cr>"
     return result
@@ -54,7 +58,7 @@ def translate(source,dest,translated_lines,multi_line):
                 translated = translatedLine[1]
                 if orig in l:
                     if multi_line:
-                        new_line = rearrange_multiple_lines(translated,50)
+                        new_line = rearrange_multiple_lines(translated, MAX_CHARS_BEFORE_BREAK)
                     else:
                         new_line = rearrange_single_line(translated)
                     l = l.replace(orig, new_line).replace("<I>", "")
