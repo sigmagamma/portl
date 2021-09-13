@@ -45,7 +45,7 @@ This branch contains code that supports right alignment for the captions (not fo
 1. It is assumed you're running Windows 10 with Hebrew support, meaning your default system
 Hebrew font is Tahoma. 
 2. Run applyfonts.reg to change the default font to Miriam Fixed. Restart your PC.
-3. When you start the game, set the game resolution to 1920 * 1080
+3. When you start the game, set the game resolution to 1366 * 768. (The plan is to support other sizes)
 
 Once you're done playing, to restore the system font to Tahoma run the removefonts.reg file and restart Windows.
 
