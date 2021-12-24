@@ -50,5 +50,5 @@ https://store.steampowered.com/app/400/Portal/
 6. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
 (runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
-7. If you want to work on the right-aligned version, checkout branch `feat-right-align` first. 
+7. If you want to work on the right-aligned version, checkout branch https://github.com/sigmagamma/portl/tree/feat-right-align first. 
 
