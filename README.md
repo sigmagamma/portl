@@ -1,5 +1,5 @@
 # poRTL
-Portal 1 translation tool for right-to-left languages (in the process of adding support for other source games - see #6).
+Portal 1 translation tool for right-to-left languages (in the process of adding support for other source games - see #6 ).
 
 This project was created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find here:
 
