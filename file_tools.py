@@ -3,13 +3,23 @@ import sys
 import winreg
 from shutil import copyfile
 from shutil import move
+from shutil import rmtree
 from os import path
 import text_tools as tt
 import subprocess
 
-##Steam logic
-def steam_path_windows():
+game_data = \
+    {
+        "Portal": {
+            "path":"\Portal\portal",
+            "caption_file_name":"closecaption",
+            "other_file_names": ["portal"]
+        }
+    }
 
+
+##Steam/Epic logic
+def steam_path_windows():
     try:
         hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\WOW6432Node\Valve\Steam")
     except:
@@ -20,219 +30,214 @@ def steam_path_windows():
     except:
         steam_path = None
         print(sys.exc_info())
-    return steam_path[0]
+    return steam_path[0] + "\steamapps\common"
+
 
 def steam_path_linux():
-    return "~/.steam/steam"
-
-## path functions
-def get_new_cfg_path(type):
-    filename = "{}.cfg".format(type)
-    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-        filename = path.abspath(path.join(path.dirname(__file__), filename))
-    return filename
-def get_dest_cfg_path(steam_path,type):
-    return steam_path+"\steamapps\common\Portal\portal\cfg\{}.cfg".format(type)
-
-def get_temp_cfg_path(steam_path,type):
-    return steam_path + "\steamapps\common\Portal\portal\cfg\{}2.cfg".format(type)
-
-def get_backup_cfg_path(steam_path,type):
-    return steam_path + "\steamapps\common\Portal\portal\cfg\{}-portl-backup.cfg".format(type)
-
-def get_backup_additions_path(steam_path):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\portal_english-portl-backup.txt"
-
-def get_dest_additions_path(steam_path):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\portal_english.txt"
-
-def get_temp_additions_path(steam_path):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\portal_temp.txt".format(type)
-
-def get_new_additions_path():
-    filename = "portal_english.txt"
-    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-        filename = path.abspath(path.join(path.dirname(__file__), filename))
-    return filename
-
-def get_dest_captions_path(steam_path,language):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\closecaption_{}.dat".format(language)
-
-def get_dest_captions_text_path(steam_path,language):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\closecaption_{}.txt".format(language)
-
-def get_new_captions_path(language):
-    filename = "closecaption_{}.dat".format(language)
-    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-        filename = path.abspath(path.join(path.dirname(__file__), filename))
-    return filename
-
-def get_compiler_path(steam_path):
-    return steam_path + "\steamapps\common\portal\\bin\captioncompiler.exe"
-
-
-def get_resource_folder(steam_path):
-    return steam_path + "\steamapps\common\Portal\portal\\resource"
-def get_english_captions_text_path(steam_path):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\closecaption_english.txt"
-
-def get_backup_captions_text_path(steam_path,language):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\closecaption_{}-portl-backup.txt".format(language)
-
-def get_backup_captions_path(steam_path,language):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\closecaption_{}-portl-backup.dat".format(language)
+    return "~/.steam/steam/steamapps/common"
 
 
 
-def get_english_additions_text_path(steam_path):
-    return steam_path + "\steamapps\common\Portal\portal\\resource\portal_english.txt"
+class FileTools:
+    def __init__(self, game,game_service_path,language,compiler_path=None):
 
-def get_captions_csv_path():
-    return "Portal translation - closedcaption.csv"
-def get_additions_csv_path():
-    return "Portal translation - additions.csv"
-## cfg files logic
-def write_temp_cfg(dest_cfg_path,temp_cfg_path,lang_replacement,subtitles_replacement):
-    with open(dest_cfg_path, 'r') as f_in, open(temp_cfg_path, 'w') as f_out:
-        lang_flag = False
-        subtitles_flag = False
-        for line in f_in:
-            if line.startswith("cc_lang"):
-                lang_flag = True
-                if lang_replacement != '':
-                    f_out.write(lang_replacement)
-            elif line.startswith("cc_subtitles"):
-                subtitles_flag = True
-                if subtitles_replacement != '':
-                    f_out.write(subtitles_replacement)
+        if (game is not None):
+            data = game_data.get(game)
+            if data is not None:
+                self.game = game
+                self.game_path = data['path']
+                self.caption_file_name = data['caption_file_name']
+                self.other_file_names = data['other_file_names']
+                self.game_parent_path = game_service_path
+                self.language = language
+                if compiler_path is not None:
+                    self.compiler_path = compiler_path
+                else:
+                    self.compiler_path = self.get_compiler_path()
             else:
-                f_out.write(line)
-        if not lang_flag and lang_replacement != '':
-            f_out.write(lang_replacement)
-        if not subtitles_flag and subtitles_replacement != '':
-            f_out.write(subtitles_replacement)
+                return None
+        return None
 
-def backup_cfg(steam_path,type):
-    dest_cfg_path = get_dest_cfg_path(steam_path,type)
-    backup_cfg_path = get_backup_cfg_path(steam_path, type)
-    copyfile(dest_cfg_path, backup_cfg_path)
+    def get_basegame_resource_folder(self):
+        return self.game_parent_path + self.game_path + "\\resource"
 
-def write_cfg(steam_path,language,type):
-    dest_cfg_path = get_dest_cfg_path(steam_path,type)
-    if type != 'config' and not (os.path.isfile(dest_cfg_path)):
-        new_cfg_path = get_new_cfg_path(type)
-        copyfile(new_cfg_path, dest_cfg_path)
-    else:
-        temp_cfg_path = get_temp_cfg_path(steam_path,type)
-        backup_cfg_path = get_backup_cfg_path(steam_path,type)
-        lang_replacement = 'cc_lang "' + language + '"\n'
-        subtitles_replacement = 'cc_subtitles "1"'
-        write_temp_cfg(dest_cfg_path,temp_cfg_path,lang_replacement,subtitles_replacement)
-        if not (os.path.isfile(backup_cfg_path)):
-            copyfile(dest_cfg_path, backup_cfg_path)
-        move(temp_cfg_path, dest_cfg_path)
+    def get_custom_folder(self):
+        return self.game_parent_path + self.game_path + "\custom\portl"
 
-## patch files logic
-def write_captions_from_patch(steam_path,language):
-    backup_captions_path = get_backup_captions_path(steam_path,language)
-    dest_captions_path = get_dest_captions_path(steam_path, language)
-    if os.path.isfile(dest_captions_path) and not (os.path.isfile(backup_captions_path)):
-        copyfile(dest_captions_path,backup_captions_path)
-    copyfile(get_new_captions_path(language),dest_captions_path)
-def write_additions_from_patch(steam_path):
-    backup_additions_path = get_backup_additions_path(steam_path)
-    dest_additions_path = get_dest_additions_path(steam_path)
-    if os.path.isfile(dest_additions_path) and not (os.path.isfile(backup_additions_path)):
-        copyfile(dest_additions_path, backup_additions_path)
-    copyfile(get_new_additions_path(),get_dest_additions_path(steam_path))
+    def get_custom_cfg_folder(self):
+        return self.game_parent_path + self.game_path + "\custom\portl\cfg"
 
-## csv files logic
-def write_captions_from_csv(steam_path,compiler_path,language,csv_path):
-    orig_captions_text_path = get_english_captions_text_path(steam_path)
-    dest_captions_text_path = get_dest_captions_text_path(steam_path,language)
-    backup_captions_text_path = get_backup_captions_text_path(steam_path,language)
-    if os.path.isfile(dest_captions_text_path) and not (os.path.isfile(backup_captions_text_path)):
-        copyfile(dest_captions_text_path,backup_captions_text_path)
-    translated_path = "closecaption_{}.txt".format(language)
-    translated_lines = tt.read_translation_from_csv(csv_path)
-    tt.translate(orig_captions_text_path,translated_path,translated_lines,True)
-    move(translated_path,dest_captions_text_path)
-    subprocess.run([compiler_path,translated_path],cwd=get_resource_folder(steam_path))
+    def get_custom_resource_folder(self):
+        return self.game_parent_path + self.game_path + "\custom\portl\\resource"
 
-def write_additions_from_csv(steam_path,csv_path):
-    backup_additions_path = get_backup_additions_path(steam_path)
-    dest_additions_path = get_dest_additions_path(steam_path)
-    temp_additions_path = get_temp_additions_path(steam_path)
-    if os.path.isfile(dest_additions_path) and not (os.path.isfile(backup_additions_path)):
-        copyfile(dest_additions_path, backup_additions_path)
-    translated_lines = tt.read_translation_from_csv(csv_path)
-    tt.translate(backup_additions_path,temp_additions_path,translated_lines,False)
-    move(temp_additions_path,dest_additions_path)
+    def create_custom_folders(self):
+        custom_folder = self.get_custom_folder()
+        custom_cfg_folder = self.get_custom_cfg_folder()
+        custom_resource_folder = self.get_custom_resource_folder()
+        if not os.path.exists(custom_folder):
+            os.mkdir(custom_folder)
+        if not os.path.exists(custom_cfg_folder):
+            os.mkdir(custom_cfg_folder)
+        if not os.path.exists(custom_resource_folder):
+            os.mkdir(custom_resource_folder)
 
-## main write function
-def write_files(steam_path,language):
-    write_cfg(steam_path,language,'autoexec')
-    backup_cfg(steam_path,'config')
-    captions_csv_path = get_captions_csv_path()
-    additions_csv_path = get_additions_csv_path()
-    if (os.path.isfile(captions_csv_path)):
-        write_captions_from_csv(steam_path,get_compiler_path(steam_path),language,captions_csv_path)
-    else:
-        write_captions_from_patch(steam_path,language)
-    if os.path.isfile(additions_csv_path):
-        write_additions_from_csv(steam_path,additions_csv_path)
-    else:
-        write_additions_from_patch(steam_path)
+    def remove_custom_folder(self):
+        rmtree(self.get_custom_folder())
 
-## uninstall logic
-def find_lines(backup_cfg_path,lang_line,subtitles_line):
-    if (os.path.isfile(backup_cfg_path)):
-        with open(backup_cfg_path, 'r') as f_in:
+    def get_compiler_path(self):
+        return self.game_parent_path + \
+               "\{}\\bin\captioncompiler.exe".format(self.game)
+
+    # patch are the local files of the patch. basegame is the content folder
+    # for the original game (usually something like portal/portal)
+    # while custom is where the mod gets placed (so portal/custom/portl)
+
+    ## cfg files logic
+
+    def get_patch_cfg_path(self,type):
+        filename = "{}.cfg".format(type)
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            filename = path.abspath(path.join(path.dirname(__file__), filename))
+        return filename
+
+    def get_basegame_cfg_path(self, type):
+        return self.game_parent_path + self.game_path + "\cfg\{}.cfg".format(type)
+
+    def get_custom_cfg_path(self,type):
+        return self.game_parent_path + self.game_path + "\custom\portl\cfg\{}.cfg".format(type)
+
+    def write_replacement_cfg(self,dest_cfg_path, temp_cfg_path, lang_replacement, subtitles_replacement):
+        with open(dest_cfg_path, 'r') as f_in, open(temp_cfg_path, 'w') as f_out:
+            lang_flag = False
+            subtitles_flag = False
             for line in f_in:
-                if lang_line == '' and line.startswith("cc_lang"):
-                   lang_line = line
-                if subtitles_line == '' and line.startswith("cc_subtitles"):
-                   subtitles_line = line
-    return lang_line,subtitles_line
+                if line.startswith("cc_lang"):
+                    lang_flag = True
+                    if lang_replacement != '':
+                        f_out.write(lang_replacement)
+                elif line.startswith("cc_subtitles"):
+                    subtitles_flag = True
+                    if subtitles_replacement != '':
+                        f_out.write(subtitles_replacement)
+                else:
+                    f_out.write(line)
+            if not lang_flag and lang_replacement != '':
+                f_out.write(lang_replacement)
+            if not subtitles_flag and subtitles_replacement != '':
+                f_out.write(subtitles_replacement)
 
 
-def restore_cfg(steam_path):
-    dest_autoexec_path = get_dest_cfg_path(steam_path,'autoexec')
-    backup_autoexec_path = get_backup_cfg_path(steam_path,'autoexec')
-    temp_autoexec_path = get_temp_cfg_path(steam_path,'autoexec')
-    backup_config_path = get_backup_cfg_path(steam_path, 'config')
-    backup_lang_line = ''
-    backup_subtitles_line = ''
-    backup_lang_line,backup_subtitles_line = find_lines(backup_autoexec_path,backup_lang_line,backup_subtitles_line)
-    if backup_lang_line == '' or backup_subtitles_line == '':
-
-        backup_lang_line, backup_subtitles_line = find_lines(backup_config_path, backup_lang_line,
-                                                             backup_subtitles_line)
-    write_temp_cfg(dest_autoexec_path,temp_autoexec_path,backup_lang_line,backup_subtitles_line)
-    move(temp_autoexec_path, dest_autoexec_path)
-    if (os.path.isfile(backup_autoexec_path)):
-        os.remove(backup_autoexec_path)
-
-    if (os.path.isfile(backup_config_path)):
-        os.remove(backup_config_path)
-def restore_captions(steam_path,language):
-    dest_caption_path = get_dest_captions_path(steam_path, language)
-    if (os.path.isfile(dest_caption_path)):
-        os.remove(dest_caption_path)
-    dest_captions_text_path = get_dest_captions_text_path(steam_path,language)
-    backup_captions_text_path = get_backup_captions_text_path(steam_path,language)
-    if (os.path.isfile(backup_captions_text_path)):
-        copyfile(backup_captions_text_path, dest_captions_text_path)
-        os.remove(backup_captions_text_path)
-
-def restore_additions(steam_path):
-    backup_additions_path = get_backup_additions_path(steam_path)
-    if (os.path.isfile(backup_additions_path)):
-        copyfile(backup_additions_path, get_dest_additions_path(steam_path))
-        os.remove(backup_additions_path)
-def restore_backup(steam_path,language):
-    restore_cfg(steam_path)
-    restore_additions(steam_path)
-    restore_captions(steam_path,language)
+    def write_cfg(self,type):
+        dest_cfg_path = self.get_custom_cfg_path(type)
+        if type != 'config':
+            new_cfg_path = self.get_patch_cfg_path(type)
+            copyfile(new_cfg_path, dest_cfg_path)
+        else:
+            src_cfg_path = self.get_basegame_cfg_path(type)
+            lang_replacement = 'cc_lang "' + self.language + '"\n'
+            subtitles_replacement = 'cc_subtitles "1"'
+            self.write_replacement_cfg(src_cfg_path, dest_cfg_path, lang_replacement, subtitles_replacement)
 
 
+
+    ## Close Captions logic
+
+
+    def get_custom_captions_path(self):
+        return self.game_parent_path + self.game_path +\
+               "\custom\portl\\resource\{}_{}.dat".format(self.caption_file_name,self.language)
+
+    def get_basegame_captions_path(self):
+        return self.game_parent_path + self.game_path +\
+               "\\resource\{}_{}.dat".format(self.caption_file_name,self.language)
+
+    def get_basegame_captions_text_path(self):
+        return self.game_parent_path + self.game_path +\
+               "\\resource\{}_{}.txt".format(self.caption_file_name,self.language)
+
+
+    def get_custom_captions_text_path(self):
+        return self.game_parent_path + self.game_path +\
+               "\custom\portl\\resource\{}_{}.txt".format(self.caption_file_name,self.language)
+
+    def get_patch_captions_path(self):
+        filename = "{}_{}.dat".format(self.caption_file_name,self.language)
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            filename = path.abspath(path.join(path.dirname(__file__), filename))
+        return filename
+
+
+    def get_english_captions_text_path(self):
+        return self.game_parent_path + self.game_path +\
+               "\\resource\{}_english.txt".format(self.caption_file_name)
+
+    def get_patch_captions_csv_path(self):
+        return self.game + " translation - "+ self.caption_file_name +".csv"
+
+    def write_captions_from_patch(self):
+        dest_captions_path = self.get_custom_captions_path()
+        copyfile(self.get_patch_captions_path(), dest_captions_path)
+
+    def write_captions_from_csv(self,compiler_path,csv_path):
+        orig_captions_text_path = self.get_english_captions_text_path()
+        # captions are compiled in the basegame folder
+        basegame_captions_text_path = self.get_basegame_captions_text_path()
+        translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
+        translated_lines = tt.read_translation_from_csv(csv_path)
+        tt.translate(orig_captions_text_path,translated_path,translated_lines,True)
+        move(translated_path,basegame_captions_text_path)
+        subprocess.run([compiler_path,translated_path], cwd=self.get_basegame_resource_folder())
+        basegame_captions_path = self.get_basegame_captions_path()
+        dest_captions_path = self.get_custom_captions_path()
+        move(basegame_captions_path,dest_captions_path)
+        # Let's be nice and also move the uncompiled file to the custom folder
+        dest_captions_text_path = self.get_custom_captions_text_path()
+        move(basegame_captions_text_path,dest_captions_text_path)
+
+    ## Other files logic - text files not for compilation
+    def get_custom_other_path(self,other_file_name):
+        return self.game_parent_path + self.game_path +\
+               "\custom\portl\\resource\{}_{}.txt".format(other_file_name,self.language)
+
+    def get_basegame_english_other_path(self,other_file_name):
+        return self.game_parent_path + self.game_path +\
+               "\\resource\{}_english.txt".format(other_file_name)
+
+    def get_patch_other_path(self,other_file_name):
+        filename = "{}_{}.txt".format(other_file_name,self.language)
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            filename = path.abspath(path.join(path.dirname(__file__), filename))
+        return filename
+
+    def get_patch_other_csv_path(self,other_file_name):
+        return self.game + " translation - "+ other_file_name +".csv"
+
+    def write_other_from_patch(self,other_file_name):
+        dest_other_path = self.get_custom_other_path(other_file_name)
+        copyfile(self.get_patch_other_path(other_file_name), dest_other_path)
+
+    def write_other_from_csv(self,other_file_name,csv_path):
+        dest_other_path = self.get_custom_other_path(other_file_name)
+        basegame_other_path = self.get_basegame_english_other_path(other_file_name)
+        translated_lines = tt.read_translation_from_csv(csv_path)
+        tt.translate(basegame_other_path,dest_other_path,translated_lines,False)
+
+    # ## Credits logic
+    # def get_basegame_credits_path(self):
+    #     return self.game_service_path + self.game_path+"\\scripts\\credits.txt"
+
+    ## main write function
+    def write_files(self):
+        self.create_custom_folders()
+        self.write_cfg('autoexec')
+        captions_csv_path = self.get_patch_captions_csv_path()
+        if (os.path.isfile(captions_csv_path)):
+            self.write_captions_from_csv(self.compiler_path,captions_csv_path)
+        else:
+           self.write_captions_from_patch()
+        for other_file_name in self.other_file_names:
+            other_csv_path = self.get_patch_other_csv_path(other_file_name)
+            if os.path.isfile(other_csv_path):
+                self.write_other_from_csv(other_file_name,other_csv_path)
+            else:
+                self.write_other_from_patch(other_file_name)
