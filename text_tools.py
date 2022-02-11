@@ -53,14 +53,10 @@ def translate(source,dest,translated_lines,multi_line):
                 translated = translatedLine[1]
                 if orig in l:
                     if multi_line:
-                        new_line = rearrange_multiple_lines(translated,40)
+                        new_line = rearrange_multiple_lines(translated,50)
                     else:
                         new_line = rearrange_single_line(translated)
                     l = l.replace(orig, new_line)
                     print(l)
             dest_file.write(l)
-
-# translated_lines = read_translation_from_csv("stanley.csv")
-# translate("subtitles_english.txt","subtitles_hebrew.txt",translated_lines,True)
-
 
