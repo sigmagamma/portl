@@ -3,8 +3,9 @@ dist
 build
 backup
 closecaption_*
+subtitles_*
 portal_*
 Portal translation - additions.csv
-Portal translation - closedcaption.csv
+Portal translation - closecaption.csv
 __pycache__
 .idea
