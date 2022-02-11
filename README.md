@@ -1,7 +1,9 @@
 # poRTL
-Portal 1 translation tool for right-to-left languages (in the process of adding support for other source games - see https://github.com/sigmagamma/portl/issues/6 ).
+Steam games translation tool for right-to-left languages.
+Currently supported is Portal 1. The Stanley Parable is WIP. 
+see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
-This project was created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find here:
+This project was originally created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find here:
 
 https://www.facebook.com/groups/200491360554968/posts/868793153724782
 
@@ -20,12 +22,12 @@ consider multiple lines. Note that this means some lines need to be out of order
 * Finally, the program installs the content into the Portal folder and configures Portal to use it, with some effort made to back up previous files.
 There is also a removal program to allow restoring the state prior to running the program.
 
-## Windows Hebrew installation
+## Windows Hebrew installation for Portal
 This repository does not include any file with actual source or translation material from the game.
 In order to run this you'll need to put either:
 
-1. closecaption_hebrew.dat and portal_english.txt that already contain the hebrew translation OR
-2. Portal translation - additions.csv and Portal translation - closedcaption.csv
+1. closecaption_hebrew.dat and portal_hebrew.txt that already contain the hebrew translation OR
+2. Portal translation - additions.csv and Portal translation - closecaption.csv
 in the same folder.
 
 You can then run install_po_rtl_heb_win.py for a windows installation.
@@ -37,7 +39,7 @@ You can use the spec files with pyinstaller to create executables:
 
 `pyinstaller install_po_rtl_heb_win.spec`
 
-You will have to have closecaption_hebrew.dat and portal_english.txt created
+You will have to have closecaption_hebrew.dat and portal_hebrew.txt created
 by the script in the same folder when running pyinstaller.
 
 ## Development setup
@@ -45,7 +47,7 @@ by the script in the same folder when running pyinstaller.
 https://store.steampowered.com/app/400/Portal/
 2. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
 3. git clone https://github.com/sigmagamma/portl.git
-4. If you want to change the actual translation, put the relevant csvs in the project folder. Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` and `portal_english.txt` in the project folder.
+4. If you want to change the actual translation, put the relevant csvs in the project folder. Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` and `portal_hebrew.txt` in the project folder.
 5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win.py` and `remove_po_rtl_heb_win.py` perform the patching for windows.
 6. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
