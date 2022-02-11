@@ -13,7 +13,8 @@ game_data = \
         "Portal": {
             "path":"\Portal\portal",
             "caption_file_name":"closecaption",
-            "other_file_names": ["portal"]
+            "other_file_names": ["portal"],
+            "max_chars_before_break": 50
         }
     }
 
@@ -48,6 +49,8 @@ class FileTools:
                 self.game_path = data['path']
                 self.caption_file_name = data['caption_file_name']
                 self.other_file_names = data['other_file_names']
+                self.max_chars_before_break = data['max_chars_before_break']
+                self.total_chars_in_line = data.get('total_chars_in_line')
                 self.game_parent_path = game_service_path
                 self.language = language
                 if compiler_game_service_path is not None:
@@ -189,7 +192,7 @@ class FileTools:
         to_compile_text_path = self.get_to_compile_text_path()
         translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
         translated_lines = tt.read_translation_from_csv(csv_path)
-        tt.translate(orig_captions_text_path,translated_path,translated_lines,True)
+        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line)
         move(translated_path,to_compile_text_path)
         # this works because "translated path" is also the file name of to_compile_text_path
         subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
@@ -226,7 +229,7 @@ class FileTools:
         dest_other_path = self.get_custom_other_path(other_file_name)
         basegame_other_path = self.get_basegame_english_other_path(other_file_name)
         translated_lines = tt.read_translation_from_csv(csv_path)
-        tt.translate(basegame_other_path,dest_other_path,translated_lines,False)
+        tt.translate(basegame_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line)
 
     # ## Credits logic
     # def get_basegame_credits_path(self):

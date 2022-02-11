@@ -1,6 +1,6 @@
 import csv
 
-def rearrange_multiple_lines(s,max_chars):
+def rearrange_multiple_lines(s,max_chars,total_chars):
     array = s.split()
     counter = 0
     lines = []
@@ -19,6 +19,9 @@ def rearrange_multiple_lines(s,max_chars):
     result = ""
     for line in lines:
         fill = 	""
+        if total_chars is not None:
+            fill_count = total_chars - len(line)
+            fill = "".zfill(fill_count).replace("0", " ")
         result += fill   + line + "<cr>"
     return result
 def rearrange_single_line(s):
@@ -38,7 +41,7 @@ def read_translation_from_csv(csv_path):
                 translated_lines[line['number']] = pair
     return translated_lines
 
-def translate(source,dest,translated_lines,multi_line):
+def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line):
     i = 0
     with open(source,
               encoding="utf-16", errors="ignore") as source_file, \
@@ -53,7 +56,7 @@ def translate(source,dest,translated_lines,multi_line):
                 translated = translatedLine[1]
                 if orig in l:
                     if multi_line:
-                        new_line = rearrange_multiple_lines(translated,50)
+                        new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line)
                     else:
                         new_line = rearrange_single_line(translated)
                     l = l.replace(orig, new_line)
