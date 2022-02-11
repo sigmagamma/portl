@@ -39,7 +39,7 @@ def steam_path_linux():
 
 
 class FileTools:
-    def __init__(self, game,game_service_path,language,compiler_path=None):
+    def __init__(self, game,game_service_path,language,compiler_game_service_path=None,compiler_game_path=None,compiler_game=None):
 
         if (game is not None):
             data = game_data.get(game)
@@ -50,16 +50,21 @@ class FileTools:
                 self.other_file_names = data['other_file_names']
                 self.game_parent_path = game_service_path
                 self.language = language
-                if compiler_path is not None:
-                    self.compiler_path = compiler_path
+                if compiler_game_service_path is not None:
+                    self.compiler_game_parent_path = compiler_game_service_path
+                    self.compiler_game_path = compiler_game_path
+                    self.compiler_game = compiler_game
                 else:
-                    self.compiler_path = self.get_compiler_path()
+                    self.compiler_game_parent_path = self.game_parent_path
+                    self.compiler_game_path = self.game_path
+                    self.compiler_game = self.game
+                self.compiler_path = self.get_compiler_path()
             else:
                 return None
         return None
 
-    def get_basegame_resource_folder(self):
-        return self.game_parent_path + self.game_path + "\\resource"
+    def get_compiler_resource_folder(self):
+        return self.compiler_game_parent_path + self.compiler_game_path + "\\resource"
 
     def get_custom_folder(self):
         return self.game_parent_path + self.game_path + "\custom\portl"
@@ -85,8 +90,8 @@ class FileTools:
         rmtree(self.get_custom_folder())
 
     def get_compiler_path(self):
-        return self.game_parent_path + \
-               "\{}\\bin\captioncompiler.exe".format(self.game)
+        return self.compiler_game_parent_path + \
+               "\{}\\bin\captioncompiler.exe".format(self.compiler_game)
 
     # patch are the local files of the patch. basegame is the content folder
     # for the original game (usually something like portal/portal)
@@ -147,12 +152,12 @@ class FileTools:
         return self.game_parent_path + self.game_path +\
                "\custom\portl\\resource\{}_{}.dat".format(self.caption_file_name,self.language)
 
-    def get_basegame_captions_path(self):
-        return self.game_parent_path + self.game_path +\
+    def get_compiled_captions_path(self):
+        return self.compiler_game_parent_path + self.compiler_game_path +\
                "\\resource\{}_{}.dat".format(self.caption_file_name,self.language)
 
-    def get_basegame_captions_text_path(self):
-        return self.game_parent_path + self.game_path +\
+    def get_to_compile_text_path(self):
+        return self.compiler_game_parent_path + self.compiler_game_path +\
                "\\resource\{}_{}.txt".format(self.caption_file_name,self.language)
 
 
@@ -178,21 +183,22 @@ class FileTools:
         dest_captions_path = self.get_custom_captions_path()
         copyfile(self.get_patch_captions_path(), dest_captions_path)
 
-    def write_captions_from_csv(self,compiler_path,csv_path):
+    def write_captions_from_csv(self,csv_path):
         orig_captions_text_path = self.get_english_captions_text_path()
-        # captions are compiled in the basegame folder
-        basegame_captions_text_path = self.get_basegame_captions_text_path()
+
+        to_compile_text_path = self.get_to_compile_text_path()
         translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
         translated_lines = tt.read_translation_from_csv(csv_path)
         tt.translate(orig_captions_text_path,translated_path,translated_lines,True)
-        move(translated_path,basegame_captions_text_path)
-        subprocess.run([compiler_path,translated_path], cwd=self.get_basegame_resource_folder())
-        basegame_captions_path = self.get_basegame_captions_path()
+        move(translated_path,to_compile_text_path)
+        # this works because "translated path" is also the file name of to_compile_text_path
+        subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
+        compiled_captions_path = self.get_compiled_captions_path()
         dest_captions_path = self.get_custom_captions_path()
-        move(basegame_captions_path,dest_captions_path)
+        move(compiled_captions_path,dest_captions_path)
         # Let's be nice and also move the uncompiled file to the custom folder
         dest_captions_text_path = self.get_custom_captions_text_path()
-        move(basegame_captions_text_path,dest_captions_text_path)
+        move(to_compile_text_path,dest_captions_text_path)
 
     ## Other files logic - text files not for compilation
     def get_custom_other_path(self,other_file_name):
@@ -232,7 +238,7 @@ class FileTools:
         self.write_cfg('autoexec')
         captions_csv_path = self.get_patch_captions_csv_path()
         if (os.path.isfile(captions_csv_path)):
-            self.write_captions_from_csv(self.compiler_path,captions_csv_path)
+            self.write_captions_from_csv(captions_csv_path)
         else:
            self.write_captions_from_patch()
         for other_file_name in self.other_file_names:

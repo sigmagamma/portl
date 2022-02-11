@@ -54,7 +54,7 @@ def restore_cfg(file_tools):
         os.remove(backup_config_path)
 
 def restore_captions(file_tools):
-    main_caption_path = file_tools.get_basegame_captions_path()
+    main_caption_path = file_tools.get_compiled_captions_path()
     if (os.path.isfile(main_caption_path)):
         os.remove(main_caption_path)
     backup_captions_text_path = get_backup_captions_text_path(file_tools)
