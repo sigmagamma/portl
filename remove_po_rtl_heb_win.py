@@ -4,4 +4,4 @@ answer = input("This is an alpha version. Press y to acknowledge you are respons
 if answer == "y":
     ft = FileTools("Portal",steam_path_windows(),"hebrew")
     lbt.restore_backup(ft)
-    ft.remove_custom_folder()
+    ft.remove_mod_folder()

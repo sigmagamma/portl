@@ -1,23 +1,11 @@
 import os
 import sys
 import winreg
-from shutil import copyfile
-from shutil import move
-from shutil import rmtree
+from shutil import copyfile,copy,move,rmtree
 from os import path
 import text_tools as tt
 import subprocess
-
-game_data = \
-    {
-        "Portal": {
-            "path":"\Portal\portal",
-            "caption_file_name":"closecaption",
-            "other_file_names": ["portal"],
-            "max_chars_before_break": 50
-        }
-    }
-
+import json
 
 ##Steam/Epic logic
 def steam_path_windows():
@@ -40,57 +28,87 @@ def steam_path_linux():
 
 
 class FileTools:
-    def __init__(self, game,game_service_path,language,compiler_game_service_path=None,compiler_game_path=None,compiler_game=None):
+    def __init__(self, game,game_service_path,language):
 
         if (game is not None):
-            data = game_data.get(game)
-            if data is not None:
-                self.game = game
-                self.game_path = data['path']
-                self.caption_file_name = data['caption_file_name']
-                self.other_file_names = data['other_file_names']
-                self.max_chars_before_break = data['max_chars_before_break']
-                self.total_chars_in_line = data.get('total_chars_in_line')
-                self.game_parent_path = game_service_path
-                self.language = language
-                if compiler_game_service_path is not None:
-                    self.compiler_game_parent_path = compiler_game_service_path
-                    self.compiler_game_path = compiler_game_path
-                    self.compiler_game = compiler_game
+            with open('game_data.json','r') as game_data_file:
+                data = json.load(game_data_file).get(game)
+                if data is not None:
+                    self.game = game
+                    self.game_path = data['path']
+                    self.caption_file_name = data['caption_file_name']
+                    self.other_file_names = data.get('other_file_names')
+                    if self.other_file_names is None:
+                        self.other_file_names = []
+                    self.max_chars_before_break = data['max_chars_before_break']
+                    self.total_chars_in_line = data.get('total_chars_in_line')
+                    self.game_parent_path = game_service_path
+                    self.language = language
+                    compiler_game_service_path = data.get('compiler_game_service_path')
+                    if compiler_game_service_path is not None:
+                        self.compiler_game_parent_path = compiler_game_service_path
+                        self.compiler_game_path = data.get('compiler_game_path')
+                        self.compiler_game = data.get('compiler_game')
+                    else:
+                        self.compiler_game_parent_path = self.game_parent_path
+                        self.compiler_game_path = self.game_path
+                        self.compiler_game = self.game
+                    self.compiler_path = self.get_compiler_path()
+                    self.english_captions_text_path = data.get('english_captions_text_path')
+                    if self.english_captions_text_path is None:
+                        self.english_captions_text_path = self.get_english_captions_text_path()
+                    mod_type = data.get('mod_type')
+                    self.mod_type = mod_type
+                    if mod_type == 'custom':
+                        self.mod_folder = self.get_custom_folder()
+                    elif mod_type == 'dlc':
+                        self.mod_folder = self.get_dlc_folder()
                 else:
-                    self.compiler_game_parent_path = self.game_parent_path
-                    self.compiler_game_path = self.game_path
-                    self.compiler_game = self.game
-                self.compiler_path = self.get_compiler_path()
-            else:
-                return None
-        return None
+                    return None
+        else:
+            return None
 
     def get_compiler_resource_folder(self):
         return self.compiler_game_parent_path + self.compiler_game_path + "\\resource"
 
+    def get_custom_parent_folder(self):
+        return self.game_parent_path + self.game_path + "\custom"
+
+    def get_dlc_folder(self):
+        return self.game_parent_path + self.game_path + "_dlc1"
+
     def get_custom_folder(self):
-        return self.game_parent_path + self.game_path + "\custom\portl"
+        return self.get_custom_parent_folder()+"\portl"
 
-    def get_custom_cfg_folder(self):
-        return self.game_parent_path + self.game_path + "\custom\portl\cfg"
+    def get_mod_cfg_folder(self):
+        return self.mod_folder+"\cfg"
 
-    def get_custom_resource_folder(self):
-        return self.game_parent_path + self.game_path + "\custom\portl\\resource"
+    def get_mod_resource_folder(self):
+        return self.mod_folder+"\\resource"
 
-    def create_custom_folders(self):
-        custom_folder = self.get_custom_folder()
-        custom_cfg_folder = self.get_custom_cfg_folder()
-        custom_resource_folder = self.get_custom_resource_folder()
-        if not os.path.exists(custom_folder):
-            os.mkdir(custom_folder)
-        if not os.path.exists(custom_cfg_folder):
-            os.mkdir(custom_cfg_folder)
-        if not os.path.exists(custom_resource_folder):
-            os.mkdir(custom_resource_folder)
+    def get_mod_cache_folder(self):
+        return self.mod_folder+"\\maps\\soundcache"
+    def get_basegame_cache_path(self):
+        return self.game_parent_path+self.game_path+"\maps\soundcache\_master.cache"
+    def create_mod_folders(self):
+        mod_cfg_folder = self.get_mod_cfg_folder()
+        if not os.path.exists(mod_cfg_folder):
+            os.makedirs(mod_cfg_folder)
+        mod_resource_folder = self.get_mod_resource_folder()
+        if not os.path.exists(mod_resource_folder):
+            os.makedirs(mod_resource_folder)
 
-    def remove_custom_folder(self):
-        rmtree(self.get_custom_folder())
+        if self.mod_type == 'dlc':
+            basegame_cache_path = self.get_basegame_cache_path()
+            if not os.path.exists(basegame_cache_path):
+                input("Note: You'll have to start the game, get to the loading screen, wait for a while, and then restart it. Press any key.")
+            else:
+                mod_cache_folder = self.get_mod_cache_folder()
+                if not os.path.exists(mod_cache_folder):
+                    os.makedirs(mod_cache_folder)
+                copy(basegame_cache_path,mod_cache_folder)
+    def remove_mod_folder(self):
+        rmtree(self.mod_folder)
 
     def get_compiler_path(self):
         return self.compiler_game_parent_path + \
@@ -98,7 +116,7 @@ class FileTools:
 
     # patch are the local files of the patch. basegame is the content folder
     # for the original game (usually something like portal/portal)
-    # while custom is where the mod gets placed (so portal/custom/portl)
+    # while mod is where the mod gets placed (for instancef portal/custom/portl)
 
     ## cfg files logic
 
@@ -111,8 +129,8 @@ class FileTools:
     def get_basegame_cfg_path(self, type):
         return self.game_parent_path + self.game_path + "\cfg\{}.cfg".format(type)
 
-    def get_custom_cfg_path(self,type):
-        return self.game_parent_path + self.game_path + "\custom\portl\cfg\{}.cfg".format(type)
+    def get_mod_cfg_path(self, type):
+        return self.get_mod_cfg_folder() + "\{}.cfg".format(type)
 
     def write_replacement_cfg(self,dest_cfg_path, temp_cfg_path, lang_replacement, subtitles_replacement):
         with open(dest_cfg_path, 'r') as f_in, open(temp_cfg_path, 'w') as f_out:
@@ -136,7 +154,7 @@ class FileTools:
 
 
     def write_cfg(self,type):
-        dest_cfg_path = self.get_custom_cfg_path(type)
+        dest_cfg_path = self.get_mod_cfg_path(type)
         if type != 'config':
             new_cfg_path = self.get_patch_cfg_path(type)
             copyfile(new_cfg_path, dest_cfg_path)
@@ -151,9 +169,8 @@ class FileTools:
     ## Close Captions logic
 
 
-    def get_custom_captions_path(self):
-        return self.game_parent_path + self.game_path +\
-               "\custom\portl\\resource\{}_{}.dat".format(self.caption_file_name,self.language)
+    def get_mod_captions_path(self):
+        return self.get_mod_resource_folder() + "\{}_{}.dat".format(self.caption_file_name,self.language)
 
     def get_compiled_captions_path(self):
         return self.compiler_game_parent_path + self.compiler_game_path +\
@@ -164,9 +181,8 @@ class FileTools:
                "\\resource\{}_{}.txt".format(self.caption_file_name,self.language)
 
 
-    def get_custom_captions_text_path(self):
-        return self.game_parent_path + self.game_path +\
-               "\custom\portl\\resource\{}_{}.txt".format(self.caption_file_name,self.language)
+    def get_mod_captions_text_path(self):
+        return self.get_mod_resource_folder() + "\{}_{}.txt".format(self.caption_file_name,self.language)
 
     def get_patch_captions_path(self):
         filename = "{}_{}.dat".format(self.caption_file_name,self.language)
@@ -183,12 +199,11 @@ class FileTools:
         return self.game + " translation - "+ self.caption_file_name +".csv"
 
     def write_captions_from_patch(self):
-        dest_captions_path = self.get_custom_captions_path()
+        dest_captions_path = self.get_mod_captions_path()
         copyfile(self.get_patch_captions_path(), dest_captions_path)
 
     def write_captions_from_csv(self,csv_path):
-        orig_captions_text_path = self.get_english_captions_text_path()
-
+        orig_captions_text_path = self.english_captions_text_path
         to_compile_text_path = self.get_to_compile_text_path()
         translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
         translated_lines = tt.read_translation_from_csv(csv_path)
@@ -197,16 +212,15 @@ class FileTools:
         # this works because "translated path" is also the file name of to_compile_text_path
         subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
         compiled_captions_path = self.get_compiled_captions_path()
-        dest_captions_path = self.get_custom_captions_path()
+        dest_captions_path = self.get_mod_captions_path()
         move(compiled_captions_path,dest_captions_path)
-        # Let's be nice and also move the uncompiled file to the custom folder
-        dest_captions_text_path = self.get_custom_captions_text_path()
+        # Let's be nice and also move the uncompiled file to the mod folder
+        dest_captions_text_path = self.get_mod_captions_text_path()
         move(to_compile_text_path,dest_captions_text_path)
 
     ## Other files logic - text files not for compilation
-    def get_custom_other_path(self,other_file_name):
-        return self.game_parent_path + self.game_path +\
-               "\custom\portl\\resource\{}_{}.txt".format(other_file_name,self.language)
+    def get_mod_other_path(self, other_file_name):
+        return self.get_mod_resource_folder() + "\{}_{}.txt".format(other_file_name,self.language)
 
     def get_basegame_english_other_path(self,other_file_name):
         return self.game_parent_path + self.game_path +\
@@ -222,11 +236,11 @@ class FileTools:
         return self.game + " translation - "+ other_file_name +".csv"
 
     def write_other_from_patch(self,other_file_name):
-        dest_other_path = self.get_custom_other_path(other_file_name)
+        dest_other_path = self.get_mod_other_path(other_file_name)
         copyfile(self.get_patch_other_path(other_file_name), dest_other_path)
 
     def write_other_from_csv(self,other_file_name,csv_path):
-        dest_other_path = self.get_custom_other_path(other_file_name)
+        dest_other_path = self.get_mod_other_path(other_file_name)
         basegame_other_path = self.get_basegame_english_other_path(other_file_name)
         translated_lines = tt.read_translation_from_csv(csv_path)
         tt.translate(basegame_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line)
@@ -237,7 +251,7 @@ class FileTools:
 
     ## main write function
     def write_files(self):
-        self.create_custom_folders()
+        self.create_mod_folders()
         self.write_cfg('autoexec')
         captions_csv_path = self.get_patch_captions_csv_path()
         if (os.path.isfile(captions_csv_path)):
@@ -250,3 +264,4 @@ class FileTools:
                 self.write_other_from_csv(other_file_name,other_csv_path)
             else:
                 self.write_other_from_patch(other_file_name)
+        #TODO handle change font for stanley

@@ -42,15 +42,33 @@ You can use the spec files with pyinstaller to create executables:
 You will have to have closecaption_hebrew.dat and portal_hebrew.txt created
 by the script in the same folder when running pyinstaller.
 
-## Development setup
+## Development setup - Portal
 1. Get Portal: 
 https://store.steampowered.com/app/400/Portal/
 2. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
 3. git clone https://github.com/sigmagamma/portl.git
-4. If you want to change the actual translation, put the relevant csvs in the project folder. Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` and `portal_hebrew.txt` in the project folder.
+4. If you want to change the actual translation, put the relevant csvs in the project folder. 
+These have to be named "Portal translation - closecaption.csv" and "Portal translation - portal.csv."
+Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` and `portal_hebrew.txt` in the project folder.
 5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win.py` and `remove_po_rtl_heb_win.py` perform the patching for windows.
 6. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
 (runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
 7. If you want to work on the right-aligned version, checkout branch https://github.com/sigmagamma/portl/tree/feat-right-align first. 
 
+## Development setup - Stanley Parable
+
+1. Get Stanley Parable:
+https://store.steampowered.com/app/221910/The_Stanley_Parable/
+(Epic not supported yet)
+2. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
+3. git clone https://github.com/sigmagamma/portl.git
+4. If you want to change the actual translation, put the relevant csv in the project folder. 
+It has to be named "The Stanley Parable translation - subtitles.csv".
+For this mode you have to get an additional game that has captioncompiler, like Portal or Portal 2
+(sourcesdk will be supported later)
+Otherwise, if you want to work with an existing translation and patch the game, put the modified `subtitles_hebrew.dat` in the project folder.
+5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_stanley_steam_heb_win.py` performs the patching for windows.
+6. Once you've applied the patch, run the game. You should be able to see subtitles
+in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
+(runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
