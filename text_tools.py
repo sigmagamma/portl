@@ -1,14 +1,27 @@
 import csv
+import re
 
-def rearrange_multiple_lines(s,max_chars,total_chars):
-    array = s.split()
+def is_digit_with_punctuation(s):
+    return re.match('^\d+(?:-\d)*[!.?,\']{1,}$',s) is not None
+def move_digits_to_end(s):
+    for c in s:
+        if not c.isdigit() and not c == '-':
+            break
+        s = s[1:len(s)]+c
+    return s
+def rearrange_multiple_lines(caption,max_chars,total_chars):
+    array = caption.split()
     counter = 0
     lines = []
     lineCounter = 1
     currentLine = ""
     for word in array:
-        word = word[::-1]
-        counter += len(word) +1
+        parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
+                     else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})',s)
+                        else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})', word) if s is not None )
+        word = ''.join(parts)
+#        word = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
+        counter += len(re.sub("(<[a-zA-Z0-9:,]*>)","",word)) +1
         if counter/max_chars >= 1:
             lineCounter += 1
             lines.append(currentLine)

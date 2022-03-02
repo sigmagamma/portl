@@ -8,17 +8,17 @@ def get_temp_cfg_path(file_tools,type):
     return file_tools.game_parent_path + "\cfg\{}2.cfg".format(type)
 
 def get_backup_cfg_path(file_tools,type):
-    return file_tools.game_parent_path + file_tools.game_path + "\cfg\{}-portl-backup.cfg".format(type)
+    return file_tools.game_parent_path + file_tools.basegame_path + "\cfg\{}-portl-backup.cfg".format(type)
 
 def get_backup_other_path(file_tools):
-    return file_tools.game_parent_path  + file_tools.game_path +  "\\resource\portal_english-portl-backup.txt"
+    return file_tools.game_parent_path + file_tools.basegame_path + "\\resource\portal_english-portl-backup.txt"
 
 def get_backup_captions_text_path(file_tools):
-    return file_tools.game_parent_path  + file_tools.game_path +  \
+    return file_tools.game_parent_path + file_tools.basegame_path +  \
            "\\resource\closecaption_{}-portl-backup.txt".format(file_tools.language)
 
 def get_backup_captions_path(file_tools):
-    return file_tools.game_parent_path  + file_tools.game_path +  \
+    return file_tools.game_parent_path + file_tools.basegame_path +  \
            "\\resource\closecaption_{}-portl-backup.dat".format(file_tools.language)
 
 def find_lines(backup_cfg_path,lang_line,subtitles_line):
