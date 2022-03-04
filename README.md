@@ -1,5 +1,12 @@
 # poRTL
-Portal 1 translation tool for right-to-left languages (in the process of adding support for other source games - see https://github.com/sigmagamma/portl/issues/6 ).
+Source engine translation tool for right-to-left languages 
+
+
+in the process of adding support for other source games. Current working branch is [feat-stanley](https://github.com/sigmagamma/portl/tree/feat-stanley)
+. If you want to start working on a new game, checkout that branch and then create a new one out of it. 
+Snapshot branches for Portal release are [portal-0.9.0-left-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-left-align) and [portal-0.9.0-right-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-right-align) .
+
+See https://github.com/sigmagamma/portl/issues/6 for details on other source games.
 
 This project was created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find here:
 
@@ -8,6 +15,7 @@ https://www.facebook.com/groups/200491360554968/posts/868793153724782
 Or in English here:
 
 https://steamcommunity.com/sharedfiles/filedetails/?id=2554472476
+
 
 ## What this does
 * Portal 1 has translations for several languages for subtitles and close captions (the closecaption file)
