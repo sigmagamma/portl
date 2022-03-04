@@ -5,7 +5,7 @@ from shutil import move,copyfile
 
 
 def get_temp_cfg_path(file_tools,type):
-    return file_tools.game_parent_path + "\cfg\{}2.cfg".format(type)
+    return file_tools.game_parent_path + file_tools.basegame_path + "\cfg\{}2.cfg".format(type)
 
 def get_backup_cfg_path(file_tools,type):
     return file_tools.game_parent_path + file_tools.basegame_path + "\cfg\{}-portl-backup.cfg".format(type)
