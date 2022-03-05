@@ -5,4 +5,4 @@ if answer == "y":
     ft.write_files()
 elif answer == 'u':
     ft = FileTools("The Stanley Parable", steam_path_windows(), "hebrew")
-    ft.remove_mod_folder()
+    ft.remove_mod()

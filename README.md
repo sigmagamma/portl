@@ -31,11 +31,9 @@ In order to run this you'll need to put either:
 in the same folder.
 
 You can then run install_po_rtl_heb_win.py for a windows installation.
-remove_po_rtl_heb_win.py removes an existing windows installation.
 
-You can use the spec files with pyinstaller to create executables:
-
-`pyinstaller remove_po_rtl_heb_win.spec`
+You can use the spec files with pyinstaller to create the executable.
+First modify the path for the portalhebrew folder within the file. Then run 
 
 `pyinstaller install_po_rtl_heb_win.spec`
 
@@ -50,7 +48,7 @@ https://store.steampowered.com/app/400/Portal/
 4. If you want to change the actual translation, put the relevant csvs in the project folder. 
 These have to be named "Portal translation - closecaption.csv" and "Portal translation - portal.csv."
 Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` and `portal_hebrew.txt` in the project folder.
-5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win.py` and `remove_po_rtl_heb_win.py` perform the patching for windows.
+5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win.py` performs the patching for windows.
 6. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
 (runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.

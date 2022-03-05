@@ -5,7 +5,23 @@
             "other_file_names": ["portal"],
             "max_chars_before_break": 50,
             "mod_type": "custom",
-            "os" : ""
+            "os" : "WIN",
+          "scheme_on_vpk":  true,
+          "vpk_file_name": "portal_pak_dir.vpk",
+          "scheme_file_name": "clientscheme.res",
+
+            "format_replacements": {
+              "CloseCaption_Normal": {
+                "1": {
+                  "tall": "16"}
+              },
+
+              "CloseCaption_Italic": {
+                "1": {
+                  "tall": "20"}
+              }
+            },
+          "language_name_other_override": "english"
         },
         "The Stanley Parable":{
           "basegame": "thestanleyparable",

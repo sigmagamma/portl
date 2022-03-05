@@ -3,6 +3,9 @@ import sys
 import winreg
 from shutil import copyfile,copy,move,rmtree
 from os import path
+
+import vpk
+
 import text_tools as tt
 import subprocess
 import json
@@ -33,9 +36,10 @@ class FileTools:
     def __init__(self, game,game_service_path,language):
 
         if (game is not None):
-            with open('game_data.json','r') as game_data_file:
+            with open(self.get_patch_gamedata(),'r') as game_data_file:
                 data = json.load(game_data_file).get(game)
                 if data is not None:
+                    # text and filenames logic
                     self.game = game
                     self.basegame = data['basegame']
                     self.basegame_path = "\\" + self.game + "\\" + self.basegame
@@ -60,6 +64,8 @@ class FileTools:
                     self.english_captions_text_path = data.get('english_captions_text_path')
                     if self.english_captions_text_path is None:
                         self.english_captions_text_path = self.get_english_captions_text_path()
+
+                    # mod folder logic
                     mod_type = data.get('mod_type')
                     self.mod_type = mod_type
                     if mod_type == 'custom':
@@ -67,8 +73,23 @@ class FileTools:
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
                     self.os = data.get('os')
+
+                    # scheme file logic
                     self.scheme_file_name = data.get("scheme_file_name")
                     self.format_replacements = data.get("format_replacements")
+                    self.vpk_file_name = data.get("vpk_file_name")
+                    scheme_on_vpk = data.get("scheme_on_vpk")
+                    if scheme_on_vpk is not None:
+                        self.scheme_on_vpk = scheme_on_vpk
+                        self.save_scheme_file_from_vpk()
+                        self.source_scheme_path =  self.get_patch_scheme_path()
+                    else:
+                        self.source_scheme_path = self.get_basegame_scheme_path()
+                    self.language_name_other_override =  data.get("language_name_other_override")
+                    if self.language_name_other_override is None:
+                        self.language_name_other_override = self.language
+
+
                 else:
                     return None
         else:
@@ -79,6 +100,13 @@ class FileTools:
     # basegame is the content folder for the original game (usually something like portal/portal)
     # mod is where the mod gets placed (for instance portal/custom/portl)
     # compiler is where caption compilation happens
+
+    def get_patch_gamedata(self):
+        filename = "game_data.json"
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            filename = path.abspath(path.join(path.dirname(__file__), filename))
+        return filename
+
     def get_full_game_path(self):
         return self.game_parent_path + "\\"+self.game
 
@@ -132,9 +160,11 @@ class FileTools:
     def get_mod_cache_folder(self):
         return self.mod_folder+"\\maps\\soundcache"
 
-    def get_patch_version_file(self):
-        return "portl.txt"
-
+    def get_patch_version_file(self,type):
+        filename = "portl.txt"
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            filename = path.abspath(path.join(path.dirname(__file__), filename))
+        return filename
     def create_mod_folders(self):
         mod_cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(mod_cfg_folder):
@@ -154,6 +184,10 @@ class FileTools:
                 copy(basegame_cache_path,mod_cache_folder)
     def remove_mod_folder(self):
         rmtree(self.mod_folder)
+    def remove_mod(self):
+        self.remove_mod_folder()
+        for other_file_name in self.other_file_names:
+            self.restore_basegame_english_other_path(other_file_name)
 
     def get_compiler_resource_folder(self):
         return self.compiler_game_parent_path + self.compiler_basegame_path + "\\resource"
@@ -261,11 +295,18 @@ class FileTools:
         move(to_compile_text_path,dest_captions_text_path)
 
     ## Other files logic - text files not for compilation
-    def get_mod_other_path(self, other_file_name):
-        return self.get_mod_resource_folder() + "\{}_{}.txt".format(other_file_name,self.language)
+    def get_mod_other_path(self, other_file_name,language_name_override):
+        return self.get_mod_resource_folder() + "\{}_{}.txt".format(other_file_name,language_name_override)
 
     def get_basegame_english_other_path(self,other_file_name):
         return self.get_basegame_resource_folder()+"\{}_english.txt".format(other_file_name)
+    def get_basegame_english_backup_other_path(self,other_file_name):
+        return self.get_basegame_resource_folder()+"\{}_english_backup.txt".format(other_file_name)
+
+    def backup_basegame_english_other_path(self,other_file_name):
+        move(self.get_basegame_english_other_path(other_file_name), self.get_basegame_english_backup_other_path(other_file_name))
+    def restore_basegame_english_other_path(self, other_file_name):
+        move(self.get_basegame_english_backup_other_path(other_file_name),self.get_basegame_english_other_path(other_file_name))
 
     def get_patch_other_path(self,other_file_name):
         filename = "{}_{}.txt".format(other_file_name,self.language)
@@ -276,13 +317,15 @@ class FileTools:
     def get_patch_other_csv_path(self,other_file_name):
         return self.game + " translation - "+ other_file_name +".csv"
 
-    def write_other_from_patch(self,other_file_name):
-        dest_other_path = self.get_mod_other_path(other_file_name)
+    def write_other_from_patch(self,other_file_name,language_name_override):
+        dest_other_path = self.get_mod_other_path(other_file_name,language_name_override)
         copyfile(self.get_patch_other_path(other_file_name), dest_other_path)
 
-    def write_other_from_csv(self,other_file_name,csv_path):
-        dest_other_path = self.get_mod_other_path(other_file_name)
+    def write_other_from_csv(self,other_file_name,csv_path,language_name_override):
+        dest_other_path = self.get_mod_other_path(other_file_name,language_name_override)
         basegame_other_path = self.get_basegame_english_other_path(other_file_name)
+        if not os.path.exists(basegame_other_path):
+            basegame_other_path = self.get_basegame_english_backup_other_path(other_file_name)
         translated_lines = tt.read_translation_from_csv(csv_path)
         tt.translate(basegame_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line)
 
@@ -322,11 +365,13 @@ class FileTools:
 
 
     def write_scheme_file(self,source_scheme_path, dest_scheme_path,format_replacements):
-        with open(source_scheme_path, 'r') as f_in, open(dest_scheme_path, 'w') as f_out:
+        with open(source_scheme_path, 'r') as f_in, \
+                open(dest_scheme_path, 'w') as f_out:
             while True:
                 line = f_in.readline()
                 if not line:
                     break
+                matched = False
                 for key in format_replacements.keys():
                     compare_key = "\""+key+"\""
                     potential_key = line.strip()
@@ -351,7 +396,7 @@ class FileTools:
                                         next = f_in.readline()
                                         break
                                     # TODO that's very specific. rethink this
-                                    fv_array = [ a for a in re.split('\"\s{1,}\"|\s{1,}\"|]\s{1,}|\"\s{1,}\[',field_value) if a != '']
+                                    fv_array = [ a for a in re.split('\"\s{1,}\"|\s{1,}\"|]\s{1,}|\"\s{1,}\[|\"\n',field_value) if a != '']
                                     if len(fv_array) > 2 and not self.check_compatibility(fv_array[2]):
                                         f_out.write(field_value)
                                         continue
@@ -360,8 +405,10 @@ class FileTools:
                                     if value is not None:
                                         field_value = field_value.replace(fv_array[1],value)
                                     f_out.write(field_value)
-                    else:
-                        f_out.write(line)
+                        matched = True
+                        break
+                if not matched:
+                    f_out.write(line)
 
     def get_basegame_scheme_path(self):
         return self.get_basegame_resource_folder()+"\\"+self.scheme_file_name
@@ -369,6 +416,16 @@ class FileTools:
     def get_mod_scheme_path(self):
         return self.get_mod_resource_folder() + "\\" + self.scheme_file_name
 
+    def get_patch_scheme_path(self):
+        return self.scheme_file_name
+
+    def get_basegame_vpk_path(self):
+        return self.get_full_basegame_path() + "\\" + self.vpk_file_name
+
+    def save_scheme_file_from_vpk(self):
+        pak = vpk.open(self.get_basegame_vpk_path())
+        pakfile = pak.get_file("resource/" + self.scheme_file_name)
+        pakfile.save(self.get_patch_scheme_path())
     ## main write function
     def write_files(self):
         self.create_mod_folders()
@@ -381,8 +438,12 @@ class FileTools:
         for other_file_name in self.other_file_names:
             other_csv_path = self.get_patch_other_csv_path(other_file_name)
             if os.path.isfile(other_csv_path):
-                self.write_other_from_csv(other_file_name,other_csv_path)
+                self.write_other_from_csv(other_file_name,other_csv_path,self.language_name_other_override)
             else:
-                self.write_other_from_patch(other_file_name)
+                self.write_other_from_patch(other_file_name,self.language_name_other_override)
+            if self.language_name_other_override == "english":
+                self.backup_basegame_english_other_path(other_file_name)
         if self.scheme_file_name is not None:
-            self.write_scheme_file(self.get_basegame_scheme_path(),self.get_mod_scheme_path(),self.format_replacements)
+            self.write_scheme_file(self.source_scheme_path,self.get_mod_scheme_path(),self.format_replacements)
+            if self.scheme_on_vpk is not None:
+                os.remove(self.source_scheme_path)
