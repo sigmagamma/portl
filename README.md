@@ -1,7 +1,10 @@
 # poRTL
-Steam games translation tool for right-to-left languages.
-Currently supported is Portal 1. The Stanley Parable is WIP. 
+Source engine translation tool for right-to-left languages
+Currently Portal 1 is supported. Current working branch is [feat-stanley](https://github.com/sigmagamma/portl/tree/feat-stanley). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
+Snapshot branches for Portal release are [portal-0.9.0-left-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-left-align) and [portal-0.9.0-right-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-right-align) .
+
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
+
 
 This project was originally created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find here:
 
@@ -33,9 +36,17 @@ in the same folder.
 You can then run install_po_rtl_heb_win.py for a windows installation.
 
 You can use the spec files with pyinstaller to create the executable.
-First modify the path for the portalhebrew folder within the file. Then run 
+However, in windows you may have to compile pyinstaller on your machine to do so to avoid the executable being flagged by AV software.
+See this guide:
+https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resolved-b33842bd3184
+Some additional points to follow: 
+Within the Visual Studio Installer, make sure you add "Desktop development with C++".
+In step 5, if you're working with Pycharm, you should probably copy the release into the project folder in order to have it install pyinstaller into your Virtual Environment.
+Also you may have to to run Pycharm as administrator.
 
-`pyinstaller install_po_rtl_heb_win.spec`
+Once Pyinstaller is installed into your environment,modify the path for the portalhebrew folder within the file. Then run 
+
+`pyinstaller --clean install_po_rtl_heb_win.spec`
 
 You will have to have closecaption_hebrew.dat and portal_hebrew.txt created
 by the script in the same folder when running pyinstaller.
@@ -70,3 +81,26 @@ Otherwise, if you want to work with an existing translation and patch the game, 
 6. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
 (runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
+
+
+## Configuration reference
+game_data.json is an attempt to centralize all localization-related configuration into a single file.
+Rather than use conditional logic based on game within the code, we keep all related properties for each game
+within that file.
+
+The top key for each game is also the name of the game main folder (will probably change soon). example "Portal"
+* basegame - the name of inner central game folder. example "portal"
+* caption_file_name - the prefix for the subtitle file. For example if the file is closecaption_english.txt then this will be "closecaption".
+* other_file_names - other files in the resource folder that need translation.
+* max_chars_before_break - This determines the length of each line before portl puts a <cr> to create a new one.
+* mod_type - for old games like Portal use "custom". For later games use "dlc".
+* os - this is used to determine how to change configuration in the res file such as text size. 
+* scheme_on_vpk - true/false. Some games have the scheme file outside the VPK.
+* vpk_file_name - should be the dir file in the basegame folder.
+* scheme_file_name - just the file name, not the path
+* format_replacements: - defines which keys to change in the scheme files and to which values.
+* language_name_other_override - unfortunately Portal didn't allow portal_hebrew.txt, so this logic specifically overrides it to be called portal_english.txt, while renaming the original.
+* compiler_game_service_path - If the game has no caption compiler, then this is the steam path under which the main game folder is found
+* compiler_game - name of the main folder for the compiler
+* compiler_game_path - additional path after the steam folder and into the basegame folder, such as \\Black Mesa\\bms
+* english_captions_text_path - name of local file with english text for captions

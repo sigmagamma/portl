@@ -3,6 +3,7 @@
             "basegame": "portal",
             "caption_file_name":"closecaption",
             "other_file_names": ["portal"],
+            "scripts_file_names": ["credits.txt"],
             "max_chars_before_break": 50,
             "mod_type": "custom",
             "os" : "WIN",
@@ -19,6 +20,10 @@
               "CloseCaption_Italic": {
                 "1": {
                   "tall": "20"}
+              },
+              "CreditsOutroText": {
+                "1": {
+                  "tall": "11"}
               }
             },
           "language_name_other_override": "english"

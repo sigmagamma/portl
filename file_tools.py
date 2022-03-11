@@ -3,7 +3,7 @@ import sys
 import winreg
 from shutil import copyfile,copy,move,rmtree
 from os import path
-
+from distutils.dir_util import copy_tree
 import vpk
 
 import text_tools as tt
@@ -43,14 +43,18 @@ class FileTools:
                     self.game = game
                     self.basegame = data['basegame']
                     self.basegame_path = "\\" + self.game + "\\" + self.basegame
+                    self.game_parent_path = game_service_path
+                    full_basegame_path = self.get_full_basegame_path()
+                    if not os.path.exists(full_basegame_path):
+                        raise Exception("folder "+full_basegame_path + " doesn't exist. Please install the game. ")
+                    self.language = language
+
                     self.caption_file_name = data['caption_file_name']
                     self.other_file_names = data.get('other_file_names')
                     if self.other_file_names is None:
                         self.other_file_names = []
                     self.max_chars_before_break = data['max_chars_before_break']
                     self.total_chars_in_line = data.get('total_chars_in_line')
-                    self.game_parent_path = game_service_path
-                    self.language = language
                     compiler_game_service_path = data.get('compiler_game_service_path')
                     if compiler_game_service_path is not None:
                         self.compiler_game_parent_path = compiler_game_service_path
@@ -81,7 +85,8 @@ class FileTools:
                     scheme_on_vpk = data.get("scheme_on_vpk")
                     if scheme_on_vpk is not None:
                         self.scheme_on_vpk = scheme_on_vpk
-                        self.save_scheme_file_from_vpk()
+                        # this is the expected path of the scheme file once it is extracted.
+                        # The file itself is not saved here to avoid side effects for the constructor
                         self.source_scheme_path =  self.get_patch_scheme_path()
                     else:
                         self.source_scheme_path = self.get_basegame_scheme_path()
@@ -151,6 +156,9 @@ class FileTools:
     def get_custom_folder(self):
         return self.get_custom_parent_folder()+"\portl"
 
+    def get_sizepatch_custom_folder(self):
+        return self.get_custom_parent_folder()+"\sizepatch"
+
     def get_mod_cfg_folder(self):
         return self.mod_folder+"\cfg"
 
@@ -160,7 +168,7 @@ class FileTools:
     def get_mod_cache_folder(self):
         return self.mod_folder+"\\maps\\soundcache"
 
-    def get_patch_version_file(self,type):
+    def get_patch_version_file(self):
         filename = "portl.txt"
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
@@ -172,6 +180,10 @@ class FileTools:
         mod_resource_folder = self.get_mod_resource_folder()
         if not os.path.exists(mod_resource_folder):
             os.makedirs(mod_resource_folder)
+        # see here: https://github.com/sigmagamma/portal-text-size-changer
+        sizepatch_folder = self.get_sizepatch_custom_folder()
+        if os.path.exists(sizepatch_folder):
+            rmtree(sizepatch_folder)
         copy(self.get_patch_version_file(), self.mod_folder)
         if self.mod_type == 'dlc':
             basegame_cache_path = self.get_basegame_cache_path()
@@ -283,6 +295,8 @@ class FileTools:
         to_compile_text_path = self.get_to_compile_text_path()
         translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
         translated_lines = tt.read_translation_from_csv(csv_path)
+        if not os.path.exists(orig_captions_text_path):
+            raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
         tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line)
         move(translated_path,to_compile_text_path)
         # this works because "translated path" is also the file name of to_compile_text_path
@@ -304,9 +318,11 @@ class FileTools:
         return self.get_basegame_resource_folder()+"\{}_english_backup.txt".format(other_file_name)
 
     def backup_basegame_english_other_path(self,other_file_name):
-        move(self.get_basegame_english_other_path(other_file_name), self.get_basegame_english_backup_other_path(other_file_name))
+        if os.path.exists(self.get_basegame_english_other_path(other_file_name)):
+            move(self.get_basegame_english_other_path(other_file_name), self.get_basegame_english_backup_other_path(other_file_name))
     def restore_basegame_english_other_path(self, other_file_name):
-        move(self.get_basegame_english_backup_other_path(other_file_name),self.get_basegame_english_other_path(other_file_name))
+        if os.path.exists(self.get_basegame_english_backup_other_path(other_file_name)):
+            move(self.get_basegame_english_backup_other_path(other_file_name),self.get_basegame_english_other_path(other_file_name))
 
     def get_patch_other_path(self,other_file_name):
         filename = "{}_{}.txt".format(other_file_name,self.language)
@@ -324,10 +340,15 @@ class FileTools:
     def write_other_from_csv(self,other_file_name,csv_path,language_name_override):
         dest_other_path = self.get_mod_other_path(other_file_name,language_name_override)
         basegame_other_path = self.get_basegame_english_other_path(other_file_name)
-        if not os.path.exists(basegame_other_path):
-            basegame_other_path = self.get_basegame_english_backup_other_path(other_file_name)
-        translated_lines = tt.read_translation_from_csv(csv_path)
-        tt.translate(basegame_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line)
+        if os.path.exists(basegame_other_path):
+            source_other_path = basegame_other_path
+        else:
+            source_other_path = self.get_basegame_english_backup_other_path(other_file_name)
+        if os.path.exists(source_other_path):
+            translated_lines = tt.read_translation_from_csv(csv_path)
+            tt.translate(source_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line)
+        else:
+            raise Exception("file "+basegame_other_path + " or "+source_other_path + " doesn't exist. Verify game files integrity")
 
     # ## Credits logic
     # def get_basegame_credits_path(self):
@@ -375,7 +396,7 @@ class FileTools:
                 for key in format_replacements.keys():
                     compare_key = "\""+key+"\""
                     potential_key = line.strip()
-                    if potential_key.startswith(compare_key):
+                    if potential_key.startswith(compare_key) or potential_key.startswith(key):
                         f_out.write(line)
                         f_out.write(f_in.readline())
                         replacement = format_replacements.get(key)
@@ -426,6 +447,20 @@ class FileTools:
         pak = vpk.open(self.get_basegame_vpk_path())
         pakfile = pak.get_file("resource/" + self.scheme_file_name)
         pakfile.save(self.get_patch_scheme_path())
+
+    # assets logic - copy entire folders from patch
+    def get_patch_asset_path(self,filename):
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            filename = path.abspath(path.join(path.dirname(__file__), filename))
+        return filename
+    def get_mod_asset_path(self,filename):
+        return self.mod_folder+"/"+filename
+    def copy_assets(self):
+        for filename in ["materials","sound"]:
+            src_path = self.get_patch_asset_path(filename)
+            if os.path.exists(src_path):
+                copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
+
     ## main write function
     def write_files(self):
         self.create_mod_folders()
@@ -444,6 +479,9 @@ class FileTools:
             if self.language_name_other_override == "english":
                 self.backup_basegame_english_other_path(other_file_name)
         if self.scheme_file_name is not None:
+            if self.scheme_on_vpk is not None:
+                self.save_scheme_file_from_vpk()
             self.write_scheme_file(self.source_scheme_path,self.get_mod_scheme_path(),self.format_replacements)
             if self.scheme_on_vpk is not None:
                 os.remove(self.source_scheme_path)
+        self.copy_assets()
