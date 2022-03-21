@@ -1,7 +1,7 @@
 # poRTL
-Source engine translation tool for right-to-left languages
+Source engine translation framework with support for right-to-left languages
 Currently Portal 1 is supported. Current working branch is [feat-stanley](https://github.com/sigmagamma/portl/tree/feat-stanley). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
-Snapshot branches for Portal release are [portal-0.9.0-left-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-left-align) and [portal-0.9.0-right-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-right-align) .
+Snapshot branches for latest Portal release are [portal-0.9.0-left-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-left-align) and [portal-0.9.0-right-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-right-align) .
 
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
@@ -15,22 +15,18 @@ Or in English here:
 https://steamcommunity.com/sharedfiles/filedetails/?id=2554472476
 
 ## What this does
-* Portal 1 has translations for several languages for subtitles and close captions (the closecaption file)
-as well as other texts (the portal file). However, it does not support right to left languages,
-and when creating translations for those text appears out of order. 
-* The program takes a translation file and the source english file and generates relevant content for the RTL language,
-along the way solving the order issue so that the text is readable. It does not handle right-to-left alignment of the text (yet).
-* For the "portal" file, which contains the song, an even simpler approach is taken which doesn't
-consider multiple lines. Note that this means some lines need to be out of order in the translation file.
-* Finally, the program installs the content into the Portal folder and configures Portal to use it, with some effort made to back up previous files.
-There is also a removal program to allow restoring the state prior to running the program.
-
+* The program takes a translation file and text files for Source games and generates content for the relevant language,
+ reversing RTL text if necessary so that the text is readable. Support for right-to-left alignment of the text is limited.
+* Finally, the program installs the content into the a mod folder. In some cases where the mod cannot override the base game folder the file in the base game folder is moved to a backup.
+* The installer also allows removing the mod and restoring the backup
+* The installer doubles as a tool to generate the required content for easier installation later.
+* The installer now copies the folders "materials" and "sound" to the mod folder
 ## Windows Hebrew installation for Portal
 This repository does not include any file with actual source or translation material from the game.
 In order to run this you'll need to put either:
 
 1. closecaption_hebrew.dat and portal_hebrew.txt that already contain the hebrew translation OR
-2. Portal translation - additions.csv and Portal translation - closecaption.csv
+2. Portal translation - additions.csv, Portal translation - closecaption.csv, Portal translation - credits.csv
 in the same folder.
 
 You can then run install_po_rtl_heb_win.py for a windows installation.
@@ -39,16 +35,23 @@ You can use the spec files with pyinstaller to create the executable.
 However, in windows you may have to compile pyinstaller on your machine to do so to avoid the executable being flagged by AV software.
 See this guide:
 https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resolved-b33842bd3184
+
 Some additional points to follow: 
 Within the Visual Studio Installer, make sure you add "Desktop development with C++".
 In step 5, if you're working with Pycharm, you should probably copy the release into the project folder in order to have it install pyinstaller into your Virtual Environment.
-Also you may have to to run Pycharm as administrator.
+Also you may have to run Pycharm as administrator.
+I've used the pyinstaller develop branch:
+ https://github.com/pyinstaller/pyinstaller/tree/develop
 
 Once Pyinstaller is installed into your environment,modify the path for the portalhebrew folder within the file. Then run 
 
 `pyinstaller --clean install_po_rtl_heb_win.spec`
 
-You will have to have closecaption_hebrew.dat and portal_hebrew.txt created
+Spec file was generated with:
+`.\venv\Scripts\pyi-makespec.exe --onefile .\install_po_rtl_heb_win.py`
+
+
+You will have to have closecaption_hebrew.dat,credits.txt and portal_hebrew.txt created
 by the script in the same folder when running pyinstaller.
 
 ## Development setup - Portal
@@ -88,7 +91,9 @@ game_data.json is an attempt to centralize all localization-related configuratio
 Rather than use conditional logic based on game within the code, we keep all related properties for each game
 within that file.
 
-The top key for each game is also the name of the game main folder (will probably change soon). example "Portal"
+* game -  name of the game main folder . example "Portal"
+* shortname - name of the game for versioning
+* version - version of distribution
 * basegame - the name of inner central game folder. example "portal"
 * caption_file_name - the prefix for the subtitle file. For example if the file is closecaption_english.txt then this will be "closecaption".
 * other_file_names - other files in the resource folder that need translation.

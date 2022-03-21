@@ -11,47 +11,42 @@ import subprocess
 import json
 import shlex
 import re
-
-##Steam/Epic logic
-def steam_path_windows():
-    try:
-        hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\WOW6432Node\Valve\Steam")
-    except:
-        hkey = None
-        print(sys.exc_info())
-    try:
-        steam_path = winreg.QueryValueEx(hkey, "InstallPath")
-    except:
-        steam_path = None
-        print(sys.exc_info())
-    return steam_path[0] + "\steamapps\common"
-
-
-def steam_path_linux():
-    return "~/.steam/steam/steamapps/common"
-
-
-
+REPO = "https://github.com/sigmagamma/portl/"
 class FileTools:
-    def __init__(self, game,game_service_path,language):
+    def __init__(self, game_filename,language):
 
-        if (game is not None):
-            with open(self.get_patch_gamedata(),'r') as game_data_file:
-                data = json.load(game_data_file).get(game)
+        if (game_filename is not None):
+            with open(self.get_patch_gamedata(game_filename),'r') as game_data_file:
+                data = json.load(game_data_file)
                 if data is not None:
                     # text and filenames logic
-                    self.game = game
+                    self.game = data['game']
+                    game_service = data.get('game_service')
+                    self.os = data.get('os')
+                    if game_service is not None and self.os is not None:
+                        if game_service != 'Steam':
+                            raise Exception(
+                                "currently only Steam is supported")
+                        else:
+                            if self.os == 'WIN':
+                                self.game_parent_path = self.steam_path_windows()
+                            else:
+                                raise Exception(
+                                    "currently only Windows is supported")
+                    else:
+                        self.game_parent_path = self.steam_path_windows()
+                    self.shortname = data['shortname']
+                    self.version = data['version']
                     self.basegame = data['basegame']
                     self.basegame_path = "\\" + self.game + "\\" + self.basegame
-                    self.game_parent_path = game_service_path
                     full_basegame_path = self.get_full_basegame_path()
                     if not os.path.exists(full_basegame_path):
                         raise Exception("folder "+full_basegame_path + " doesn't exist. Please install the game. ")
                     self.language = language
 
                     self.caption_file_name = data['caption_file_name']
-                    self.other_file_names = data.get('other_file_names')
-                    if self.other_file_names is None:
+                    self.other_files = data.get('other_files')
+                    if self.other_files is None:
                         self.other_file_names = []
                     self.max_chars_before_break = data['max_chars_before_break']
                     self.total_chars_in_line = data.get('total_chars_in_line')
@@ -76,7 +71,6 @@ class FileTools:
                         self.mod_folder = self.get_custom_folder()
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
-                    self.os = data.get('os')
 
                     # scheme file logic
                     self.scheme_file_name = data.get("scheme_file_name")
@@ -90,24 +84,34 @@ class FileTools:
                         self.source_scheme_path =  self.get_patch_scheme_path()
                     else:
                         self.source_scheme_path = self.get_basegame_scheme_path()
-                    self.language_name_other_override =  data.get("language_name_other_override")
-                    if self.language_name_other_override is None:
-                        self.language_name_other_override = self.language
 
+    ##Steam/Epic logic
+    def steam_path_windows(self):
+        try:
+            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\WOW6432Node\Valve\Steam")
+        except:
+            hkey = None
+            print(sys.exc_info())
+        try:
+            steam_path = winreg.QueryValueEx(hkey, "InstallPath")
+        except:
+            steam_path = None
+            print(sys.exc_info())
+        return steam_path[0] + "\steamapps\common"
 
-                else:
-                    return None
-        else:
-            return None
+    def steam_path_linux(self):
+        return "~/.steam/steam/steamapps/common"
 
+    def steam_path_macos(self):
+        return "~/Library/Application Support/Steam/SteamApps/common"
     ## general folder logic
     # patch are the local files of the patch.
     # basegame is the content folder for the original game (usually something like portal/portal)
     # mod is where the mod gets placed (for instance portal/custom/portl)
     # compiler is where caption compilation happens
 
-    def get_patch_gamedata(self):
-        filename = "game_data.json"
+    def get_patch_gamedata(self,game_filename):
+        filename = game_filename
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
@@ -129,6 +133,9 @@ class FileTools:
 
     def get_basegame_resource_folder(self):
         return self.get_full_basegame_path() + "\\resource"
+
+    def get_basegame_subfolder(self,subfolder):
+        return self.get_full_basegame_path() + "\\"+subfolder
 
     def search_dlc_folders(self):
         dlcs = [a for a in os.listdir(self.get_full_game_path()) if a.startswith(self.basegame+'_dlc')]
@@ -165,6 +172,13 @@ class FileTools:
     def get_mod_resource_folder(self):
         return self.mod_folder+"\\resource"
 
+    def get_mod_subfolder(self,subfolder):
+        return self.mod_folder + "\\"+subfolder
+
+    def get_mod_scripts_folder(self):
+        return self.mod_folder+"\\scripts"
+
+
     def get_mod_cache_folder(self):
         return self.mod_folder+"\\maps\\soundcache"
 
@@ -173,18 +187,27 @@ class FileTools:
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
+    def get_mod_version_path(self):
+        return self.mod_folder + "\\portl.txt"
+    def write_patch_version_file(self):
+        rtl_text=""
+        if self.total_chars_in_line is not None:
+            rtl_text = "RTL version\n"
+        with open(self.get_mod_version_path(),'w') as file:
+            file.write(self.shortname+"-"+self.version+rtl_text+"\n"+ REPO)
     def create_mod_folders(self):
         mod_cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(mod_cfg_folder):
             os.makedirs(mod_cfg_folder)
-        mod_resource_folder = self.get_mod_resource_folder()
-        if not os.path.exists(mod_resource_folder):
-            os.makedirs(mod_resource_folder)
+        for folder in ['resource','scripts']:
+            mod_subfolder = self.get_mod_subfolder(folder)
+            if not os.path.exists(mod_subfolder):
+                os.makedirs(mod_subfolder)
         # see here: https://github.com/sigmagamma/portal-text-size-changer
         sizepatch_folder = self.get_sizepatch_custom_folder()
         if os.path.exists(sizepatch_folder):
             rmtree(sizepatch_folder)
-        copy(self.get_patch_version_file(), self.mod_folder)
+        self.write_patch_version_file()
         if self.mod_type == 'dlc':
             basegame_cache_path = self.get_basegame_cache_path()
             if not os.path.exists(basegame_cache_path):
@@ -195,11 +218,13 @@ class FileTools:
                     os.makedirs(mod_cache_folder)
                 copy(basegame_cache_path,mod_cache_folder)
     def remove_mod_folder(self):
-        rmtree(self.mod_folder)
+        if os.path.exists(self.mod_folder):
+            rmtree(self.mod_folder)
     def remove_mod(self):
         self.remove_mod_folder()
-        for other_file_name in self.other_file_names:
-            self.restore_basegame_english_other_path(other_file_name)
+        for file_data in self.other_files:
+            if file_data.get('override'):
+                self.restore_basegame_english_other_path(file_data)
 
     def get_compiler_resource_folder(self):
         return self.compiler_game_parent_path + self.compiler_basegame_path + "\\resource"
@@ -297,7 +322,7 @@ class FileTools:
         translated_lines = tt.read_translation_from_csv(csv_path)
         if not os.path.exists(orig_captions_text_path):
             raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
-        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line)
+        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,source_encoding='utf-16')
         move(translated_path,to_compile_text_path)
         # this works because "translated path" is also the file name of to_compile_text_path
         subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
@@ -309,51 +334,87 @@ class FileTools:
         move(to_compile_text_path,dest_captions_text_path)
 
     ## Other files logic - text files not for compilation
-    def get_mod_other_path(self, other_file_name,language_name_override):
-        return self.get_mod_resource_folder() + "\{}_{}.txt".format(other_file_name,language_name_override)
+    def get_mod_other_path(self, file_data):
+        override = file_data.get('override')
+        if override:
+            language = self.get_localized_suffix(file_data,"english")
+        else:
+            language = self.get_localized_suffix(file_data,self.language)
+        name = file_data.get('name')
+        return self.get_mod_subfolder(file_data.get('folder'))+"\{}{}.txt".format(name,language)
+    def get_localized_suffix(self,file_data,language):
+        localized = file_data.get('localized')
+        if localized:
+            return "_"+language
+        return ""
+    def get_basegame_english_path(self,file_data,backup_flag):
+        folder = self.get_basegame_subfolder(file_data.get('folder'))
+        language = self.get_localized_suffix(file_data,"english")
+        backup = ""
+        if backup_flag:
+            backup = "_backup"
+        path = folder +"\{}".format(file_data.get('name'))+language+"{}.txt".format(backup)
+        return path
 
-    def get_basegame_english_other_path(self,other_file_name):
-        return self.get_basegame_resource_folder()+"\{}_english.txt".format(other_file_name)
-    def get_basegame_english_backup_other_path(self,other_file_name):
-        return self.get_basegame_resource_folder()+"\{}_english_backup.txt".format(other_file_name)
+    def get_basegame_english_other_path(self,file_data):
+        return self.get_basegame_english_path(file_data,backup_flag=False)
+    def get_basegame_english_backup_other_path(self,file_data):
+        return self.get_basegame_english_path(file_data,backup_flag=True)
 
-    def backup_basegame_english_other_path(self,other_file_name):
-        if os.path.exists(self.get_basegame_english_other_path(other_file_name)):
-            move(self.get_basegame_english_other_path(other_file_name), self.get_basegame_english_backup_other_path(other_file_name))
-    def restore_basegame_english_other_path(self, other_file_name):
-        if os.path.exists(self.get_basegame_english_backup_other_path(other_file_name)):
-            move(self.get_basegame_english_backup_other_path(other_file_name),self.get_basegame_english_other_path(other_file_name))
+    def backup_basegame_english_other_path(self,file_data):
+        orig_path = self.get_basegame_english_other_path(file_data)
+        if os.path.exists(orig_path):
+            move(orig_path, self.get_basegame_english_backup_other_path(file_data))
+    def restore_basegame_english_other_path(self, file_data):
+        backup_path = self.get_basegame_english_backup_other_path(file_data)
+        if os.path.exists(backup_path):
+            move(backup_path,self.get_basegame_english_other_path(file_data))
 
-    def get_patch_other_path(self,other_file_name):
-        filename = "{}_{}.txt".format(other_file_name,self.language)
+    def get_local_other_path(self,file_data):
+        language = self.get_localized_suffix(file_data,self.language)
+        return "{}{}.txt".format(file_data.get('name'),language)
+
+    def get_patch_other_path(self,file_data):
+        filename = self.get_local_other_path(file_data)
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
 
-    def get_patch_other_csv_path(self,other_file_name):
-        return self.game + " translation - "+ other_file_name +".csv"
+    def get_patch_other_csv_path(self,file_data):
+        return self.game + " translation - "+ file_data.get('name') +".csv"
 
-    def write_other_from_patch(self,other_file_name,language_name_override):
-        dest_other_path = self.get_mod_other_path(other_file_name,language_name_override)
-        copyfile(self.get_patch_other_path(other_file_name), dest_other_path)
+    def write_other_from_patch(self,file_data):
+        dest_other_path = self.get_mod_other_path(file_data)
+        copyfile(self.get_patch_other_path(file_data), dest_other_path)
 
-    def write_other_from_csv(self,other_file_name,csv_path,language_name_override):
-        dest_other_path = self.get_mod_other_path(other_file_name,language_name_override)
-        basegame_other_path = self.get_basegame_english_other_path(other_file_name)
-        if os.path.exists(basegame_other_path):
-            source_other_path = basegame_other_path
+    def write_other_from_csv(self,file_data,csv_path):
+        dest_other_path = self.get_mod_other_path(file_data)
+        is_on_vpk = file_data.get('is_on_vpk')
+        folder = file_data.get('folder')
+        name = file_data.get('name')
+        language = self.get_localized_suffix(file_data,'english')
+        if is_on_vpk:
+            source_other_path = self.get_local_other_path(file_data)
+            self.save_file_from_vpk(folder+"/"+name+language+'.txt',source_other_path)
         else:
-            source_other_path = self.get_basegame_english_backup_other_path(other_file_name)
-        if os.path.exists(source_other_path):
-            translated_lines = tt.read_translation_from_csv(csv_path)
-            tt.translate(source_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line)
+            basegame_other_path = self.get_basegame_english_other_path(file_data)
+            self.get_basegame_english_backup_other_path(file_data)
+            backup_basegame_other_path = self.get_basegame_english_backup_other_path(file_data)
+            if os.path.exists(basegame_other_path):
+                source_other_path = basegame_other_path
+            elif os.path.exists(backup_basegame_other_path):
+                source_other_path = backup_basegame_other_path
+            else:
+                raise Exception(
+                    "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
+        translated_lines = tt.read_translation_from_csv(csv_path)
+        if is_on_vpk:
+            encoding = None
         else:
-            raise Exception("file "+basegame_other_path + " or "+source_other_path + " doesn't exist. Verify game files integrity")
-
-    # ## Credits logic
-    # def get_basegame_credits_path(self):
-    #     return self.game_service_path + self.game_path+"\\scripts\\credits.txt"
-
+            encoding = 'utf-16'
+        tt.translate(source_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line,source_encoding= encoding)
+        if is_on_vpk:
+            os.remove(source_other_path)
     ## scheme files logic
     def check_compatibility(self,platform_string):
         lexer = shlex.shlex(platform_string)
@@ -386,6 +447,8 @@ class FileTools:
 
 
     def write_scheme_file(self,source_scheme_path, dest_scheme_path,format_replacements):
+        if self.scheme_on_vpk is not None:
+            self.save_scheme_file_from_vpk()
         with open(source_scheme_path, 'r') as f_in, \
                 open(dest_scheme_path, 'w') as f_out:
             while True:
@@ -430,6 +493,8 @@ class FileTools:
                         break
                 if not matched:
                     f_out.write(line)
+        if self.scheme_on_vpk is not None:
+            os.remove(self.source_scheme_path)
 
     def get_basegame_scheme_path(self):
         return self.get_basegame_resource_folder()+"\\"+self.scheme_file_name
@@ -444,9 +509,17 @@ class FileTools:
         return self.get_full_basegame_path() + "\\" + self.vpk_file_name
 
     def save_scheme_file_from_vpk(self):
-        pak = vpk.open(self.get_basegame_vpk_path())
-        pakfile = pak.get_file("resource/" + self.scheme_file_name)
-        pakfile.save(self.get_patch_scheme_path())
+        self.save_file_from_vpk("resource/" + self.scheme_file_name,self.get_patch_scheme_path())
+
+    def save_file_from_vpk(self,path_in_vpk,path_on_disk):
+        vpk_path = self.get_basegame_vpk_path()
+        if os.path.exists(vpk_path):
+            pak = vpk.open(vpk_path)
+            pakfile = pak.get_file(path_in_vpk)
+            pakfile.save(path_on_disk)
+
+        else:
+            raise Exception("file " +vpk_path + " doesn't exist. Verify game files integrity")
 
     # assets logic - copy entire folders from patch
     def get_patch_asset_path(self,filename):
@@ -470,18 +543,14 @@ class FileTools:
             self.write_captions_from_csv(captions_csv_path)
         else:
            self.write_captions_from_patch()
-        for other_file_name in self.other_file_names:
-            other_csv_path = self.get_patch_other_csv_path(other_file_name)
+        for file_data in self.other_files:
+            other_csv_path = self.get_patch_other_csv_path(file_data)
             if os.path.isfile(other_csv_path):
-                self.write_other_from_csv(other_file_name,other_csv_path,self.language_name_other_override)
+                self.write_other_from_csv(file_data,other_csv_path)
             else:
-                self.write_other_from_patch(other_file_name,self.language_name_other_override)
-            if self.language_name_other_override == "english":
-                self.backup_basegame_english_other_path(other_file_name)
+                self.write_other_from_patch(file_data)
+            if file_data.get('override'):
+                self.backup_basegame_english_other_path(file_data)
         if self.scheme_file_name is not None:
-            if self.scheme_on_vpk is not None:
-                self.save_scheme_file_from_vpk()
             self.write_scheme_file(self.source_scheme_path,self.get_mod_scheme_path(),self.format_replacements)
-            if self.scheme_on_vpk is not None:
-                os.remove(self.source_scheme_path)
         self.copy_assets()

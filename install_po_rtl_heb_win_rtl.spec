@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['install_po_rtl_heb_win.py'],
+    ['install_po_rtl_heb_win_rtl.py'],
     pathex=[],
     binaries=[],
     datas=[('autoexec.cfg', '.'), ('portal_hebrew.txt', '.'), ('closecaption_hebrew.dat', '.'), ('Portal.json', '.'), ('credits.txt', '.')],
@@ -29,7 +29,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='install_po_rtl_heb_win',
+    name='install_po_rtl_heb_win_rtl',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

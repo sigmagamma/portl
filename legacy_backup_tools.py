@@ -68,8 +68,9 @@ def restore_captions(file_tools):
 
 def restore_other(file_tools):
     backup_other_path = get_backup_other_path(file_tools)
+    file_data = {"name": "portal","folder":"resource","localized": True}
     if (os.path.isfile(backup_other_path)):
-        copyfile(backup_other_path, file_tools.get_basegame_english_other_path("portal"))
+        copyfile(backup_other_path, file_tools.get_basegame_english_other_path(file_data))
         os.remove(backup_other_path)
 def restore_backup(file_tools):
     restore_cfg(file_tools)

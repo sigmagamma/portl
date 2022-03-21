@@ -40,24 +40,24 @@ def rearrange_multiple_lines(caption,max_chars,total_chars):
 def rearrange_single_line(s):
     return s[::-1]
 
+# converts translation into a numbered dictionary
 def read_translation_from_csv(csv_path):
     translated_lines = {}
     with open(csv_path, encoding="utf-8-sig") as csvfile:
 
         csvreader = csv.DictReader(csvfile)
         for line in csvreader:
-            original = line['original']
-            translation = line['actual translation']
-            speaker = line['speaker']
-            pair = [original, translation, speaker]
-            if translation != "":
-                translated_lines[line['number']] = pair
+            translated = line['actual translation']
+            not_reversed = line.get('not reversed')
+            if not translated and not not_reversed:
+                continue
+            translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line):
+def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding):
     i = 0
     with open(source,
-              encoding="utf-16", errors="ignore") as source_file, \
+              encoding=source_encoding, errors="ignore") as source_file, \
             open(dest, "w",
                  encoding="utf-16") as dest_file:
 
@@ -65,14 +65,18 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
             i += 1
             translatedLine = translated_lines.get(str(i))
             if translatedLine is not None:
-                orig = translatedLine[0]
-                translated = translatedLine[1]
+                orig = translatedLine['original']
+                translated = translatedLine.get('actual translation')
+                not_reversed = translatedLine.get('not reversed')
                 if orig in l:
-                    if multi_line:
-                        new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line)
+                    if not_reversed:
+                        l = l.replace(orig, not_reversed)
                     else:
-                        new_line = rearrange_single_line(translated)
-                    l = l.replace(orig, new_line)
+                        if multi_line:
+                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line)
+                        else:
+                            new_line = rearrange_single_line(translated)
+                        l = l.replace(orig, new_line)
                     print(l)
             dest_file.write(l)
 
