@@ -1,5 +1,6 @@
 # poRTL
-Source engine translation framework with support for right-to-left languages
+Source engine translation framework with support for right-to-left languages.
+
 Currently Portal 1 is supported. Current working branch is [feat-stanley](https://github.com/sigmagamma/portl/tree/feat-stanley). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
 Snapshot branches for latest Portal release are [portal-0.9.0-left-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-left-align) and [portal-0.9.0-right-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-right-align) .
 
@@ -61,12 +62,23 @@ https://store.steampowered.com/app/400/Portal/
 3. git clone https://github.com/sigmagamma/portl.git
 4. If you want to change the actual translation, put the relevant csvs in the project folder. 
 These have to be named "Portal translation - closecaption.csv" and "Portal translation - portal.csv."
-Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` and `portal_hebrew.txt` in the project folder.
+Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` `credits.txt` and `portal_hebrew.txt` in the project folder.
 5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win.py` performs the patching for windows.
 6. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
 (runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
-7. If you want to work on the right-aligned version, checkout branch https://github.com/sigmagamma/portl/tree/feat-right-align first. 
+7. If you want to work on the right-aligned version, follow similar instructions with install_po_rtl_heb_win_rtl.py, and see additional procedure below.
+
+## Right alignment instructions
+This branch contains code that supports right alignment for the captions (not for the song). For this to work correctly:
+
+It is assumed you're running Windows 10 with Hebrew support, meaning your default system Hebrew font is Tahoma.
+Run applyfonts.reg to change the default font to Miriam Fixed. Restart your PC.
+When you start the game, set the game resolution to 1366 * 768. (The plan is to support other sizes)
+Once you're done playing, to restore the system font to Tahoma run the removefonts.reg file and restart Windows.
+
+This process is required as the game does not support native right to left alignment, and also does not allow setting the font for Hebrew characters.
+
 
 ## Development setup - Stanley Parable
 

@@ -77,6 +77,8 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                         else:
                             new_line = rearrange_single_line(translated)
                         l = l.replace(orig, new_line)
+                        if total_chars_in_line is not None and total_chars_in_line > 0:
+                            l = l.replace("<I>", "")
                     print(l)
             dest_file.write(l)
 
