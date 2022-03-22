@@ -221,6 +221,8 @@ class FileTools:
         if os.path.exists(self.mod_folder):
             rmtree(self.mod_folder)
     def remove_mod(self):
+        self.restore_cfg('config.cfg')
+        self.restore_cfg('autoexec.cfg')
         self.remove_mod_folder()
         for file_data in self.other_files:
             if file_data.get('override'):
@@ -234,54 +236,85 @@ class FileTools:
                "\{}\\bin\captioncompiler.exe".format(self.compiler_game)
 
 
+
     ## cfg files logic
 
-    def get_patch_cfg_path(self,type):
-        filename = "{}.cfg".format(type)
+    def get_patch_file_path(self, filename):
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
+    def get_cfg_backup_path(self,filename):
+        return self.get_mod_cfg_path(filename.replace("cfg","bck"))
 
-    def get_basegame_cfg_path(self, type):
-        return self.get_basegame_cfg_folder()+"\{}.cfg".format(type)
+    def get_cfg_temp_backup_path(self,filename):
+        return filename.replace("cfg","bck")
+    def get_basegame_cfg_path(self, filename):
+        return self.get_basegame_cfg_folder()+"\{}".format(filename)
 
-    def get_mod_cfg_path(self, type):
-        return self.get_mod_cfg_folder() + "\{}.cfg".format(type)
+    def get_mod_cfg_path(self, filename):
+        return self.get_mod_cfg_folder() + "\{}".format(filename)
 
     # for either lang or subtitle line provided, if they exist in file, replace them
     # otherwise add the line
-    def write_replacement_cfg(self,dest_cfg_path, temp_cfg_path, lang_replacement, subtitles_replacement):
-        with open(dest_cfg_path, 'r') as f_in, open(temp_cfg_path, 'w') as f_out:
-            lang_flag = False
-            subtitles_flag = False
-            for line in f_in:
-                if line.startswith("cc_lang"):
-                    lang_flag = True
-                    if lang_replacement != '':
-                        f_out.write(lang_replacement)
-                elif line.startswith("cc_subtitles"):
-                    subtitles_flag = True
-                    if subtitles_replacement != '':
-                        f_out.write(subtitles_replacement)
-                else:
-                    f_out.write(line)
-            if not lang_flag and lang_replacement != '':
-                f_out.write(lang_replacement)
-            if not subtitles_flag and subtitles_replacement != '':
-                f_out.write(subtitles_replacement)
+    def restore_cfg(self,filename):
+        backup_path = self.get_cfg_backup_path(filename)
+        dest_cfg_path = self.get_basegame_cfg_path(filename)
+        if os.path.exists(backup_path):
+            if os.path.exists(dest_cfg_path):
+                lang_line,subtitles_line = self.find_lines(backup_path)
+                temp_cfg_path = self.get_cfg_temp_backup_path(filename)
+                with open(dest_cfg_path, 'r') as f_in, open(temp_cfg_path, 'w') as f_out:
+                    lang_flag = False
+                    subtitles_flag = False
+                    for line in f_in:
+                        if line.startswith("cc_lang"):
+                            lang_flag = True
+                            if lang_line != '':
+                                f_out.write(lang_line)
+                        elif line.startswith("cc_subtitles"):
+                            subtitles_flag = True
+                            if subtitles_line != '':
+                                f_out.write(subtitles_line)
+                        else:
+                            f_out.write(line)
+                    if not lang_flag and lang_line != '':
+                        f_out.write(lang_line)
+                    if not subtitles_flag and subtitles_line != '':
+                        f_out.write(subtitles_line)
+            else:
+                temp_cfg_path = backup_path
+            move(temp_cfg_path,dest_cfg_path)
 
 
-    def write_cfg(self,type):
-        dest_cfg_path = self.get_mod_cfg_path(type)
-        if type != 'config':
-            new_cfg_path = self.get_patch_cfg_path(type)
-            copyfile(new_cfg_path, dest_cfg_path)
-        else:
-            src_cfg_path = self.get_basegame_cfg_path(type)
-            lang_replacement = 'cc_lang "' + self.language + '"\n'
-            subtitles_replacement = 'cc_subtitles "1"'
-            self.write_replacement_cfg(src_cfg_path, dest_cfg_path, lang_replacement, subtitles_replacement)
+    def write_cfg(self,filename):
+        dest_cfg_path = self.get_mod_cfg_path(filename)
+        src_cfg_path = self.get_patch_file_path(filename)
+        copyfile(src_cfg_path, dest_cfg_path)
 
+    def find_lines(self,src_cfg_path):
+        lang_line = ''
+        subtitles_line = ''
+        if (os.path.isfile(src_cfg_path)):
+            with open(src_cfg_path, 'r') as f_in:
+                for line in f_in:
+                    if lang_line == '' and line.startswith("cc_lang"):
+                        lang_line = line
+                    if subtitles_line == '' and line.startswith("cc_subtitles"):
+                        subtitles_line = line
+        return lang_line,subtitles_line
+
+    def write_cfg_backup(self,filename):
+        src_cfg_path = self.get_basegame_cfg_path(filename)
+        # The game "forgets" the language even if we rewrite config.cfg, so we're going to back it up twice anyway
+        if not os.path.exists(src_cfg_path) and filename == 'autoexec.cfg':
+            src_cfg_path = self.get_basegame_cfg_path('config.cfg')
+        dest_cfg_path = self.get_cfg_backup_path(filename)
+        # only back up if you haven't already backed this up
+        if not os.path.exists(dest_cfg_path):
+            lang_line,subtitles_line = self.find_lines(src_cfg_path)
+            with open(dest_cfg_path,'w') as f_out:
+                f_out.write(lang_line)
+                f_out.write(subtitles_line)
 
     ## Close Captions logic
 
@@ -481,9 +514,10 @@ class FileTools:
                                         break
                                     # TODO that's very specific. rethink this
                                     fv_array = [ a for a in re.split('\"\s{1,}\"|\s{1,}\"|]\s{1,}|\"\s{1,}\[|\"\n',field_value) if a != '']
-                                    if len(fv_array) > 2 and not self.check_compatibility(fv_array[2]):
-                                        f_out.write(field_value)
-                                        continue
+                                    # skipping compatibility check for now, although we may use that in the future
+                                    # if len(fv_array) > 2 and not self.check_compatibility(fv_array[2]):
+                                    #     f_out.write(field_value)
+                                    #     continue
                                     fv_key = fv_array[0]
                                     value = format.get(fv_key)
                                     if value is not None:
@@ -522,22 +556,20 @@ class FileTools:
             raise Exception("file " +vpk_path + " doesn't exist. Verify game files integrity")
 
     # assets logic - copy entire folders from patch
-    def get_patch_asset_path(self,filename):
-        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-            filename = path.abspath(path.join(path.dirname(__file__), filename))
-        return filename
     def get_mod_asset_path(self,filename):
         return self.mod_folder+"/"+filename
     def copy_assets(self):
         for filename in ["materials","sound"]:
-            src_path = self.get_patch_asset_path(filename)
+            src_path = self.get_patch_file_path(filename)
             if os.path.exists(src_path):
                 copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
 
     ## main write function
     def write_files(self):
         self.create_mod_folders()
-        self.write_cfg('autoexec')
+        self.write_cfg('autoexec.cfg')
+        self.write_cfg_backup('autoexec.cfg')
+        self.write_cfg_backup('config.cfg')
         captions_csv_path = self.get_patch_captions_csv_path()
         if (os.path.isfile(captions_csv_path)):
             self.write_captions_from_csv(captions_csv_path)

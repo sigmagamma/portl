@@ -18,7 +18,7 @@ https://steamcommunity.com/sharedfiles/filedetails/?id=2554472476
 ## What this does
 * The program takes a translation file and text files for Source games and generates content for the relevant language,
  reversing RTL text if necessary so that the text is readable. Support for right-to-left alignment of the text is limited.
-* Finally, the program installs the content into the a mod folder. In some cases where the mod cannot override the base game folder the file in the base game folder is moved to a backup.
+* The program installs the content into the mod folder. In some cases where the mod cannot override the base game folder the file in the base game folder is moved to a backup.
 * The installer also allows removing the mod and restoring the backup
 * The installer doubles as a tool to generate the required content for easier installation later.
 * The installer now copies the folders "materials" and "sound" to the mod folder
@@ -99,7 +99,7 @@ in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Por
 
 
 ## Configuration reference
-game_data.json is an attempt to centralize all localization-related configuration into a single file.
+the game-specific json is an attempt to centralize all localization-related configuration into a single file.
 Rather than use conditional logic based on game within the code, we keep all related properties for each game
 within that file.
 
