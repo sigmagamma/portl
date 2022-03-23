@@ -119,9 +119,6 @@ class FileTools:
     def get_full_game_path(self):
         return self.game_parent_path + "\\"+self.game
 
-    def get_basegame_cfg_folder(self):
-        return self.get_full_basegame_path() + "\cfg"
-
     def get_full_basegame_path(self):
         return self.game_parent_path + self.basegame_path
 
@@ -166,9 +163,6 @@ class FileTools:
     def get_sizepatch_custom_folder(self):
         return self.get_custom_parent_folder()+"\sizepatch"
 
-    def get_mod_cfg_folder(self):
-        return self.mod_folder+"\cfg"
-
     def get_mod_resource_folder(self):
         return self.mod_folder+"\\resource"
 
@@ -196,9 +190,6 @@ class FileTools:
         with open(self.get_mod_version_path(),'w') as file:
             file.write(self.shortname+"-"+self.version+rtl_text+"\n"+ REPO)
     def create_mod_folders(self):
-        mod_cfg_folder = self.get_mod_cfg_folder()
-        if not os.path.exists(mod_cfg_folder):
-            os.makedirs(mod_cfg_folder)
         for folder in ['resource','scripts']:
             mod_subfolder = self.get_mod_subfolder(folder)
             if not os.path.exists(mod_subfolder):
@@ -221,8 +212,6 @@ class FileTools:
         if os.path.exists(self.mod_folder):
             rmtree(self.mod_folder)
     def remove_mod(self):
-        self.restore_cfg('config.cfg')
-        self.restore_cfg('autoexec.cfg')
         self.remove_mod_folder()
         for file_data in self.other_files:
             if file_data.get('override'):
@@ -235,91 +224,10 @@ class FileTools:
         return self.compiler_game_parent_path + \
                "\{}\\bin\captioncompiler.exe".format(self.compiler_game)
 
-
-
-    ## cfg files logic
-
-    def get_patch_file_path(self, filename):
-        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-            filename = path.abspath(path.join(path.dirname(__file__), filename))
-        return filename
-    def get_cfg_backup_path(self,filename):
-        return self.get_mod_cfg_path(filename.replace("cfg","bck"))
-
-    def get_cfg_temp_backup_path(self,filename):
-        return filename.replace("cfg","bck")
-    def get_basegame_cfg_path(self, filename):
-        return self.get_basegame_cfg_folder()+"\{}".format(filename)
-
-    def get_mod_cfg_path(self, filename):
-        return self.get_mod_cfg_folder() + "\{}".format(filename)
-
-    # for either lang or subtitle line provided, if they exist in file, replace them
-    # otherwise add the line
-    def restore_cfg(self,filename):
-        backup_path = self.get_cfg_backup_path(filename)
-        dest_cfg_path = self.get_basegame_cfg_path(filename)
-        if os.path.exists(backup_path):
-            if os.path.exists(dest_cfg_path):
-                lang_line,subtitles_line = self.find_lines(backup_path)
-                temp_cfg_path = self.get_cfg_temp_backup_path(filename)
-                with open(dest_cfg_path, 'r') as f_in, open(temp_cfg_path, 'w') as f_out:
-                    lang_flag = False
-                    subtitles_flag = False
-                    for line in f_in:
-                        if line.startswith("cc_lang"):
-                            lang_flag = True
-                            if lang_line != '':
-                                f_out.write(lang_line)
-                        elif line.startswith("cc_subtitles"):
-                            subtitles_flag = True
-                            if subtitles_line != '':
-                                f_out.write(subtitles_line)
-                        else:
-                            f_out.write(line)
-                    if not lang_flag and lang_line != '':
-                        f_out.write(lang_line)
-                    if not subtitles_flag and subtitles_line != '':
-                        f_out.write(subtitles_line)
-            else:
-                temp_cfg_path = backup_path
-            move(temp_cfg_path,dest_cfg_path)
-
-
-    def write_cfg(self,filename):
-        dest_cfg_path = self.get_mod_cfg_path(filename)
-        src_cfg_path = self.get_patch_file_path(filename)
-        copyfile(src_cfg_path, dest_cfg_path)
-
-    def find_lines(self,src_cfg_path):
-        lang_line = ''
-        subtitles_line = ''
-        if (os.path.isfile(src_cfg_path)):
-            with open(src_cfg_path, 'r') as f_in:
-                for line in f_in:
-                    if lang_line == '' and line.startswith("cc_lang"):
-                        lang_line = line
-                    if subtitles_line == '' and line.startswith("cc_subtitles"):
-                        subtitles_line = line
-        return lang_line,subtitles_line
-
-    def write_cfg_backup(self,filename):
-        src_cfg_path = self.get_basegame_cfg_path(filename)
-        # The game "forgets" the language even if we rewrite config.cfg, so we're going to back it up twice anyway
-        if not os.path.exists(src_cfg_path) and filename == 'autoexec.cfg':
-            src_cfg_path = self.get_basegame_cfg_path('config.cfg')
-        dest_cfg_path = self.get_cfg_backup_path(filename)
-        # only back up if you haven't already backed this up
-        if not os.path.exists(dest_cfg_path):
-            lang_line,subtitles_line = self.find_lines(src_cfg_path)
-            with open(dest_cfg_path,'w') as f_out:
-                f_out.write(lang_line)
-                f_out.write(subtitles_line)
-
     ## Close Captions logic
 
     def get_mod_captions_path(self):
-        return self.get_mod_resource_folder() + "\{}_{}.dat".format(self.caption_file_name,self.language)
+        return self.get_mod_resource_folder() + "\{}_{}.dat".format(self.caption_file_name,"english")
 
     def get_compiled_captions_path(self):
         return self.get_compiler_resource_folder()+"\{}_{}.dat".format(self.caption_file_name,self.language)
@@ -329,10 +237,10 @@ class FileTools:
 
 
     def get_mod_captions_text_path(self):
-        return self.get_mod_resource_folder() + "\{}_{}.txt".format(self.caption_file_name,self.language)
+        return self.get_mod_resource_folder() + "\{}_{}.txt".format(self.caption_file_name,"english")
 
     def get_patch_captions_path(self):
-        filename = "{}_{}.dat".format(self.caption_file_name,self.language)
+        filename = "{}_{}.dat".format(self.caption_file_name,"english")
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
@@ -404,7 +312,7 @@ class FileTools:
             move(backup_path,self.get_basegame_english_other_path(file_data))
 
     def get_local_other_path(self,file_data):
-        language = self.get_localized_suffix(file_data,self.language)
+        language = self.get_localized_suffix(file_data,"english")
         return "{}{}.txt".format(file_data.get('name'),language)
 
     def get_patch_other_path(self,file_data):
@@ -558,6 +466,12 @@ class FileTools:
     # assets logic - copy entire folders from patch
     def get_mod_asset_path(self,filename):
         return self.mod_folder+"/"+filename
+
+    def get_patch_file_path(self, filename):
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            filename = path.abspath(path.join(path.dirname(__file__), filename))
+        return filename
+
     def copy_assets(self):
         for filename in ["materials","sound"]:
             src_path = self.get_patch_file_path(filename)
@@ -567,9 +481,6 @@ class FileTools:
     ## main write function
     def write_files(self):
         self.create_mod_folders()
-        self.write_cfg('autoexec.cfg')
-        self.write_cfg_backup('autoexec.cfg')
-        self.write_cfg_backup('config.cfg')
         captions_csv_path = self.get_patch_captions_csv_path()
         if (os.path.isfile(captions_csv_path)):
             self.write_captions_from_csv(captions_csv_path)

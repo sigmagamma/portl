@@ -8,7 +8,7 @@ a = Analysis(
     ['install_po_rtl_heb_win_rtl.py'],
     pathex=[],
     binaries=[],
-    datas=[('autoexec.cfg', '.'), ('portal_hebrew.txt', '.'), ('closecaption_hebrew.dat', '.'), ('Portal RTL.json', '.'), ('credits.txt', '.')],
+    datas=[('portal_english.txt', '.'), ('closecaption_english.dat', '.'), ('Portal RTL.json', '.'), ('credits.txt', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
