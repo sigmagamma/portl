@@ -16,21 +16,22 @@ Or in English here:
 https://steamcommunity.com/sharedfiles/filedetails/?id=2554472476
 
 ## What this does
-* The program takes a translation file and text files for Source games and generates content for the relevant language,
+* The program takes translation files and text files for Source games and generates content for the relevant language,
  reversing RTL text if necessary so that the text is readable. Support for right-to-left alignment of the text is limited.
 * The program installs the content into the mod folder. In some cases where the mod cannot override the base game folder the file in the base game folder is moved to a backup.
 * The installer also allows removing the mod and restoring the backup
 * The installer doubles as a tool to generate the required content for easier installation later.
 * The installer now copies the folders "materials" and "sound" to the mod folder
+
 ## Windows Hebrew installation for Portal
 This repository does not include any file with actual source or translation material from the game.
 In order to run this you'll need to put either:
 
-1. closecaption_hebrew.dat and portal_hebrew.txt that already contain the hebrew translation OR
+1. closecaption_english.dat credits.txt and portal_english.txt that already contain the hebrew translation OR
 2. Portal translation - additions.csv, Portal translation - closecaption.csv, Portal translation - credits.csv
 in the same folder.
 
-You can then run install_po_rtl_heb_win.py for a windows installation.
+You can then run install_po_rtl_heb_win.py for a Windows installation.
 
 You can use the spec files with pyinstaller to create the executable.
 However, in windows you may have to compile pyinstaller on your machine to do so to avoid the executable being flagged by AV software.
@@ -52,7 +53,7 @@ Spec file was generated with:
 `.\venv\Scripts\pyi-makespec.exe --onefile .\install_po_rtl_heb_win.py`
 
 
-You will have to have closecaption_hebrew.dat,credits.txt and portal_hebrew.txt created
+You will have to have closecaption_english.dat,credits.txt and portal_english.txt created
 by the script in the same folder when running pyinstaller.
 
 ## Development setup - Portal
@@ -61,16 +62,17 @@ https://store.steampowered.com/app/400/Portal/
 2. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
 3. git clone https://github.com/sigmagamma/portl.git
 4. If you want to change the actual translation, put the relevant csvs in the project folder. 
-These have to be named "Portal translation - closecaption.csv" and "Portal translation - portal.csv."
-Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_hebrew.dat` `credits.txt` and `portal_hebrew.txt` in the project folder.
+These have to be named "Portal translation - closecaption.csv", "Portal translation - credits.csv" and "Portal translation - portal.csv."
+Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_english.dat` `credits.txt` and `portal_english.txt` in the project folder.
 5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win.py` performs the patching for windows.
 6. Once you've applied the patch, run the game. You should be able to see subtitles
-in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
-(runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
+in Hebrew - if not, try manually applying the following settings in the Portal console
+(runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
 7. If you want to work on the right-aligned version, follow similar instructions with install_po_rtl_heb_win_rtl.py, and see additional procedure below.
 
 ## Right alignment instructions
 This branch contains code that supports right alignment for the captions (not for the song). For this to work correctly:
+The installer that does this is 'install_po_rtl_heb_win_rtl.py'.
 
 It is assumed you're running Windows 10 with Hebrew support, meaning your default system Hebrew font is Tahoma.
 Run applyfonts.reg to change the default font to Miriam Fixed. Restart your PC.
@@ -94,8 +96,8 @@ For this mode you have to get an additional game that has captioncompiler, like 
 Otherwise, if you want to work with an existing translation and patch the game, put the modified `subtitles_hebrew.dat` in the project folder.
 5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_stanley_steam_heb_win.py` performs the patching for windows.
 6. Once you've applied the patch, run the game. You should be able to see subtitles
-in Hebrew - if not, try manually applying the `autoexec.cfg` settings in the Portal console
-(runnable by using \`): `cc_lang hebrew` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
+in Hebrew - if not, try manually applying the following settings in the Portal console
+(runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
 
 
 ## Configuration reference

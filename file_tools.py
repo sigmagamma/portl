@@ -190,6 +190,9 @@ class FileTools:
         with open(self.get_mod_version_path(),'w') as file:
             file.write(self.shortname+"-"+self.version+rtl_text+"\n"+ REPO)
     def create_mod_folders(self):
+        cfg_folder = self.get_mod_cfg_folder()
+        if not os.path.exists(cfg_folder):
+            os.makedirs(cfg_folder)
         for folder in ['resource','scripts']:
             mod_subfolder = self.get_mod_subfolder(folder)
             if not os.path.exists(mod_subfolder):
@@ -478,9 +481,20 @@ class FileTools:
             if os.path.exists(src_path):
                 copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
 
+    def get_mod_cfg_folder(self):
+        return self.mod_folder + "\cfg"
+
+    def get_mod_cfg_path(self, filename):
+        return self.get_mod_cfg_folder() + "\{}".format(filename)
+
+    def write_autoexec_cfg(self):
+        with open(self.get_mod_cfg_path('autoexec.cfg'),'w') as file:
+            file.write('cc_subtitles "1"')
+
     ## main write function
     def write_files(self):
         self.create_mod_folders()
+        self.write_autoexec_cfg()
         captions_csv_path = self.get_patch_captions_csv_path()
         if (os.path.isfile(captions_csv_path)):
             self.write_captions_from_csv(captions_csv_path)

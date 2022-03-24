@@ -2,7 +2,7 @@ This is an alpha version. By following these instructions you acknowledge you ar
 Installation instructions:
 Assuming C:\Program Files (x86)\Steam\steamapps\common\Portal\ is the game folder:
 
-1. If you've installed a previous Hebrew into the game folder, remove it and restore any backups from the English version, specifically deleting closecaption_hebrew.dat (and if you overwrote portal_english.txt, that as well).
+1. If you've installed a previous Hebrew into the game folder, remove it and restore any backups from the English version, specifically deleting closecaption_hebrew.dat (and if you overwrote portal_english.txt, that as well). Make sure Portal\portal\cfg\autoexec.cfg does not contain "cc_lang hebrew" or "cc_subtitles 0".
 2. Go to the Portal\portal\resource folder and rename portal_english.txt .
 3. Create a folder called Portal\portal\custom and place the contents of the zip under it.
 4. It is assumed you're running Windows 10 with Hebrew support, meaning your default system Hebrew font is Tahoma.
