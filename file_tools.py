@@ -42,6 +42,7 @@ class FileTools:
                     full_basegame_path = self.get_full_basegame_path()
                     if not os.path.exists(full_basegame_path):
                         raise Exception("folder "+full_basegame_path + " doesn't exist. Please install the game. ")
+                    self.original_language = self.get_original_localization_lang()
                     self.language = language
 
                     self.caption_file_name = data['caption_file_name']
@@ -230,7 +231,7 @@ class FileTools:
     ## Close Captions logic
 
     def get_mod_captions_path(self):
-        return self.get_mod_resource_folder() + "\{}_{}.dat".format(self.caption_file_name,"english")
+        return self.get_mod_resource_folder() + "\{}_{}.dat".format(self.caption_file_name,self.original_language)
 
     def get_compiled_captions_path(self):
         return self.get_compiler_resource_folder()+"\{}_{}.dat".format(self.caption_file_name,self.language)
@@ -240,7 +241,7 @@ class FileTools:
 
 
     def get_mod_captions_text_path(self):
-        return self.get_mod_resource_folder() + "\{}_{}.txt".format(self.caption_file_name,"english")
+        return self.get_mod_resource_folder() + "\{}_{}.txt".format(self.caption_file_name,self.original_language)
 
     def get_patch_captions_path(self):
         filename = "{}_{}.dat".format(self.caption_file_name,"english")
@@ -487,9 +488,37 @@ class FileTools:
     def get_mod_cfg_path(self, filename):
         return self.get_mod_cfg_folder() + "\{}".format(filename)
 
+    def get_basegame_cfg_folder(self):
+        return self.get_full_basegame_path() + "\cfg"
+    def get_basegame_cfg_path(self, filename):
+        return self.get_basegame_cfg_folder()+"\{}".format(filename)
+
+    def get_lang_from_cfg(self,cfg_path):
+        lang = ''
+        if (os.path.isfile(cfg_path)):
+            with open(cfg_path, 'r') as f_in:
+                for line in f_in:
+                    if lang == '' and line.startswith("cc_lang"):
+                        lang_line = line
+                        lang = (lang_line.split('"'))[1]
+                        break
+        return lang
+
+    # best effort to find user's localization lang and override it so that after
+    # uninstallation configuration won't be affected
+    def get_original_localization_lang(self):
+        src_config_path = self.get_basegame_cfg_path('config.cfg')
+        lang = self.get_lang_from_cfg(src_config_path)
+        # using a non-official localization as the language to override was a mistake
+        # might not be able to correct it, but can avenge it
+        if lang == '' or lang == 'hebrew':
+            lang = 'english'
+        return lang
+
     def write_autoexec_cfg(self):
         with open(self.get_mod_cfg_path('autoexec.cfg'),'w') as file:
-            file.write('cc_subtitles "1"')
+            file.write('cc_subtitles "1"\n')
+            file.write('cc_lang "' + self.original_language + '"')
 
     ## main write function
     def write_files(self):

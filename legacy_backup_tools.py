@@ -37,46 +37,23 @@ def find_lines(backup_cfg_path,lang_line,subtitles_line):
                    subtitles_line = line
     return lang_line,subtitles_line
 
-# for either lang or subtitle line provided, if they exist in file, replace them
-    # otherwise add the line
-def write_replacement_cfg(dest_cfg_path, temp_cfg_path, lang_replacement, subtitles_replacement):
+#remove "bad language"
+def remove_hebrew_from_cfg(dest_cfg_path, temp_cfg_path):
     with open(dest_cfg_path, 'r') as f_in, open(temp_cfg_path, 'w') as f_out:
-        lang_flag = False
-        subtitles_flag = False
         for line in f_in:
-            if line.startswith("cc_lang"):
-                lang_flag = True
-                if lang_replacement != '':
-                    f_out.write(lang_replacement)
-            elif line.startswith("cc_subtitles"):
-                subtitles_flag = True
-                if subtitles_replacement != '':
-                    f_out.write(subtitles_replacement)
-            else:
+            if not 'cc_lang "hebrew"' in line:
                 f_out.write(line)
-        if not lang_flag and lang_replacement != '':
-            f_out.write(lang_replacement)
-        if not subtitles_flag and subtitles_replacement != '':
-            f_out.write(subtitles_replacement)
 
 def restore_cfg(file_tools):
-    main_autoexec_path = get_basegame_cfg_path(file_tools,'autoexec.cfg')
-    backup_autoexec_path = get_backup_cfg_path(file_tools,'autoexec')
-    temp_autoexec_path = get_temp_cfg_path(file_tools,'autoexec')
+    backup_autoexec_path = get_backup_cfg_path(file_tools, 'autoexec')
     backup_config_path = get_backup_cfg_path(file_tools, 'config')
-    if not ( (os.path.isfile(backup_autoexec_path)) or (os.path.isfile(backup_config_path))):
-        return
-    backup_lang_line = ''
-    backup_subtitles_line = ''
-    backup_lang_line,backup_subtitles_line = find_lines(backup_autoexec_path,backup_lang_line,backup_subtitles_line)
-    if backup_lang_line == '' or backup_subtitles_line == '':
-
-        backup_lang_line, backup_subtitles_line = find_lines(backup_config_path, backup_lang_line,
-                                                             backup_subtitles_line)
-    write_replacement_cfg(main_autoexec_path, temp_autoexec_path, backup_lang_line, backup_subtitles_line)
-    move(temp_autoexec_path, main_autoexec_path)
-    if (os.path.isfile(backup_autoexec_path)):
-        os.remove(backup_autoexec_path)
+    main_autoexec_path = get_basegame_cfg_path(file_tools,'autoexec.cfg')
+    temp_autoexec_path = get_temp_cfg_path(file_tools,'autoexec')
+    if os.path.isfile(main_autoexec_path):
+        if os.path.isfile(backup_autoexec_path):
+            move(backup_autoexec_path, main_autoexec_path)
+        remove_hebrew_from_cfg(main_autoexec_path,temp_autoexec_path)
+        move(temp_autoexec_path, main_autoexec_path)
     if (os.path.isfile(backup_config_path)):
         os.remove(backup_config_path)
 
