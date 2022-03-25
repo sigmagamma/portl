@@ -1,0 +1,23 @@
+{
+  "shortname": "stanley",
+  "version": "0.9.1",
+  "game": "The Stanley Parable",
+  "game_service": "Steam",
+  "basegame": "thestanleyparable",
+  "caption_file_name": "subtitles",
+  "max_chars_before_break": 36,
+  "compiler_game_service_path": "D:\\Program Files (x86)\\Steam\\steamapps\\common",
+  "compiler_game": "Black Mesa",
+  "compiler_game_path": "\\Black Mesa\\bms",
+  "english_captions_text_path": "subtitles_english.txt",
+  "mod_type": "dlc",
+  "os" : "WIN",
+  "scheme_file_name": "basemodui_scheme.res",
+  "format_replacements": {
+    "CloseCaption_Normal": {
+      "1": {
+        "name": "Courier New"}
+    }
+  }
+
+}

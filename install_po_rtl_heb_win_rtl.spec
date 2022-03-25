@@ -5,10 +5,10 @@ block_cipher = None
 
 
 a = Analysis(
-    ['install_po_rtl_heb_win.py'],
+    ['install_po_rtl_heb_win_rtl.py'],
     pathex=[],
     binaries=[],
-    datas=[('portal_english.txt', '.'), ('closecaption_english.dat', '.'), ('Portal.json', '.'), ('credits.txt', '.')],
+    datas=[('portal_english.txt', '.'), ('closecaption_english.dat', '.'), ('Portal RTL.json', '.'), ('credits.txt', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -29,7 +29,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='install_po_rtl_heb_win',
+    name='install_po_rtl_heb_win_rtl',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
