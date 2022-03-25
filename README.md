@@ -2,8 +2,7 @@
 Source engine translation framework with support for right-to-left languages.
 
 Currently Portal 1 is supported. Current working branch is [feat-stanley](https://github.com/sigmagamma/portl/tree/feat-stanley). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
-Snapshot branches for latest Portal release are [portal-0.9.0-left-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-left-align) and [portal-0.9.0-right-align](https://github.com/sigmagamma/portl/tree/portal-0.9.0-right-align) .
-
+Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
 
