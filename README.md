@@ -34,9 +34,17 @@ You can then run install_po_rtl_heb_win.py for a Windows installation.
 
 You can use the spec files with pyinstaller to create the executable.
 
-Currently pyinstaller generates exe's flagged by Norton. I have no hope of this being solved soon, so other solutions would be welcome.
-See here:
-https://github.com/sigmagamma/portl/issues/40
+Pyinstaller is a very fragile solution that's currently working on a crutch.
+Use this guide:
+https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resolved-b33842bd3184
+
+Some additional points to follow:
+Within the Visual Studio Installer, make sure you add "Desktop development with C++".
+In step 5, if you're working with Pycharm, you should probably copy the release into the project folder in order to have it install pyinstaller into your Virtual Environment.
+Also you may have to run Pycharm as administrator.
+I've used the pyinstaller develop branch:
+https://github.com/pyinstaller/pyinstaller/archive/develop.zip
+
 Once Pyinstaller is installed into your environment,modify the path for the portalhebrew folder within the file. Then run 
 
 `pyinstaller --clean install_po_rtl_heb_win.spec`
