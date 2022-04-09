@@ -47,7 +47,7 @@ def remove_hebrew_from_cfg(dest_cfg_path, temp_cfg_path):
 def restore_cfg(file_tools):
     backup_autoexec_path = get_backup_cfg_path(file_tools, 'autoexec')
     backup_config_path = get_backup_cfg_path(file_tools, 'config')
-    main_autoexec_path = get_basegame_cfg_path(file_tools,'autoexec.cfg')
+    main_autoexec_path = get_basegame_cfg_path(file_tools, '../autoexec.cfg')
     temp_autoexec_path = get_temp_cfg_path(file_tools,'autoexec')
     if os.path.isfile(main_autoexec_path):
         if os.path.isfile(backup_autoexec_path):

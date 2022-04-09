@@ -1,5 +1,5 @@
-from file_tools import FileTools
-import legacy_backup_tools as lbt
+from src.file_tools import FileTools
+from src import legacy_backup_tools as lbt
 import os
 def install_po_rtl(filename,language):
     ft = FileTools(filename,language)

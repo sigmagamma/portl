@@ -1,11 +1,12 @@
 venv
 dist
 build
-backup
+archive
 closecaption_*
 subtitles_*
 portal_*
-Portal translation - additions.csv
-Portal translation - closecaption.csv
+gamefiles/portal/Portal translation - additions.csv
+gamefiles/portal/Portal translation - closecaption.csv
+gamefiles/portal/Portal translation - credits.csv.csv
 __pycache__
 .idea
