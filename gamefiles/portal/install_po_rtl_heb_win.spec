@@ -28,7 +28,7 @@ exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
-    Tree('.\\materials', prefix='materials\\'),
+    Tree('.\\materials', prefix='src\gamefiles\\portal\materials\\'),
     a.zipfiles,
     a.datas,
     [],

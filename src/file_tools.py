@@ -1,7 +1,7 @@
 import os
 import sys
 import winreg
-from shutil import copyfile,copy,move,rmtree
+from shutil import copyfile,copy,rmtree
 from os import path
 from distutils.dir_util import copy_tree
 import vpk
@@ -14,6 +14,10 @@ import re
 from urllib.request import urlopen
 
 REPO = "https://github.com/sigmagamma/portl/"
+# this is required due to AV software flagging shutil.move for some reason
+def move(src, dst):
+    copyfile(src,dst)
+    os.remove(src)
 class FileTools:
     def __init__(self, game_filename,language):
 

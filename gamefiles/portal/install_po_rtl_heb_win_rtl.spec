@@ -5,10 +5,13 @@ block_cipher = None
 
 
 a = Analysis(
-    ['install_po_rtl_heb_win_rtl.py'],
-    pathex=[],
+    ['..\\..\\src\install_po_rtl_heb_win_rtl.py'],
+    pathex=['..\\..\\'],
     binaries=[],
-    datas=[('portal_english.txt', '.'), ('closecaption_english.dat', '.'), ('Portal RTL.json', '.'), ('credits.txt', '.')],
+    datas=[(os.environ['modpath']+'\\resource\\portal_english.txt', 'src\gamefiles\\portal'),
+    (os.environ['modpath']+'\\resource\\closecaption_english.dat', 'src\gamefiles\\portal'),
+    ('Portal.json', 'src\gamefiles\\portal'),
+    (os.environ['modpath']+'\\scripts\\credits.txt', 'src\gamefiles\\portal')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -25,7 +28,7 @@ exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
-    Tree('.\\materials', prefix='materials\\'),
+    Tree('.\\materials', prefix='src\gamefiles\\portal\materials\\'),
     a.zipfiles,
     a.datas,
     [],
