@@ -6,6 +6,7 @@
   "basegame": "thestanleyparable",
   "caption_file_name": "subtitles",
   "max_chars_before_break": 36,
+  "total_chars_in_line": 43,
   "compiler_game_service_path": "D:\\Program Files (x86)\\Steam\\steamapps\\common",
   "compiler_game": "Black Mesa",
   "compiler_game_path": "\\Black Mesa\\bms",
@@ -13,6 +14,7 @@
   "mod_type": "dlc",
   "os" : "WIN",
   "scheme_file_name": "basemodui_scheme.res",
+  "translation_url": "https://docs.google.com/spreadsheets/d/1qfft_zj09Dh3GhyhxL4RZnjOUa8w4RXPLXCxY7vF5BE/gviz/tq?tqx=out:csv&sheet=closedcaption",
   "format_replacements": {
     "CloseCaption_Normal": {
       "1": {

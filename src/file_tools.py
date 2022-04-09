@@ -6,11 +6,13 @@ from os import path
 from distutils.dir_util import copy_tree
 import vpk
 
-import text_tools as tt
+import src.text_tools as tt
 import subprocess
 import json
 import shlex
 import re
+from urllib.request import urlopen
+
 REPO = "https://github.com/sigmagamma/portl/"
 class FileTools:
     def __init__(self, game_filename,language):
@@ -48,7 +50,7 @@ class FileTools:
                     self.caption_file_name = data['caption_file_name']
                     self.other_files = data.get('other_files')
                     if self.other_files is None:
-                        self.other_file_names = []
+                        self.other_files = []
                     self.max_chars_before_break = data['max_chars_before_break']
                     self.total_chars_in_line = data.get('total_chars_in_line')
                     compiler_game_service_path = data.get('compiler_game_service_path')
@@ -64,6 +66,8 @@ class FileTools:
                     self.english_captions_text_path = data.get('english_captions_text_path')
                     if self.english_captions_text_path is None:
                         self.english_captions_text_path = self.get_english_captions_text_path()
+                    else:
+                        self.english_captions_text_path = self.get_patch_file_path(self.english_captions_text_path)
 
                     # mod folder logic
                     mod_type = data.get('mod_type')
@@ -77,15 +81,14 @@ class FileTools:
                     self.scheme_file_name = data.get("scheme_file_name")
                     self.format_replacements = data.get("format_replacements")
                     self.vpk_file_name = data.get("vpk_file_name")
-                    scheme_on_vpk = data.get("scheme_on_vpk")
-                    if scheme_on_vpk is not None:
-                        self.scheme_on_vpk = scheme_on_vpk
+                    self.scheme_on_vpk = data.get("scheme_on_vpk")
+                    if self.scheme_on_vpk is not None:
                         # this is the expected path of the scheme file once it is extracted.
                         # The file itself is not saved here to avoid side effects for the constructor
-                        self.source_scheme_path =  self.get_patch_scheme_path()
+                        self.source_scheme_path = self.get_patch_scheme_path()
                     else:
                         self.source_scheme_path = self.get_basegame_scheme_path()
-
+                    self.translation_url = data.get('translation_url')
     ##Steam/Epic logic
     def steam_path_windows(self):
         try:
@@ -178,7 +181,7 @@ class FileTools:
         return self.mod_folder+"\\maps\\soundcache"
 
     def get_patch_version_file(self):
-        filename = "portl.txt"
+        filename = self.get_gamefiles_folder() + "\\portl.txt"
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
@@ -189,7 +192,7 @@ class FileTools:
         if self.total_chars_in_line is not None:
             rtl_text = "RTL version\n"
         with open(self.get_mod_version_path(),'w') as file:
-            file.write(self.shortname+"-"+self.version+rtl_text+"\n"+ REPO)
+            file.write(self.shortname+"-"+self.version+" "+rtl_text+"\n"+ REPO)
     def create_mod_folders(self):
         cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(cfg_folder):
@@ -244,7 +247,7 @@ class FileTools:
         return self.get_mod_resource_folder() + "\{}_{}.txt".format(self.caption_file_name,self.original_language)
 
     def get_patch_captions_path(self):
-        filename = "{}_{}.dat".format(self.caption_file_name,"english")
+        filename = self.get_gamefiles_folder() + "\\{}_{}.dat".format(self.caption_file_name, "english")
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
@@ -252,9 +255,14 @@ class FileTools:
 
     def get_english_captions_text_path(self):
         return self.get_basegame_resource_folder()+"\{}_english.txt".format(self.caption_file_name)
+    def get_gamefiles_folder(self):
+        return "gamefiles\\"+self.shortname
 
     def get_patch_captions_csv_path(self):
-        return self.game + " translation - "+ self.caption_file_name +".csv"
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            return self.game + " translation - " + self.caption_file_name + ".csv"
+        else:
+            return self.get_gamefiles_folder() + "\\" + self.game + " translation - " + self.caption_file_name + ".csv"
 
     def write_captions_from_patch(self):
         dest_captions_path = self.get_mod_captions_path()
@@ -317,7 +325,7 @@ class FileTools:
 
     def get_local_other_path(self,file_data):
         language = self.get_localized_suffix(file_data,"english")
-        return "{}{}.txt".format(file_data.get('name'),language)
+        return self.get_gamefiles_folder() + "\\{}{}.txt".format(file_data.get('name'), language)
 
     def get_patch_other_path(self,file_data):
         filename = self.get_local_other_path(file_data)
@@ -326,7 +334,10 @@ class FileTools:
         return filename
 
     def get_patch_other_csv_path(self,file_data):
-        return self.game + " translation - "+ file_data.get('name') +".csv"
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            return self.game + " translation - " + file_data.get('name') + ".csv"
+        else:
+            return self.get_gamefiles_folder() + "\\" + self.game + " translation - " + file_data.get('name') + ".csv"
 
     def write_other_from_patch(self,file_data):
         dest_other_path = self.get_mod_other_path(file_data)
@@ -443,7 +454,9 @@ class FileTools:
             os.remove(self.source_scheme_path)
 
     def get_basegame_scheme_path(self):
-        return self.get_basegame_resource_folder()+"\\"+self.scheme_file_name
+        if self.scheme_file_name is not None:
+            return self.get_basegame_resource_folder()+"\\"+self.scheme_file_name
+        return None
 
     def get_mod_scheme_path(self):
         return self.get_mod_resource_folder() + "\\" + self.scheme_file_name
@@ -472,6 +485,7 @@ class FileTools:
         return self.mod_folder+"/"+filename
 
     def get_patch_file_path(self, filename):
+        filename = self.get_gamefiles_folder()+"\\"+filename
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
@@ -516,15 +530,25 @@ class FileTools:
         return lang
 
     def write_autoexec_cfg(self):
-        with open(self.get_mod_cfg_path('autoexec.cfg'),'w') as file:
+        with open(self.get_mod_cfg_path('autoexec.cfg'), 'w') as file:
             file.write('cc_subtitles "1"\n')
             file.write('cc_lang "' + self.original_language + '"')
+
+    def get_csv_from_url(self,filename,url):
+        response = urlopen(url)
+        if response.status == 200:
+            with open(filename, 'w', encoding='utf-8') as file:
+                for line in response:
+                    file.write(line.decode('utf-8'))
 
     ## main write function
     def write_files(self):
         self.create_mod_folders()
         self.write_autoexec_cfg()
         captions_csv_path = self.get_patch_captions_csv_path()
+
+        if self.translation_url is not None:
+            self.get_csv_from_url(captions_csv_path,self.translation_url)
         if (os.path.isfile(captions_csv_path)):
             self.write_captions_from_csv(captions_csv_path)
         else:

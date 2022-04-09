@@ -1,0 +1,12 @@
+{
+  "shortname": "blackmesa",
+  "version": "0.9.1",
+  "game": "Black Mesa",
+  "game_service": "Steam",
+  "basegame": "bms",
+  "caption_file_name": "closecaption",
+  "max_chars_before_break": 60,
+  "mod_type": "custom",
+  "os" : "WIN"
+
+}
