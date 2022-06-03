@@ -92,7 +92,16 @@ class FileTools:
                         self.source_scheme_path = self.get_patch_scheme_path()
                     else:
                         self.source_scheme_path = self.get_basegame_scheme_path()
-                    self.translation_url = data.get('translation_url')
+                    private_file = self.get_patch_gamedata_private(game_filename)
+                    self.captions_translation_url = None
+                    if os.path.exists(private_file):
+                        with  open(private_file,'r') as game_data_file_private:
+                            data_private = json.load(game_data_file_private)
+                            self.translation_url = data_private.get('translation_url')
+                            translation_sheet = data.get('captions_translation_sheet')
+                            if self.translation_url is not None and translation_sheet is not None:
+                                self.captions_translation_url = self.translation_url + translation_sheet
+
     ##Steam/Epic logic
     def steam_path_windows(self):
         try:
@@ -123,7 +132,11 @@ class FileTools:
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
-
+    def get_patch_gamedata_private(self,game_filename):
+        filename = game_filename.replace(".json"," private.json")
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            filename = path.abspath(path.join(path.dirname(__file__), filename))
+        return filename
     def get_full_game_path(self):
         return self.game_parent_path + "\\"+self.game
 
@@ -201,7 +214,8 @@ class FileTools:
         cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(cfg_folder):
             os.makedirs(cfg_folder)
-        for folder in ['resource','scripts']:
+        # TODO make this game specific
+        for folder in ['resource','scripts','resource\\ui\\basemodui']:
             mod_subfolder = self.get_mod_subfolder(folder)
             if not os.path.exists(mod_subfolder):
                 os.makedirs(mod_subfolder)
@@ -296,9 +310,11 @@ class FileTools:
         if override:
             language = self.get_localized_suffix(file_data,"english")
         else:
-            language = self.get_localized_suffix(file_data,self.language)
+            language = self.get_localized_suffix(file_data,self.original_language)
         name = file_data.get('name')
-        return self.get_mod_subfolder(file_data.get('folder'))+"\{}{}.txt".format(name,language)
+        extension = file_data.get('extension')
+        folder = file_data.get('folder')
+        return self.get_mod_subfolder(folder)+"\{}{}.{}".format(name,language,extension)
     def get_localized_suffix(self,file_data,language):
         localized = file_data.get('localized')
         if localized:
@@ -310,7 +326,7 @@ class FileTools:
         backup = ""
         if backup_flag:
             backup = "_backup"
-        path = folder +"\{}".format(file_data.get('name'))+language+"{}.txt".format(backup)
+        path = folder +"\\"+file_data.get('name')+language+backup+"."+file_data.get('extension')
         return path
 
     def get_basegame_english_other_path(self,file_data):
@@ -329,7 +345,7 @@ class FileTools:
 
     def get_local_other_path(self,file_data):
         language = self.get_localized_suffix(file_data,"english")
-        return self.get_gamefiles_folder() + "\\{}{}.txt".format(file_data.get('name'), language)
+        return self.get_gamefiles_folder() + "\\"+file_data.get('name')+language+"."+file_data.get('extension')
 
     def get_patch_other_path(self,file_data):
         filename = self.get_local_other_path(file_data)
@@ -352,13 +368,14 @@ class FileTools:
         is_on_vpk = file_data.get('is_on_vpk')
         folder = file_data.get('folder')
         name = file_data.get('name')
+        extension = file_data.get('extension')
         language = self.get_localized_suffix(file_data,'english')
         if is_on_vpk:
             source_other_path = self.get_local_other_path(file_data)
-            self.save_file_from_vpk(folder+"/"+name+language+'.txt',source_other_path)
+            self.save_file_from_vpk(folder+"/"+name+language+'.'+extension,source_other_path)
         else:
             basegame_other_path = self.get_basegame_english_other_path(file_data)
-            self.get_basegame_english_backup_other_path(file_data)
+
             backup_basegame_other_path = self.get_basegame_english_backup_other_path(file_data)
             if os.path.exists(basegame_other_path):
                 source_other_path = basegame_other_path
@@ -370,6 +387,8 @@ class FileTools:
         translated_lines = tt.read_translation_from_csv(csv_path)
         if is_on_vpk:
             encoding = None
+        elif extension == 'res':
+            encoding = 'utf-8'
         else:
             encoding = 'utf-16'
         tt.translate(source_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line,source_encoding= encoding)
@@ -426,6 +445,10 @@ class FileTools:
                         next = f_in.readline()
                         while True:
                             next_stripped =  next.strip("\"\t\n")
+                            if next_stripped.startswith("isproportional"):
+                                f_out.write(next)
+                                next = f_in.readline()
+                                next_stripped = next.strip("\"\t\n")
                             if not next_stripped.isnumeric():
                                 f_out.write(next)
                                 break
@@ -551,20 +574,30 @@ class FileTools:
         self.write_autoexec_cfg()
         captions_csv_path = self.get_patch_captions_csv_path()
 
-        if self.translation_url is not None:
-            self.get_csv_from_url(captions_csv_path,self.translation_url)
+        if self.captions_translation_url is not None:
+            self.get_csv_from_url(captions_csv_path,self.captions_translation_url)
         if (os.path.isfile(captions_csv_path)):
             self.write_captions_from_csv(captions_csv_path)
+            if self.captions_translation_url is not None:
+                os.remove(captions_csv_path)
         else:
            self.write_captions_from_patch()
         for file_data in self.other_files:
             other_csv_path = self.get_patch_other_csv_path(file_data)
+            sheet = file_data.get("translation_sheet")
+
+            if sheet is not None and self.translation_url is not None:
+                file_url = self.translation_url + sheet
+                self.get_csv_from_url(other_csv_path, file_url)
             if os.path.isfile(other_csv_path):
                 self.write_other_from_csv(file_data,other_csv_path)
+                if file_url is not None:
+                    os.remove(other_csv_path)
             else:
                 self.write_other_from_patch(file_data)
             if file_data.get('override'):
                 self.backup_basegame_english_other_path(file_data)
+        #TODO fix portal to remove scheme file logic entirely
         if self.scheme_file_name is not None:
             self.write_scheme_file(self.source_scheme_path,self.get_mod_scheme_path(),self.format_replacements)
         self.copy_assets()

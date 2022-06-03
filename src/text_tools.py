@@ -16,24 +16,31 @@ def rearrange_multiple_lines(caption,max_chars,total_chars):
     lineCounter = 1
     currentLine = ""
     for word in array:
-        parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
-                     else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})',s)
-                        else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})', word) if s is not None )
-        word = ''.join(parts)
-#        word = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
-        counter += len(re.sub("(<[a-zA-Z0-9:,]*>)","",word)) +1
-        if counter/max_chars >= 1:
+        if word != "<cr>":
+            parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
+                         else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})',s)
+                            else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})', word) if s is not None )
+            word = ''.join(parts)
+    #        word = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
+            shortword = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
+            addspace = 0
+            if shortword != "":
+                addspace = 1
+            counter += len(shortword) + addspace
+        if counter/max_chars >= 1 or word == "<cr>":
             lineCounter += 1
             lines.append(currentLine)
             currentLine = ""
             counter = 0
-        currentLine = word + " " + currentLine
+        if word != "<cr>":
+            currentLine = word + " " + currentLine
     lines.append(currentLine)
     result = ""
     for line in lines:
         fill = 	""
         if total_chars is not None:
-            fill_count = total_chars - len(line)
+            line_no_tags= re.sub("(<[a-zA-Z0-9:,]*>)","",line)
+            fill_count = total_chars - len(line_no_tags)
             fill = "".zfill(fill_count).replace("0", " ")
         result += fill   + line + "<cr>"
     return result
@@ -56,10 +63,13 @@ def read_translation_from_csv(csv_path):
 
 def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding):
     i = 0
+    dest_encoding = 'utf-16'
+    if source_encoding == 'utf-8':
+        dest_encoding = 'utf-8'
     with open(source,
               encoding=source_encoding, errors="ignore") as source_file, \
             open(dest, "w",
-                 encoding="utf-16") as dest_file:
+                 encoding=dest_encoding) as dest_file:
 
         for l in source_file:
             i += 1
