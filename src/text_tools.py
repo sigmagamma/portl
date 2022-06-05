@@ -15,7 +15,13 @@ def rearrange_multiple_lines(caption,max_chars,total_chars):
     lines = []
     lineCounter = 1
     currentLine = ""
+    lastColor = ""
     for word in array:
+        colors =  re.findall("(<clr:[a-zA-Z0-9:,]*>)",word)
+        if colors != []:
+            lastColor = colors[-1]
+        else:
+            word = lastColor+word
         if word != "<cr>":
             parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
                          else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})',s)
