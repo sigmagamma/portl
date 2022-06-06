@@ -5,7 +5,8 @@
   "game_service": "Steam",
   "basegame": "bms",
   "caption_file_name": "closecaption",
-  "max_chars_before_break": 60,
+  "max_chars_before_break": 36,
+  "total_chars_in_line": 43,
   "mod_type": "custom",
   "os" : "WIN"
 
