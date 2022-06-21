@@ -10,8 +10,12 @@ def move_digits_to_end(s):
             break
         s = s[1:len(s)]+c
     return s
-def rearrange_multiple_lines(caption,max_chars,total_chars):
-    array = caption.split()
+def rearrange_multiple_lines(caption,max_chars,total_chars,language):
+    if language == "arabic":
+        reshaped_text = arabic_reshaper.reshape(caption)
+        array = reshaped_text.split()
+    else:
+        array = caption.split()
     counter = 0
     lines = []
     lineCounter = 1
@@ -52,48 +56,6 @@ def rearrange_multiple_lines(caption,max_chars,total_chars):
         result += fill   + line + "<cr>"
     return result
 
-def rearrange_multiple_lines_bm(caption,max_chars,total_chars):
-    reshaped_text = arabic_reshaper.reshape(caption)
-    array = reshaped_text.split()
-    counter = 0
-    lines = []
-    lineCounter = 1
-    currentLine = ""
-    lastColor = ""
-    for word in array:
-        # colors =  re.findall("(<clr:[a-zA-Z0-9:,]*>)",word)
-        # if colors != []:
-        #     lastColor = colors[-1]
-        # else:
-        #     word = lastColor+word
-        if word != "<cr>":
-            parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
-                         else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})',s)
-                            else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})', word) if s is not None )
-            word = ''.join(parts)
-    #        word = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
-            shortword = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
-            addspace = 0
-            if shortword != "":
-                addspace = 1
-            counter += len(shortword) + addspace
-        if counter/max_chars >= 1 or word == "<cr>":
-            lineCounter += 1
-            lines.append(currentLine)
-            currentLine = ""
-            counter = 0
-        if word != "<cr>":
-            currentLine = word + " " + currentLine
-    lines.append(currentLine)
-    result = ""
-    for line in lines:
-        fill = 	""
-        if total_chars is not None:
-            line_no_tags= re.sub("(<[a-zA-Z0-9:,]*>)","",line)
-            fill_count = total_chars - len(line_no_tags)
-            fill = "".zfill(fill_count).replace("0", " ")
-        result += fill   + line + "<cr>"
-    return result
 def rearrange_single_line(s):
     return s[::-1]
 
@@ -111,7 +73,7 @@ def read_translation_from_csv(csv_path):
             translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding):
+def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding,language):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':
@@ -133,7 +95,7 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                         l = l.replace(orig, not_reversed)
                     else:
                         if multi_line:
-                            new_line = rearrange_multiple_lines_bm(translated,max_chars_before_break,total_chars_in_line)
+                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language)
                         else:
                             new_line = rearrange_single_line(translated)
                         l = l.replace(orig, new_line)

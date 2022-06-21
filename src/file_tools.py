@@ -16,6 +16,7 @@ from urllib.request import urlopen
 REPO = "https://github.com/sigmagamma/portl/"
 # this is required due to AV software flagging shutil.move for some reason
 def move(src, dst):
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
     copyfile(src,dst)
     os.remove(src)
 class FileTools:
@@ -293,7 +294,7 @@ class FileTools:
         translated_lines = tt.read_translation_from_csv(csv_path)
         if not os.path.exists(orig_captions_text_path):
             raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
-        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,source_encoding='utf-16')
+        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,'utf-16',self.language)
         move(translated_path,to_compile_text_path)
         # this works because "translated path" is also the file name of to_compile_text_path
         subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
@@ -369,6 +370,8 @@ class FileTools:
         folder = file_data.get('folder')
         name = file_data.get('name')
         extension = file_data.get('extension')
+        multi_line = file_data.get('multi_line')
+        compile = file_data.get('compile')
         language = self.get_localized_suffix(file_data,'english')
         if is_on_vpk:
             source_other_path = self.get_local_other_path(file_data)
@@ -385,13 +388,27 @@ class FileTools:
                 raise Exception(
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
         translated_lines = tt.read_translation_from_csv(csv_path)
-        if is_on_vpk:
+        if compile:
+            encoding = 'utf-16'
+        elif is_on_vpk:
             encoding = None
         elif extension == 'res':
             encoding = 'utf-8'
         else:
             encoding = 'utf-16'
-        tt.translate(source_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line,source_encoding= encoding)
+        tt.translate(source_other_path,dest_other_path,translated_lines,multi_line,self.max_chars_before_break,self.total_chars_in_line,encoding,self.language)
+        if compile:
+            to_compile_text_path = self.get_to_compile_text_path()
+            move(dest_other_path, to_compile_text_path)
+            # this works because "translated path" is also the file name of to_compile_text_path
+            subprocess.run([self.compiler_path, to_compile_text_path], cwd=self.get_compiler_resource_folder())
+            #TODO generalize this
+            compiled_captions_path = self.get_compiled_captions_path()
+            dest_captions_path = self.get_mod_captions_path()
+            move(compiled_captions_path, dest_captions_path)
+            # Let's be nice and also move the uncompiled file to the mod folder
+            dest_captions_text_path = self.get_mod_captions_text_path()
+            move(to_compile_text_path, dest_captions_text_path)
         if is_on_vpk:
             os.remove(source_other_path)
     ## scheme files logic
@@ -574,14 +591,16 @@ class FileTools:
         self.write_autoexec_cfg()
         captions_csv_path = self.get_patch_captions_csv_path()
 
-        if self.captions_translation_url is not None:
-            self.get_csv_from_url(captions_csv_path,self.captions_translation_url)
-        if (os.path.isfile(captions_csv_path)):
-            self.write_captions_from_csv(captions_csv_path)
-            if self.captions_translation_url is not None:
-                os.remove(captions_csv_path)
-        else:
-           self.write_captions_from_patch()
+        # if self.captions_translation_url is not None:
+        #     self.get_csv_from_url(captions_csv_path,self.captions_translation_url)
+        # if (os.path.isfile(captions_csv_path)):
+        #     self.write_captions_from_csv(captions_csv_path)
+        #     if self.captions_translation_url is not None:
+        #         os.remove(captions_csv_path)
+        #TODO handle patch end case for compilation
+
+        # if not os.path.isfile(captions_csv_path):
+        #    self.write_captions_from_patch()
         for file_data in self.other_files:
             other_csv_path = self.get_patch_other_csv_path(file_data)
             sheet = file_data.get("translation_sheet")
