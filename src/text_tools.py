@@ -1,6 +1,5 @@
 import csv
 import re
-import arabic_reshaper
 
 def is_digit_with_punctuation(s):
     return re.match('^\d+(?:-\d)*[!.?,\']{1,}$',s) is not None
@@ -11,11 +10,7 @@ def move_digits_to_end(s):
         s = s[1:len(s)]+c
     return s
 def rearrange_multiple_lines(caption,max_chars,total_chars,language):
-    if language == "arabic":
-        reshaped_text = arabic_reshaper.reshape(caption)
-        array = reshaped_text.split()
-    else:
-        array = caption.split()
+    array = caption.split()
     counter = 0
     lines = []
     lineCounter = 1
