@@ -16,8 +16,26 @@ def rearrange_multiple_lines(caption,max_chars,total_chars):
     lineCounter = 1
     currentLine = ""
     lastColor = ""
+    bold = False
     for word in array:
         colors =  re.findall("(<clr:[a-zA-Z0-9:,]*>)",word)
+        if re.match("(^<B>)",word):
+            if bold:
+                word = re.sub("(<B>)","",word)
+                bold = False
+            else:
+                word = word + "<B>"
+                bold = True
+        elif re.match("(<B>$)",word):
+            if bold:
+                word = "<B>" + word
+            else:
+                word = re.sub("(<B>)", "", word)
+                bold = True
+        else:
+            if bold:
+                word = "<B>" + word + "<B>"
+
         if colors != []:
             lastColor = colors[-1]
         else:
