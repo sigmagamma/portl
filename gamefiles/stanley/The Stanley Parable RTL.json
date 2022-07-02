@@ -5,7 +5,7 @@
   "game_service": "Steam",
   "basegame": "thestanleyparable",
   "caption_file_name": "subtitles",
-  "max_chars_before_break": 36,
+  "max_chars_before_break": 35,
   "total_chars_in_line": 43,
   "compiler_game_service_path": "D:\\Program Files (x86)\\Steam\\steamapps\\common",
   "compiler_game": "Black Mesa",

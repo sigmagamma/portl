@@ -42,11 +42,11 @@ def rearrange_multiple_lines(caption,max_chars,total_chars):
             word = lastColor+word
         if word != "<cr>":
             parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
-                         else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})',s)
-                            else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,]*>{1})', word) if s is not None )
+                         else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})',s)
+                            else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})', word) if s is not None )
             word = ''.join(parts)
     #        word = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
-            shortword = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
+            shortword = re.sub("(<[a-zA-Z0-9:,.]*>)","",word)
             addspace = 0
             if shortword != "":
                 addspace = 1
@@ -63,7 +63,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars):
     for line in lines:
         fill = 	""
         if total_chars is not None:
-            line_no_tags= re.sub("(<[a-zA-Z0-9:,]*>)","",line)
+            line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
             fill_count = total_chars - len(line_no_tags)
             fill = "".zfill(fill_count).replace("0", " ")
         result += fill   + line + "<cr>"
