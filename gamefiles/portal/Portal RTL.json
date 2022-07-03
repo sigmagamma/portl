@@ -5,6 +5,7 @@
   "game_service": "Steam",
   "basegame": "portal",
   "caption_file_name":"closecaption",
+  "captions_filter" : "<I>",
   "other_files": [
     {"name": "portal","folder":"resource","localized": true,"override": true,"is_on_vpk": false},
     {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true}],

@@ -27,24 +27,27 @@ class FileTools:
                 if data is not None:
                     # text and filenames logic
                     self.game = data['game']
-                    game_service = data.get('game_service')
                     self.os = data.get('os')
-                    if game_service is not None and self.os is not None:
-                        if game_service != 'Steam':
+                    if self.os != 'WIN':
+                        raise Exception(
+                            "currently only Windows is supported")
+                    game_parent_path = self.steam_path_windows()
+                    if game_parent_path is None:
+                        epic_install_id = data.get('epic_install_id')
+                        if epic_install_id:
+                            game_parent_path = self.epic_path_windows(epic_install_id)
+                        if game_parent_path is None:
                             raise Exception(
-                                "currently only Steam is supported")
+                                "game not found in either steam or Epic")
                         else:
-                            if self.os == 'WIN':
-                                self.game_parent_path = self.steam_path_windows()
-                            else:
-                                raise Exception(
-                                    "currently only Windows is supported")
+                            self.main_folder = data.get('epic_main_folder')
                     else:
-                        self.game_parent_path = self.steam_path_windows()
+                        self.main_folder = data.get('steam_main_folder')
+                    self.game_parent_path = game_parent_path
                     self.shortname = data['shortname']
                     self.version = data['version']
                     self.basegame = data['basegame']
-                    self.basegame_path = "\\" + self.game + "\\" + self.basegame
+                    self.basegame_path = "\\" + self.main_folder + "\\" + self.basegame
                     full_basegame_path = self.get_full_basegame_path()
                     if not os.path.exists(full_basegame_path):
                         raise Exception("folder "+full_basegame_path + " doesn't exist. Please install the game. ")
@@ -101,21 +104,30 @@ class FileTools:
                             translation_sheet = data.get('captions_translation_sheet')
                             if self.translation_url is not None and translation_sheet is not None:
                                 self.captions_translation_url = self.translation_url + translation_sheet
+                    self.captions_prefix = data.get('captions_prefix')
+                    if self.captions_prefix is None:
+                        self.captions_prefix = ""
+                    self.captions_filter = data.get('captions_filter')
 
     ##Steam/Epic logic
     def steam_path_windows(self):
         try:
             hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\WOW6432Node\Valve\Steam")
-        except:
-            hkey = None
-            print(sys.exc_info())
-        try:
             steam_path = winreg.QueryValueEx(hkey, "InstallPath")
         except:
             steam_path = None
-            print(sys.exc_info())
         return steam_path[0] + "\steamapps\common"
-
+    def epic_path_windows(self,epic_install_id):
+        try:
+            hkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "SOFTWARE\Epic Games\EOS")
+            epic_manifests_path = winreg.QueryValueEx(hkey, "ModSdkMetadataDir")[0]
+            manifest = json.load(open(epic_manifests_path+'/{}.item'.format(epic_install_id),'r'))
+            if manifest:
+                game_path = manifest.get('InstallLocation')
+                epic_path = os.path.abspath(os.path.join(game_path, os.pardir))
+        except Exception as e:
+            epic_path = None
+        return epic_path
     def steam_path_linux(self):
         return "~/.steam/steam/steamapps/common"
 
@@ -138,7 +150,7 @@ class FileTools:
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
     def get_full_game_path(self):
-        return self.game_parent_path + "\\"+self.game
+        return self.game_parent_path + "\\"+self.main_folder
 
     def get_full_basegame_path(self):
         return self.game_parent_path + self.basegame_path
@@ -293,7 +305,7 @@ class FileTools:
         translated_lines = tt.read_translation_from_csv(csv_path)
         if not os.path.exists(orig_captions_text_path):
             raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
-        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,source_encoding='utf-16')
+        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,source_encoding='utf-16',prefix=self.captions_prefix,filter=self.captions_filter)
         move(translated_path,to_compile_text_path)
         # this works because "translated path" is also the file name of to_compile_text_path
         subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
