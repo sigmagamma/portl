@@ -1,5 +1,6 @@
 {
   "game":"Portal",
+  "steam_main_folder": "Portal",
   "shortname": "portal",
   "version": "0.9.1",
   "game_service": "Steam",

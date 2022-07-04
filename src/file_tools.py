@@ -31,19 +31,18 @@ class FileTools:
                     if self.os != 'WIN':
                         raise Exception(
                             "currently only Windows is supported")
-                    game_parent_path = self.steam_path_windows()
-                    if game_parent_path is None:
+                    self.game_parent_path = self.steam_path_windows()
+                    self.main_folder = data.get('steam_main_folder')
+                    steam_path = self.get_full_game_path()
+                    if not os.path.exists(steam_path):
                         epic_install_id = data.get('epic_install_id')
                         if epic_install_id:
-                            game_parent_path = self.epic_path_windows(epic_install_id)
-                        if game_parent_path is None:
+                            self.game_parent_path = self.epic_path_windows(epic_install_id)
+                        if self.game_parent_path is None:
                             raise Exception(
                                 "game not found in either steam or Epic")
                         else:
                             self.main_folder = data.get('epic_main_folder')
-                    else:
-                        self.main_folder = data.get('steam_main_folder')
-                    self.game_parent_path = game_parent_path
                     self.shortname = data['shortname']
                     self.version = data['version']
                     self.basegame = data['basegame']
@@ -97,6 +96,7 @@ class FileTools:
                         self.source_scheme_path = self.get_basegame_scheme_path()
                     private_file = self.get_patch_gamedata_private(game_filename)
                     self.captions_translation_url = None
+                    self.translation_url = None
                     if os.path.exists(private_file):
                         with  open(private_file,'r') as game_data_file_private:
                             data_private = json.load(game_data_file_private)
