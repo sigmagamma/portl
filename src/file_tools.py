@@ -31,11 +31,12 @@ class FileTools:
                     if self.os != 'WIN':
                         raise Exception(
                             "currently only Windows is supported")
-                    self.game_parent_path = self.steam_path_windows()
                     self.main_folder = data.get('steam_main_folder')
+                    self.game_parent_path = self.steam_path_windows(self.main_folder)
                     steam_path = self.get_full_game_path()
                     if not os.path.exists(steam_path):
                         epic_install_id = data.get('epic_install_id')
+                        self.game_parent_path = None
                         if epic_install_id:
                             self.game_parent_path = self.epic_path_windows(epic_install_id)
                         if self.game_parent_path is None:
@@ -110,24 +111,35 @@ class FileTools:
                     self.captions_filter = data.get('captions_filter')
 
     ##Steam/Epic logic
-    def steam_path_windows(self):
+    def steam_path_windows(self,main_folder):
         try:
-            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\WOW6432Node\Valve\Steam")
+            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam",0, winreg.KEY_READ)
             steam_path = winreg.QueryValueEx(hkey, "InstallPath")
+            winreg.CloseKey(hkey)
         except:
             steam_path = None
+            # fine, let's hope it's at one of the standard folders
+            steam_path = "C:\Program Files (x86)\Steam"
+            if not os.path.exists(steam_path++"\\"+main_folder):
+                steam_path = "D:\Program Files (x86)\Steam"
+                if not os.path.exists(steam_path +"\\"+main_folder):
+                    return None
         return steam_path[0] + "\steamapps\common"
     def epic_path_windows(self,epic_install_id):
         try:
-            hkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "SOFTWARE\Epic Games\EOS")
+            hkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "SOFTWARE\\Epic Games\\EOS",0, winreg.KEY_READ)
             epic_manifests_path = winreg.QueryValueEx(hkey, "ModSdkMetadataDir")[0]
-            manifest = json.load(open(epic_manifests_path+'/{}.item'.format(epic_install_id),'r'))
-            if manifest:
-                game_path = manifest.get('InstallLocation')
-                epic_path = os.path.abspath(os.path.join(game_path, os.pardir))
+            winreg.CloseKey(hkey)
         except Exception as e:
-            epic_path = None
-        return epic_path
+            # fine, let's hope it's at the standard folder
+            epic_manifests_path = "C:/ProgramData/Epic/EpicGamesLauncher/Data/Manifests"
+            if not os.path.exists(epic_manifests_path):
+                return None
+        manifest = json.load(open(epic_manifests_path+'/{}.item'.format(epic_install_id),'r'))
+        if manifest:
+            game_path = manifest.get('InstallLocation')
+            return os.path.abspath(os.path.join(game_path, os.pardir))
+        return None
     def steam_path_linux(self):
         return "~/.steam/steam/steamapps/common"
 
