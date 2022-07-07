@@ -6,29 +6,16 @@
   "basegame": "portal",
   "caption_file_name":"closecaption",
   "other_files": [
-    {"name": "portal","folder":"resource","localized": true,"override": true,"is_on_vpk": false},
-    {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true}],
+    {"name": "portal","folder":"resource","localized": true,"override": true,"is_on_vpk": false,
+      "translation_sheet": "portal","extension": "txt","multi_line": false, "compile":  false},
+    {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true,"translation_sheet": "credits","extension": "txt","multi_line": false, "compile":  false},
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","multi_line": false, "compile":  false},
+    {"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "closecaption","extension": "txt","multi_line": true, "compile":  true}
+
+],
   "max_chars_before_break": 50,
   "mod_type": "custom",
   "os" : "WIN",
-  "scheme_on_vpk":  true,
-  "vpk_file_name": "portal_pak_dir.vpk",
-  "scheme_file_name": "clientscheme.res",
+  "vpk_file_name": "portal_pak_dir.vpk"
 
-  "format_replacements": {
-    "CloseCaption_Normal": {
-      "1": {
-        "tall": "16"}
-    },
-
-    "CloseCaption_Italic": {
-      "1": {
-        "tall": "20"}
-    },
-    "CreditsOutroText": {
-      "1": {
-        "tall": "11",
-        "name":  "Miriam Fixed"}
-    }
-  }
 }
