@@ -117,14 +117,14 @@ class FileTools:
             steam_path = winreg.QueryValueEx(hkey, "InstallPath")
             winreg.CloseKey(hkey)
         except:
-            steam_path = None
             # fine, let's hope it's at one of the standard folders
-            steam_path = "C:\Program Files (x86)\Steam"
-            if not os.path.exists(steam_path++"\\"+main_folder):
-                steam_path = "D:\Program Files (x86)\Steam"
-                if not os.path.exists(steam_path +"\\"+main_folder):
+            steam_path_guess = "C:\\Program Files (x86)\\Steam\\steamapps\\common"
+            if not os.path.exists(steam_path_guess+"\\"+main_folder):
+                steam_path_guess = "D:\\Program Files (x86)\\Steam\\steamapps\\common"
+                if not os.path.exists(steam_path_guess +"\\"+main_folder):
                     return None
-        return steam_path[0] + "\steamapps\common"
+                return steam_path_guess
+        return steam_path[0] + "\\steamapps\\common"
     def epic_path_windows(self,epic_install_id):
         try:
             hkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "SOFTWARE\\Epic Games\\EOS",0, winreg.KEY_READ)
