@@ -12,7 +12,14 @@
   "captions_translation_sheet": "closecaption",
 
   "other_files": [
-    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","multi_line": false, "compile":  false}
-    ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","multi_line": true, "compile":  true}
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","multi_line": false, "compile":  false
+    }
+    ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","multi_line": true, "compile":  true,
+      "encoding": "utf-16"
+    }
+    ,{"name": "bms","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","multi_line": false, "compile":  false,
+      "encoding": "utf-16"
+    }
+
   ]
 }

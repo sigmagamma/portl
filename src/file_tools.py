@@ -84,6 +84,7 @@ class FileTools:
                     self.vpk_file_name = data.get("vpk_file_name")
                     private_file = self.get_patch_gamedata_private(game_filename)
                     self.captions_translation_url = None
+                    self.translation_url = None
                     if os.path.exists(private_file):
                         with  open(private_file,'r') as game_data_file_private:
                             data_private = json.load(game_data_file_private)
@@ -363,7 +364,7 @@ class FileTools:
         compile = file_data.get('compile')
         language = self.get_localized_suffix(file_data,'english')
         if is_on_vpk:
-            source_other_path = self.get_local_other_path(file_data)
+            source_other_path = self.get_patch_other_path(file_data)
             self.save_file_from_vpk(folder+"/"+name+language+'.'+extension,source_other_path)
         else:
             basegame_other_path = self.get_basegame_english_other_path(file_data)
@@ -377,14 +378,15 @@ class FileTools:
                 raise Exception(
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
         translated_lines = tt.read_translation_from_csv(csv_path)
-        if compile:
-            encoding = 'utf-16'
-        elif is_on_vpk:
-            encoding = None
-        elif extension == 'res':
-            encoding = 'utf-8'
-        else:
-            encoding = 'utf-16'
+        encoding = file_data.get('encoding')
+        # if compile:
+        #     encoding = 'utf-16'
+        # elif is_on_vpk:
+        #     encoding = None
+        # elif extension == 'res':
+        #     encoding = 'utf-8'
+        # else:
+        #     encoding = 'utf-16'
         tt.translate(source_other_path,dest_other_path,translated_lines,multi_line,self.max_chars_before_break,self.total_chars_in_line,encoding,self.language)
         if compile:
             to_compile_text_path = self.get_to_compile_text_path()
