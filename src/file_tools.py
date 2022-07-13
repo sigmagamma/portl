@@ -28,24 +28,26 @@ class FileTools:
                 if data is not None:
                     # text and filenames logic
                     self.game = data['game']
-                    game_service = data.get('game_service')
                     self.os = data.get('os')
-                    if game_service is not None and self.os is not None:
-                        if game_service != 'Steam':
+                    if self.os != 'WIN':
+                        raise Exception(
+                            "currently only Windows is supported")
+                    self.main_folder = data.get('steam_main_folder')
+                    self.game_parent_path = self.steam_path_windows(self.main_folder)
+                    if self.game_parent_path is None:
+                        epic_install_id = data.get('epic_install_id')
+                        self.game_parent_path = None
+                        if epic_install_id:
+                            self.game_parent_path = self.epic_path_windows(epic_install_id)
+                        if self.game_parent_path is None:
                             raise Exception(
-                                "currently only Steam is supported")
+                                "Couldn't locate game folder. Please use Zip version")
                         else:
-                            if self.os == 'WIN':
-                                self.game_parent_path = self.steam_path_windows()
-                            else:
-                                raise Exception(
-                                    "currently only Windows is supported")
-                    else:
-                        self.game_parent_path = self.steam_path_windows()
+                            self.main_folder = data.get('epic_main_folder')
                     self.shortname = data['shortname']
                     self.version = data['version']
                     self.basegame = data['basegame']
-                    self.basegame_path = "\\" + self.game + "\\" + self.basegame
+                    self.basegame_path = "\\" + self.main_folder + "\\" + self.basegame
                     full_basegame_path = self.get_full_basegame_path()
                     if not os.path.exists(full_basegame_path):
                         raise Exception("folder "+full_basegame_path + " doesn't exist. Please install the game. ")
@@ -94,18 +96,49 @@ class FileTools:
                                 self.captions_translation_url = self.translation_url + translation_sheet
 
     ##Steam/Epic logic
-    def steam_path_windows(self):
+    def steam_path_windows(self,main_folder):
         try:
-            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\WOW6432Node\Valve\Steam")
-        except:
-            hkey = None
-            print(sys.exc_info())
-        try:
+            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam",0, winreg.KEY_READ)
             steam_path = winreg.QueryValueEx(hkey, "InstallPath")
+            winreg.CloseKey(hkey)
+            steam_path_guess = steam_path[0] + "\\steamapps\\common"
+            if os.path.exists(steam_path_guess +"\\" + main_folder):
+                return steam_path_guess
+            raise Exception()
         except:
-            steam_path = None
-            print(sys.exc_info())
-        return steam_path[0] + "\steamapps\common"
+            # fine, let's hope it's at one of the standard folders
+            steam_path_guess = "{}:\\Program Files (x86)\\Steam\\steamapps\\common"
+            for i in range(ord('C'), ord('Z')):
+                current_guess = steam_path_guess.format(chr(i))
+                if os.path.exists(current_guess +"\\" + main_folder):
+                    return current_guess
+        return None
+    def epic_path_windows(self,epic_install_id):
+        try:
+            hkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "SOFTWARE\\Epic Games\\EOS",0, winreg.KEY_READ)
+            epic_manifests_path = winreg.QueryValueEx(hkey, "ModSdkMetadataDir")[0]
+            winreg.CloseKey(hkey)
+            if not os.path.exists(epic_manifests_path+'/{}.item'.format(epic_install_id)):
+                epic_manifests_path = None
+                raise Exception
+        except Exception as e:
+            # fine, let's hope it's at one of the standard folders
+            epic_manifests_path_guess = "{}:/ProgramData/Epic/EpicGamesLauncher/Data/Manifests"
+            for i in range(ord('C'), ord('Z')):
+                current_guess = epic_manifests_path_guess.format(chr(i))
+                if os.path.exists(current_guess+'/{}.item'.format(epic_install_id)):
+                    epic_manifests_path = current_guess
+                    break
+        try:
+            if epic_manifests_path is not None:
+                manifest = json.load(open(epic_manifests_path+'/{}.item'.format(epic_install_id),'r'))
+                if manifest:
+                    game_path = manifest.get('InstallLocation')
+                    if os.path.exists(game_path):
+                        return os.path.abspath(os.path.join(game_path, os.pardir))
+        except:
+            return None
+        return None
 
     def steam_path_linux(self):
         return "~/.steam/steam/steamapps/common"
@@ -129,7 +162,7 @@ class FileTools:
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
     def get_full_game_path(self):
-        return self.game_parent_path + "\\"+self.game
+        return self.game_parent_path + "\\"+self.main_folder
 
     def get_full_basegame_path(self):
         return self.game_parent_path + self.basegame_path

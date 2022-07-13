@@ -2,6 +2,7 @@
   "shortname": "blackmesa",
   "version": "0.9.1",
   "game": "Black Mesa",
+  "steam_main_folder": "Black Mesa",
   "game_service": "Steam",
   "basegame": "bms",
   "caption_file_name": "closecaption",
