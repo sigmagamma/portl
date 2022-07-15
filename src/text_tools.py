@@ -72,7 +72,7 @@ def rearrange_single_line(s):
     return s[::-1]
 
 # converts translation into a numbered dictionary
-def read_translation_from_csv(csv_path):
+def read_translation_from_csv(csv_path,store):
     translated_lines = {}
     with open(csv_path, encoding="utf-8-sig") as csvfile:
 
@@ -82,7 +82,10 @@ def read_translation_from_csv(csv_path):
             not_reversed = line.get('not reversed')
             if not translated and not not_reversed:
                 continue
-            translated_lines[line['number']] = line
+            if store+"_number" in csvreader.fieldnames and line[store+"_number"]:
+                line['number'] = line[store+"_number"]
+            if line['number'] is not None:
+                translated_lines[line['number']] = line
     return translated_lines
 
 def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding,prefix="",filter=None):

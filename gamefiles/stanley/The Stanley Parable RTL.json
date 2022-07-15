@@ -2,7 +2,6 @@
   "shortname": "stanley",
   "version": "0.9.1",
   "game": "The Stanley Parable",
-  "epic_install_id": "C7179AB642AFE84C82B4C1B4ACE7905A",
   "steam_main_folder": "The Stanley Parable",
   "epic_main_folder": "TheStanleyParable",
   "basegame": "thestanleyparable",
@@ -21,6 +20,8 @@
       {"name": "gameui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "gameui","extension":"txt"},
    {"name": "basemodui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "basemodui","extension": "txt"},
    {"name": "mainmenu_tsp","folder":"resource\\ui\\basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "mainmenu_tsp","extension": "res"},
-    {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "styles","extension": "res"}
+    {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "styles","extension": "res"},
+    {"name": "gameinfo","folder":".","localized": false,"override": true,"is_on_vpk": false, "extension": "txt","base_override": true,"store":  "Epic"}
+
   ]
 }

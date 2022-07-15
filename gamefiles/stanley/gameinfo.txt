@@ -1,0 +1,28 @@
+"GameInfo"
+{
+	game 		"The Stanley Parable"
+	title 		"The Stanley Parable"
+	GameData	"portal2.fgd"
+	gamelogo 	1
+
+	SupportsDX8     0
+	SupportsXbox360 1
+
+	hasportals 1
+
+	FileSystem
+	{
+		SteamAppId				221910		
+		ToolsAppId				211		
+		
+
+
+		SearchPaths
+		{
+
+			Game				|all_source_engine_paths|thestanleyparable_dlc1
+			Game				|gameinfo_path|.
+
+		}
+	}
+}

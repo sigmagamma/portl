@@ -31,18 +31,21 @@ class FileTools:
                     if self.os != 'WIN':
                         raise Exception(
                             "currently only Windows is supported")
-                    self.main_folder = data.get('steam_main_folder')
-                    self.game_parent_path = self.steam_path_windows(self.main_folder)
+                    self.game_parent_path = None
+                    self.epic_override = data.get('epic_override')
+                    if not self.epic_override:
+                        self.main_folder = data.get('steam_main_folder')
+                        self.game_parent_path = self.steam_path_windows(self.main_folder)
                     if self.game_parent_path is None:
-                        epic_install_id = data.get('epic_install_id')
-                        self.game_parent_path = None
-                        if epic_install_id:
-                            self.game_parent_path = self.epic_path_windows(epic_install_id)
+                        self.game_parent_path = self.epic_path_windows()
                         if self.game_parent_path is None:
                             raise Exception(
                                 "Couldn't locate game folder. Please use Zip version")
                         else:
                             self.main_folder = data.get('epic_main_folder')
+                            self.store = 'Epic'
+                    else:
+                        self.store = 'Steam'
                     self.shortname = data['shortname']
                     self.version = data['version']
                     self.basegame = data['basegame']
@@ -127,12 +130,12 @@ class FileTools:
                 if os.path.exists(current_guess +"\\" + main_folder):
                     return current_guess
         return None
-    def epic_path_windows(self,epic_install_id):
+    def epic_path_windows(self):
         try:
             hkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "SOFTWARE\\Epic Games\\EOS",0, winreg.KEY_READ)
             epic_manifests_path = winreg.QueryValueEx(hkey, "ModSdkMetadataDir")[0]
             winreg.CloseKey(hkey)
-            if not os.path.exists(epic_manifests_path+'/{}.item'.format(epic_install_id)):
+            if not os.path.exists(epic_manifests_path):
                 epic_manifests_path = None
                 raise Exception
         except Exception as e:
@@ -140,16 +143,17 @@ class FileTools:
             epic_manifests_path_guess = "{}:/ProgramData/Epic/EpicGamesLauncher/Data/Manifests"
             for i in range(ord('C'), ord('Z')):
                 current_guess = epic_manifests_path_guess.format(chr(i))
-                if os.path.exists(current_guess+'/{}.item'.format(epic_install_id)):
+                if os.path.exists(current_guess):
                     epic_manifests_path = current_guess
                     break
         try:
             if epic_manifests_path is not None:
-                manifest = json.load(open(epic_manifests_path+'/{}.item'.format(epic_install_id),'r'))
-                if manifest:
-                    game_path = manifest.get('InstallLocation')
-                    if os.path.exists(game_path):
-                        return os.path.abspath(os.path.join(game_path, os.pardir))
+                for filename in os.listdir(epic_manifests_path):
+                    manifest = json.load(open(os.path.join(epic_manifests_path,filename),'r'))
+                    if manifest.get("DisplayName") == "The Stanley Parable":
+                        game_path =  manifest.get('InstallLocation')
+                        if os.path.exists(game_path):
+                            return os.path.abspath(os.path.join(game_path, os.pardir))
         except:
             return None
         return None
@@ -276,7 +280,8 @@ class FileTools:
     def remove_mod(self):
         self.remove_mod_folder()
         for file_data in self.other_files:
-            if file_data.get('override'):
+            file_store = file_data.get('store')
+            if file_store and file_store == self.store and file_data.get('override'):
                 self.restore_basegame_english_other_path(file_data)
 
     def get_compiler_resource_folder(self):
@@ -327,7 +332,7 @@ class FileTools:
         orig_captions_text_path = self.english_captions_text_path
         to_compile_text_path = self.get_to_compile_text_path()
         translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
-        translated_lines = tt.read_translation_from_csv(csv_path)
+        translated_lines = tt.read_translation_from_csv(csv_path,self.store)
         if not os.path.exists(orig_captions_text_path):
             raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
         tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,source_encoding='utf-16',prefix=self.captions_prefix,filter=self.captions_filter)
@@ -373,8 +378,9 @@ class FileTools:
 
     def backup_basegame_english_other_path(self,file_data):
         orig_path = self.get_basegame_english_other_path(file_data)
-        if os.path.exists(orig_path):
-            move(orig_path, self.get_basegame_english_backup_other_path(file_data))
+        backup_path = self.get_basegame_english_backup_other_path(file_data)
+        if os.path.exists(orig_path) and not(os.path.exists(backup_path)):
+            move(orig_path,backup_path)
     def restore_basegame_english_other_path(self, file_data):
         backup_path = self.get_basegame_english_backup_other_path(file_data)
         if os.path.exists(backup_path):
@@ -397,7 +403,10 @@ class FileTools:
             return self.get_gamefiles_folder() + "\\" + self.game + " translation - " + file_data.get('name') + ".csv"
 
     def write_other_from_patch(self,file_data):
-        dest_other_path = self.get_mod_other_path(file_data)
+        if file_data.get('base_override'):
+            dest_other_path = self.get_basegame_english_other_path(file_data)
+        else:
+            dest_other_path = self.get_mod_other_path(file_data)
         copyfile(self.get_patch_other_path(file_data), dest_other_path)
 
     def write_other_from_csv(self,file_data,csv_path):
@@ -421,7 +430,7 @@ class FileTools:
             else:
                 raise Exception(
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
-        translated_lines = tt.read_translation_from_csv(csv_path)
+        translated_lines = tt.read_translation_from_csv(csv_path,self.store)
         if is_on_vpk:
             encoding = None
         elif extension == 'res':
@@ -620,6 +629,11 @@ class FileTools:
         else:
            self.write_captions_from_patch()
         for file_data in self.other_files:
+            file_store = file_data.get('store')
+            if file_store and file_store != self.store:
+                continue
+            if file_data.get('override'):
+                self.backup_basegame_english_other_path(file_data)
             other_csv_path = self.get_patch_other_csv_path(file_data)
             sheet = file_data.get("translation_sheet")
 
@@ -632,8 +646,7 @@ class FileTools:
                     os.remove(other_csv_path)
             else:
                 self.write_other_from_patch(file_data)
-            if file_data.get('override'):
-                self.backup_basegame_english_other_path(file_data)
+
         #TODO fix portal to remove scheme file logic entirely
         if self.scheme_file_name is not None:
             self.write_scheme_file(self.source_scheme_path,self.get_mod_scheme_path(),self.format_replacements)
