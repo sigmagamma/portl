@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['..\\..\\src\stanley\install_stanley_heb_win_rtl.py'],
+    ['..\\..\\src\stanley\install_stanley_heb_win_steam.py'],
     pathex=['..\\..\\'],
     binaries=[],
     datas=[
@@ -35,7 +35,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='install_stanley_heb_win_rtl',
+    name='install_stanley_heb_win_steam',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

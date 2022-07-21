@@ -78,7 +78,7 @@ def read_translation_from_csv(csv_path,store):
 
         csvreader = csv.DictReader(csvfile)
         for line in csvreader:
-            translated = line['actual translation']
+            translated = line.get('actual translation')
             not_reversed = line.get('not reversed')
             if not translated and not not_reversed:
                 continue
@@ -97,7 +97,16 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
               encoding=source_encoding, errors="ignore") as source_file, \
             open(dest, "w",
                  encoding=dest_encoding) as dest_file:
-
+        j = 0
+        upserts = []
+        # Collecting possible upserts
+        while True:
+            j = j+1
+            upsert = translated_lines.get("upsert_"+str(j))
+            if upsert:
+                upserts.append(upsert)
+            else:
+                break
         for l in source_file:
             i += 1
             translatedLine = translated_lines.get(str(i))
@@ -117,5 +126,19 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                         if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
                             l = l.replace(filter, "")
                     print(l)
+            else:
+                # checking line against remaining upserts
+                popped = None
+                for k in range(0,len(upserts)-1):
+                    upsert = upserts[k]
+                    if upsert.get('original') == l.strip():
+                        dest_file.write(upsert.get('not reversed')+"\n")
+                        popped = upserts.pop(k)
+                        break
+                if popped:
+                    continue
             dest_file.write(l)
+        # printing out remaining upserts
+        for upsert in upserts:
+            dest_file.write("\n"+upsert.get('not reversed'))
 
