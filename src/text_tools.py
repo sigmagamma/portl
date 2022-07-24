@@ -9,7 +9,7 @@ def move_digits_to_end(s):
             break
         s = s[1:len(s)]+c
     return s
-def rearrange_multiple_lines(caption,max_chars,total_chars,language):
+def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
     array = caption.split()
     counter = 0
     lines = []
@@ -49,7 +49,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language):
             fill_count = total_chars - len(line_no_tags)
             fill = "".zfill(fill_count).replace("0", " ")
         result += fill   + line + "<cr>"
-    return result
+    return prefix + result
 
 def rearrange_single_line(s):
     return s[::-1]
@@ -68,7 +68,7 @@ def read_translation_from_csv(csv_path):
             translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding,language):
+def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding,language,prefix="",filter=None):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':
@@ -90,12 +90,12 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                         l = l.replace(orig, not_reversed)
                     else:
                         if multi_line:
-                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language)
+                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix)
                         else:
                             new_line = rearrange_single_line(translated)
                         l = l.replace(orig, new_line)
-                        if total_chars_in_line is not None and total_chars_in_line > 0:
-                            l = l.replace("<I>", "")
+                        if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
+                            l = l.replace(filter, "")
                     print(l)
             dest_file.write(l)
 

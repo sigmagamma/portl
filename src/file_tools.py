@@ -95,6 +95,12 @@ class FileTools:
                             if self.translation_url is not None and translation_sheet is not None:
                                 self.captions_translation_url = self.translation_url + translation_sheet
 
+                    # text transformation details
+                    self.captions_prefix = data.get('captions_prefix')
+                    if self.captions_prefix is None:
+                        self.captions_prefix = ""
+                    self.captions_filter = data.get('captions_filter')
+
     ##Steam/Epic logic
     def steam_path_windows(self,main_folder):
         try:
@@ -105,7 +111,7 @@ class FileTools:
             if os.path.exists(steam_path_guess +"\\" + main_folder):
                 return steam_path_guess
             raise Exception()
-        except:
+        except Exception as e:
             # fine, let's hope it's at one of the standard folders
             steam_path_guess = "{}:\\Program Files (x86)\\Steam\\steamapps\\common"
             for i in range(ord('C'), ord('Z')):
@@ -420,7 +426,7 @@ class FileTools:
         #     encoding = 'utf-8'
         # else:
         #     encoding = 'utf-16'
-        tt.translate(source_other_path,dest_other_path,translated_lines,multi_line,self.max_chars_before_break,self.total_chars_in_line,encoding,self.language)
+        tt.translate(source_other_path,dest_other_path,translated_lines,multi_line,self.max_chars_before_break,self.total_chars_in_line,encoding,self.language,prefix=self.captions_prefix,filter=self.captions_filter)
         if compile:
             to_compile_text_path = self.get_to_compile_text_path()
             move(dest_other_path, to_compile_text_path)
