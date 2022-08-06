@@ -21,7 +21,7 @@ def move(src, dst):
     copyfile(src,dst)
     os.remove(src)
 class FileTools:
-    def __init__(self, game_filename,language,store='Steam'):
+    def __init__(self, game_filename,language,gender=None,store='Steam'):
 
         if (game_filename is not None):
             with open(self.get_patch_gamedata(game_filename),'r') as game_data_file:
@@ -58,6 +58,7 @@ class FileTools:
                     self.store = store
                     self.shortname = data['shortname']
                     self.version = data['version']
+                    self.gender = gender
 
                     #language details
                     self.original_language = self.get_original_localization_lang()
@@ -375,7 +376,7 @@ class FileTools:
         orig_captions_text_path = self.english_captions_text_path
         to_compile_text_path = self.get_to_compile_text_path()
         translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
-        translated_lines = tt.read_translation_from_csv(csv_path,self.store)
+        translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         if not os.path.exists(orig_captions_text_path):
             raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
         tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,source_encoding='utf-16',prefix=self.captions_prefix,filter=self.captions_filter)
@@ -473,7 +474,7 @@ class FileTools:
             else:
                 raise Exception(
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
-        translated_lines = tt.read_translation_from_csv(csv_path,self.store)
+        translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
         tt.translate(source_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line,source_encoding= encoding)
         if is_on_vpk:

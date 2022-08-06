@@ -72,13 +72,17 @@ def rearrange_single_line(s):
     return s[::-1]
 
 # converts translation into a numbered dictionary
-def read_translation_from_csv(csv_path,store):
+def read_translation_from_csv(csv_path,gender,store):
     translated_lines = {}
     with open(csv_path, encoding="utf-8-sig") as csvfile:
 
         csvreader = csv.DictReader(csvfile)
         for line in csvreader:
             translated = line.get('actual translation')
+            if (gender == 'f'):
+                female_version = line.get('female version')
+                if female_version:
+                    line['actual translation'] = female_version
             not_reversed = line.get('not reversed')
             if not translated and not not_reversed:
                 continue
