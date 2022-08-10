@@ -1,5 +1,7 @@
+import math
 import os
 import sys
+import time
 import winreg
 from shutil import copyfile,copy,rmtree
 from os import path
@@ -20,6 +22,11 @@ REPO = "https://github.com/sigmagamma/portl/"
 def move(src, dst):
     copyfile(src,dst)
     os.remove(src)
+
+
+def move_tree(src, dst):
+    copy_tree(src, dst)
+    rmtree(src)
 class FileTools:
     def __init__(self, game_filename,language,gender=None,store='Steam'):
 
@@ -94,7 +101,9 @@ class FileTools:
                         self.mod_folder = self.get_custom_folder()
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
-
+                    self.not_deletable = data.get('not_deletable')
+                    if not self.not_deletable:
+                        self.not_deletable = []
                     # scheme file logic - to be removed
                     self.scheme_file_name = data.get("scheme_file_name")
                     self.format_replacements = data.get("format_replacements")
@@ -289,6 +298,8 @@ class FileTools:
         return filename
     def get_mod_version_path(self):
         return self.mod_folder + "\\portl.txt"
+    def get_temp_version_path(self,temp_path):
+        return temp_path+ "\\portl.txt"
     def write_patch_version_file(self):
         rtl_text=""
         if self.total_chars_in_line is not None:
@@ -319,8 +330,24 @@ class FileTools:
                     os.makedirs(mod_cache_folder)
                 copy(basegame_cache_path,mod_cache_folder)
     def remove_mod_folder(self):
-        if os.path.exists(self.mod_folder):
+        if self.not_deletable:
+            temp_path = self.mod_folder+"_"+str(math.floor(time.time()))
+            os.makedirs(temp_path)
+            moved = False
+            for file in self.not_deletable:
+                file_path = self.mod_folder+"\\"+file
+                new_file_path = temp_path + "\\"+file
+                if os.path.exists(file_path):
+                    if (not moved):
+                        move(self.get_mod_version_path(), self.get_temp_version_path(temp_path))
+                    moved = True
+                    if os.path.isdir(file_path):
+                        move_tree(file_path,new_file_path)
+                    else:
+                        move(file_path,new_file_path)
             rmtree(self.mod_folder)
+            if moved:
+                os.rename(temp_path,self.mod_folder)
     def remove_mod(self):
         self.remove_mod_folder()
         for file_data in self.other_files:
