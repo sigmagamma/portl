@@ -66,6 +66,9 @@ class FileTools:
                     self.shortname = data['shortname']
                     self.version = data['version']
                     self.gender = gender
+                    self.gender_textures = data['gender_textures']
+                    if self.gender_textures is None:
+                        self.gender_textures = []
 
                     #language details
                     self.original_language = self.get_original_localization_lang()
@@ -634,6 +637,12 @@ class FileTools:
             src_path = self.get_patch_file_path(filename)
             if os.path.exists(src_path):
                 copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
+        if self.gender is not None:
+            for texture in self.gender_textures:
+                gender_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+"_"+self.gender+".vtf"
+                if os.path.exists(gender_texture_path):
+                    dest_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+".vtf"
+                    move(gender_texture_path,dest_texture_path)
 
     def get_mod_cfg_folder(self):
         return self.mod_folder + "\cfg"

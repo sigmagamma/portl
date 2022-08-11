@@ -79,7 +79,7 @@ def read_translation_from_csv(csv_path,gender,store):
         csvreader = csv.DictReader(csvfile)
         for line in csvreader:
             translated = line.get('actual translation')
-            if (gender == 'f'):
+            if (gender is not None and gender == 'f'):
                 female_version = line.get('female version')
                 if female_version:
                     line['actual translation'] = female_version
