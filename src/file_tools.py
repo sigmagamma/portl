@@ -28,7 +28,7 @@ def move_tree(src, dst):
     copy_tree(src, dst)
     rmtree(src)
 class FileTools:
-    def __init__(self, game_filename,language,gender=None,store='Steam'):
+    def __init__(self, game_filename,language,gender=None,store='Steam',unattended=False):
 
         if (game_filename is not None):
             with open(self.get_patch_gamedata(game_filename),'r') as game_data_file:
@@ -47,13 +47,18 @@ class FileTools:
                     self.basegame = data['basegame']
                     self.gameguid = data['gameguid']
                     path_guess = self.reg_path_windows()
-                    if path_guess is None:
-                        action_text = "choose"
+                    if unattended:
+                        file_path = path_guess
                     else:
-                        action_text = "confirm"
-                    root = tk.Tk()
-                    root.withdraw()
-                    file_path = filedialog.askdirectory(title="Please {} game folder".format(action_text),initialdir=path_guess)
+                        if path_guess is None:
+                            action_text = "choose"
+                        else:
+                            action_text = "confirm"
+                        root = tk.Tk()
+                        root.withdraw()
+                        file_path = filedialog.askdirectory(title="Please {} game folder".format(action_text),initialdir=path_guess)
+                    self.unattended = unattended
+
                     if os.path.exists(file_path) and os.path.exists(file_path+"\\"+self.basegame):
                         self.main_folder = os.path.basename(file_path)
                         self.game_parent_path = os.path.dirname(file_path)
@@ -325,7 +330,7 @@ class FileTools:
         self.write_patch_version_file()
         if self.mod_type == 'dlc':
             basegame_cache_path = self.get_basegame_cache_path()
-            if not os.path.exists(basegame_cache_path):
+            if (not self.unattended) and not os.path.exists(basegame_cache_path):
                 input("Note: You'll have to start the game, get to the loading screen, wait for a while, and then restart it. Press any key.")
             else:
                 mod_cache_folder = self.get_mod_cache_folder()
