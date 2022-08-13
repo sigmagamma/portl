@@ -1,4 +1,6 @@
 from src.file_tools import FileTools
+import sys
+
 def epic_male():
     ft = FileTools("gamefiles/stanley/The Stanley Parable RTL.json", "hebrew", "m", "Epic",unattended=True)
     ft.write_files()
@@ -17,3 +19,6 @@ def steam_female():
 def steam_uninstall():
     ft = FileTools("gamefiles/stanley/The Stanley Parable RTL.json","hebrew", "Steam",unattended=True)
     ft.remove_mod()
+
+if __name__ == '__main__':
+    globals()[sys.argv[1]]()

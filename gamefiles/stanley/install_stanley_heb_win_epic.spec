@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['..\\..\\src\stanley\install_stanley_heb_win_epic.py'],
+    ['..\\..\\src\stanley\install_stanley_heb_win_patch_epic.py'],
     pathex=['..\\..\\'],
     binaries=[],
     datas=[
@@ -33,7 +33,7 @@ exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
-    Tree('.\\materials', prefix='src\gamefiles\\stanley\materials\\'),
+    Tree(os.environ['modpath']+'\\materials', prefix='src\gamefiles\\stanley\materials\\'),
     a.zipfiles,
     a.datas,
     [],

@@ -57,6 +57,7 @@ class FileTools:
                         root = tk.Tk()
                         root.withdraw()
                         file_path = filedialog.askdirectory(title="Please {} game folder".format(action_text),initialdir=path_guess)
+                        root.destroy()
                     self.unattended = unattended
 
                     if os.path.exists(file_path) and os.path.exists(file_path+"\\"+self.basegame):
@@ -356,6 +357,8 @@ class FileTools:
             rmtree(self.mod_folder)
             if moved:
                 os.rename(temp_path,self.mod_folder)
+            else:
+                rmtree(temp_path)
     def remove_mod(self):
         self.remove_mod_folder()
         for file_data in self.other_files:
@@ -637,12 +640,12 @@ class FileTools:
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
 
-    def copy_assets(self):
+    def copy_assets(self,patch=False):
         for filename in ["materials","sound"]:
             src_path = self.get_patch_file_path(filename)
             if os.path.exists(src_path):
                 copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
-        if self.gender is not None:
+        if (not patch) and self.gender is not None:
             for texture in self.gender_textures:
                 gender_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+"_"+self.gender+".vtf"
                 if os.path.exists(gender_texture_path):
@@ -732,3 +735,17 @@ class FileTools:
         if self.scheme_file_name is not None:
             self.write_scheme_file(self.source_scheme_path,self.get_mod_scheme_path(),self.format_replacements)
         self.copy_assets()
+
+    ## patch write function
+    def write_patch_files(self):
+        self.create_mod_folders()
+        self.write_autoexec_cfg()
+        self.write_captions_from_patch()
+        for file_data in self.other_files:
+            file_store = file_data.get('store')
+            if file_store and file_store != self.store:
+                continue
+            if file_data.get('override'):
+                self.backup_basegame_english_other_path(file_data)
+            self.write_other_from_patch(file_data)
+        self.copy_assets(patch=True)
