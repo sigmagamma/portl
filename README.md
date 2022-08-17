@@ -1,7 +1,10 @@
 # poRTL
 Source engine translation framework with support for right-to-left languages.
 
-Currently Portal 1 is supported. Current working branch is [feat-stanley](https://github.com/sigmagamma/portl/tree/feat-stanley). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
+Currently Portal 1 is supported. 
+Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portl/tree/feat-black-mesa). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
+Portal is currently broken in main, but works in feat-black-mesa. 
+The Stanley Parable works in main.
 Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
@@ -109,13 +112,17 @@ within that file.
 * other_file_names - other files in the resource folder that need translation.
 * max_chars_before_break - This determines the length of each line before portl puts a <cr> to create a new one.
 * mod_type - for old games like Portal use "custom". For later games use "dlc".
-* os - this is used to determine how to change configuration in the res file such as text size. 
-* scheme_on_vpk - true/false. Some games have the scheme file outside the VPK.
+* os - future use for other OS support
 * vpk_file_name - should be the dir file in the basegame folder.
-* scheme_file_name - just the file name, not the path
-* format_replacements: - defines which keys to change in the scheme files and to which values.
 * language_name_other_override - unfortunately Portal didn't allow portal_hebrew.txt, so this logic specifically overrides it to be called portal_english.txt, while renaming the original.
 * compiler_game_service_path - If the game has no caption compiler, then this is the steam path under which the main game folder is found
 * compiler_game - name of the main folder for the compiler
 * compiler_game_path - additional path after the steam folder and into the basegame folder, such as \\Black Mesa\\bms
 * english_captions_text_path - name of local file with english text for captions
+
+
+Deprecated, Portal only:
+* scheme_on_vpk - true/false. Some games have the scheme file outside the VPK.
+* scheme_file_name - just the file name, not the path
+* format_replacements: - defines which keys to change in the scheme files and to which values.
+* os - deprecated use to determine how to change configuration in the res file such as text size. 

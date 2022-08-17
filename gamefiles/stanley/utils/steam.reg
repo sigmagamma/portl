@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+; this is a quick replacer for use if you have both epic and steam versions. 
+;replace the id with the one from your registry before use
+
+[HKEY_CURRENT_USER\System\GameConfigStore\Children\fe96dac0-51b7-47ee-af73-2573c1afc5a1]
+"MatchedExeFullPath"="D:\\Program Files (x86)\\Steam\\steamapps\\common\\The Stanley Parable\\stanley.exe"
+
