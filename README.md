@@ -1,7 +1,10 @@
 # poRTL
 Source engine translation framework with support for right-to-left languages.
 
-Currently Portal 1 is supported. Current working branch is [feat-stanley](https://github.com/sigmagamma/portl/tree/feat-stanley). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
+Currently Portal 1 is supported. 
+Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portl/tree/feat-black-mesa). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
+Portal is currently broken in main, but works in feat-black-mesa. 
+The Stanley Parable works in main.
 Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
