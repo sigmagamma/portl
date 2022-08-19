@@ -5,7 +5,8 @@ reg import gamefiles\stanley\utils\%store%.reg
 venv\Scripts\python.exe -c "from src.stanley.install_unattended import %store%_uninstall;%store%_uninstall()"
 venv\Scripts\python.exe -c "from src.stanley.install_unattended import %store%_%gender%;%store%_%gender%()"
 mkdir -p tempzip\thestanleyparable_dlc1
-for %%I in (cfg maps materials resource portl.txt) do robocopy "%modpath%\%%I" tempzip\thestanleyparable_dlc1\%%I /e
+for %%I in (cfg maps materials resource) do robocopy "%modpath%\%%I" tempzip\thestanleyparable_dlc1\%%I /e
+copy "%modpath%\portl.txt" tempzip\thestanleyparable_dlc1\portl.txt
 IF %store%==epic (
 mkdir tempzip\thestanleyparable
 copy "%modpath%\..\thestanleyparable\gameinfo.txt" tempzip\thestanleyparable

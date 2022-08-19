@@ -13,7 +13,7 @@
   "compiler_game_path": "\\Black Mesa\\bms",
   "english_captions_text_path": "subtitles_english.txt",
   "mod_type": "dlc",
-  "not_deletable": ["SAVE","screenshots"],
+  "not_deletable": ["SAVE","screenshots","maps\\soundcache"],
   "os" : "WIN",
   "captions_translation_sheet": "subtitles",
   "other_files": [

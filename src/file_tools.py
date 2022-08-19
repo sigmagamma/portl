@@ -313,8 +313,11 @@ class FileTools:
         rtl_text=""
         if self.total_chars_in_line is not None:
             rtl_text = "RTL version"
+        gender_text = ""
+        if self.gender is not None:
+            gender_text = " " + self.gender
         with open(self.get_mod_version_path(),'w') as file:
-            file.write(self.shortname+"-"+self.version+" "+rtl_text+ " " + self.store +"\n"+ REPO)
+            file.write(self.shortname+"-"+self.version+" "+rtl_text+ " " + self.store + gender_text + "\n"+ REPO)
     def create_mod_folders(self):
         cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(cfg_folder):
@@ -339,6 +342,8 @@ class FileTools:
                     os.makedirs(mod_cache_folder)
                 copy(basegame_cache_path,mod_cache_folder)
     def remove_mod_folder(self):
+        if not os.path.exists(self.mod_folder):
+            return
         if self.not_deletable:
             temp_path = self.mod_folder+"_"+str(math.floor(time.time()))
             os.makedirs(temp_path)
