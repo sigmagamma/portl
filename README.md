@@ -1,10 +1,9 @@
 # poRTL
 Source engine translation framework with support for right-to-left languages.
 
-Currently Portal 1 is supported. 
+Currently Portal 1 and The Stanley Parable (2013) are supported. 
 Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portl/tree/feat-black-mesa). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
 Portal is currently broken in main, but works in feat-black-mesa. 
-The Stanley Parable works in main.
 Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
@@ -16,6 +15,12 @@ https://www.facebook.com/groups/200491360554968/posts/868793153724782
 Or in English here:
 
 https://steamcommunity.com/sharedfiles/filedetails/?id=2554472476
+
+Stanley Parable details (in Hebrew):
+https://docs.google.com/document/d/1lsCQosS-TDPFxHi6mnZCE653AfrbqW5MhDCbnV-U_Ds/edit?usp=sharing
+
+details in English:
+https://steamcommunity.com/sharedfiles/filedetails/?id=2850801993
 
 ## What this does
 * The program takes translation files and text files for Source games and generates content for the relevant language,
