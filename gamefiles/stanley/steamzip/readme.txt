@@ -3,8 +3,10 @@ This is a beta version. By following these instructions you acknowledge you are 
 Installation instructions:
 Assuming D:\Program Files (x86)\Steam\steamapps\common\The Stanley Parable is the game folder,
 copy the contents of the zip file into that folder.
+The game may get stuck upon the first run. This is the game building the sound cache, you'll have to restart it and then it will work.
 
 In order to uninstall, remove that folder.
+
 
 Full guide in Hebrew:
 https://docs.google.com/document/d/1lsCQosS-TDPFxHi6mnZCE653AfrbqW5MhDCbnV-U_Ds/edit?usp=sharing

@@ -8,7 +8,7 @@ def install_stanley(filename,language,store):
             ft = FileTools(filename, language,'m',store)
             ft.write_patch_files()
         elif answer == 'u':
-            ft = FileTools(filename,language,store)
+            ft = FileTools(filename,language,store=store)
             ft.remove_mod()
     except Exception as e:
         input("installer crashed with an error:\n"+str(e))
