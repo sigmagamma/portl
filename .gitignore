@@ -11,3 +11,4 @@ gamefiles/portal/Portal translation - credits.csv.csv
 __pycache__
 .idea
 *private.json
+*token*.txt

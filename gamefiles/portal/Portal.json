@@ -1,11 +1,13 @@
 {
   "game":"Portal",
+  "steam_main_folder": "Portal",
   "shortname": "portal",
   "steam_main_folder": "Portal",
   "version": "0.9.1",
   "game_service": "Steam",
   "basegame": "portal",
   "caption_file_name":"closecaption",
+  "captions_filter" : "<I>",
   "other_files": [
     {"name": "portal","folder":"resource","localized": true,"override": true,"is_on_vpk": false,
       "translation_sheet": "portal","extension": "txt","multi_line": false, "compile":  false},

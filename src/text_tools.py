@@ -16,8 +16,26 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
     lineCounter = 1
     currentLine = ""
     lastColor = ""
+    italic = False
     for word in array:
         colors =  re.findall("(<clr:[a-zA-Z0-9:,.]*>)",word)
+        if re.match("(^<I>)",word):
+            if italic:
+                word = re.sub("(<I>)","",word)
+                italic = False
+            else:
+                word = word + "<I>"
+                italic = True
+        elif re.match("(<I>$)",word):
+            if italic:
+                word = "<I>" + word
+            else:
+                word = re.sub("(<I>)", "", word)
+                italic = True
+        else:
+            if italic:
+                word = "<I>" + word + "<I>"
+
         if colors != []:
             lastColor = colors[-1]
         else:
@@ -55,17 +73,24 @@ def rearrange_single_line(s):
     return s[::-1]
 
 # converts translation into a numbered dictionary
-def read_translation_from_csv(csv_path):
+def read_translation_from_csv(csv_path,gender,store):
     translated_lines = {}
     with open(csv_path, encoding="utf-8-sig") as csvfile:
 
         csvreader = csv.DictReader(csvfile)
         for line in csvreader:
-            translated = line['actual translation']
+            translated = line.get('actual translation')
+            if (gender is not None and gender == 'f'):
+                female_version = line.get('female version')
+                if female_version:
+                    line['actual translation'] = female_version
             not_reversed = line.get('not reversed')
             if not translated and not not_reversed:
                 continue
-            translated_lines[line['number']] = line
+            if store+"_number" in csvreader.fieldnames and line[store+"_number"]:
+                line['number'] = line[store+"_number"]
+            if line['number'] is not None:
+                translated_lines[line['number']] = line
     return translated_lines
 
 def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding,language,prefix="",filter=None):
@@ -77,7 +102,16 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
               encoding=source_encoding, errors="ignore") as source_file, \
             open(dest, "w",
                  encoding=dest_encoding) as dest_file:
-
+        j = 0
+        upserts = []
+        # Collecting possible upserts
+        while True:
+            j = j+1
+            upsert = translated_lines.get("upsert_"+str(j))
+            if upsert:
+                upserts.append(upsert)
+            else:
+                break
         for l in source_file:
             i += 1
             translatedLine = translated_lines.get(str(i))
@@ -97,5 +131,19 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                         if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
                             l = l.replace(filter, "")
                     print(l)
+            else:
+                # checking line against remaining upserts
+                popped = None
+                for k in range(0,len(upserts)-1):
+                    upsert = upserts[k]
+                    if upsert.get('original') == l.strip():
+                        dest_file.write(upsert.get('not reversed')+"\n")
+                        popped = upserts.pop(k)
+                        break
+                if popped:
+                    continue
             dest_file.write(l)
+        # printing out remaining upserts
+        for upsert in upserts:
+            dest_file.write("\n"+upsert.get('not reversed'))
 

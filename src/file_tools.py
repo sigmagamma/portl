@@ -1,5 +1,7 @@
+import math
 import os
 import sys
+import time
 import winreg
 from shutil import copyfile,copy,rmtree
 from os import path
@@ -12,6 +14,8 @@ import json
 import shlex
 import re
 from urllib.request import urlopen
+import tkinter as tk
+from tkinter import filedialog
 
 REPO = "https://github.com/sigmagamma/portl/"
 # this is required due to AV software flagging shutil.move for some reason
@@ -19,41 +23,65 @@ def move(src, dst):
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     copyfile(src,dst)
     os.remove(src)
+
+
+def move_tree(src, dst):
+    copy_tree(src, dst)
+    rmtree(src)
 class FileTools:
-    def __init__(self, game_filename,language):
+    def __init__(self, game_filename,language,gender=None,store='Steam',unattended=False):
 
         if (game_filename is not None):
             with open(self.get_patch_gamedata(game_filename),'r') as game_data_file:
                 data = json.load(game_data_file)
                 if data is not None:
-                    # text and filenames logic
                     self.game = data['game']
+
+                    # OS details
                     self.os = data.get('os')
                     if self.os != 'WIN':
                         raise Exception(
                             "currently only Windows is supported")
-                    self.main_folder = data.get('steam_main_folder')
-                    self.game_parent_path = self.steam_path_windows(self.main_folder)
-                    if self.game_parent_path is None:
-                        epic_install_id = data.get('epic_install_id')
-                        self.game_parent_path = None
-                        if epic_install_id:
-                            self.game_parent_path = self.epic_path_windows(epic_install_id)
-                        if self.game_parent_path is None:
-                            raise Exception(
-                                "Couldn't locate game folder. Please use Zip version")
+
+                    # game path
+                    self.game_parent_path = None
+                    self.basegame = data['basegame']
+                    self.gameguid = data['gameguid']
+                    path_guess = self.reg_path_windows()
+                    if unattended:
+                        file_path = path_guess
+                    else:
+                        if path_guess is None:
+                            action_text = "choose"
                         else:
-                            self.main_folder = data.get('epic_main_folder')
+                            action_text = "confirm"
+                        root = tk.Tk()
+                        root.withdraw()
+                        file_path = filedialog.askdirectory(title="Please {} game folder".format(action_text),initialdir=path_guess)
+                        root.destroy()
+                    self.unattended = unattended
+
+                    if os.path.exists(file_path) and os.path.exists(file_path+"\\"+self.basegame):
+                        self.main_folder = os.path.basename(file_path)
+                        self.game_parent_path = os.path.dirname(file_path)
+                    else:
+                        raise Exception("installation cancelled or not a valid game folder")
+
+                    # other details
+                    self.basegame_path = "\\" + self.main_folder + "\\" + self.basegame
+                    self.store = store
                     self.shortname = data['shortname']
                     self.version = data['version']
-                    self.basegame = data['basegame']
-                    self.basegame_path = "\\" + self.main_folder + "\\" + self.basegame
-                    full_basegame_path = self.get_full_basegame_path()
-                    if not os.path.exists(full_basegame_path):
-                        raise Exception("folder "+full_basegame_path + " doesn't exist. Please install the game. ")
+                    self.gender = gender
+                    self.gender_textures = data['gender_textures']
+                    if self.gender_textures is None:
+                        self.gender_textures = []
+
+                    #language details
                     self.original_language = self.get_original_localization_lang()
                     self.language = language
 
+                    # translation file details
                     self.caption_file_name = data['caption_file_name']
                     self.other_files = data.get('other_files')
                     if self.other_files is None:
@@ -83,8 +111,16 @@ class FileTools:
                         self.mod_folder = self.get_custom_folder()
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
+                    self.not_deletable = data.get('not_deletable')
+                    if not self.not_deletable:
+                        self.not_deletable = []
+                    # scheme file logic - to be removed
+                    self.scheme_file_name = data.get("scheme_file_name")
+                    self.format_replacements = data.get("format_replacements")
                     self.vpk_file_name = data.get("vpk_file_name")
                     private_file = self.get_patch_gamedata_private(game_filename)
+
+                    # External translation sheet details
                     self.captions_translation_url = None
                     self.translation_url = None
                     if os.path.exists(private_file):
@@ -102,7 +138,38 @@ class FileTools:
                     self.captions_filter = data.get('captions_filter')
 
     ##Steam/Epic logic
+
+    def reg_path_windows(self):
+        try:
+            game_config_path = "System\\GameConfigStore\\Children"
+            installpath = None
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, game_config_path, 0, winreg.KEY_READ) as hkey:
+                i = -1
+                while True:
+                    i = i + 1
+                    key = winreg.EnumKey(hkey, i)
+                    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, game_config_path + "\\" + key, 0,
+                                        winreg.KEY_READ) as gkey:
+                        gameguid = None
+                        try:
+                            gameguid = winreg.QueryValueEx(gkey, "GameDVR_GameGUID")[0]
+                            if (gameguid is not None) and (gameguid == self.gameguid):
+                                installpath = winreg.QueryValueEx(gkey, "MatchedExeFullPath")[0]
+                                break
+                        except Exception as e:
+                            continue
+            if installpath:
+                regpath_folder = os.path.dirname(installpath)
+                if os.path.exists(regpath_folder):
+                    return regpath_folder
+            else:
+                return None
+        except Exception:
+            return None
+
+
     def steam_path_windows(self,main_folder):
+
         try:
             hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam",0, winreg.KEY_READ)
             steam_path = winreg.QueryValueEx(hkey, "InstallPath")
@@ -119,12 +186,12 @@ class FileTools:
                 if os.path.exists(current_guess +"\\" + main_folder):
                     return current_guess
         return None
-    def epic_path_windows(self,epic_install_id):
+    def epic_path_windows(self):
         try:
             hkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "SOFTWARE\\Epic Games\\EOS",0, winreg.KEY_READ)
             epic_manifests_path = winreg.QueryValueEx(hkey, "ModSdkMetadataDir")[0]
             winreg.CloseKey(hkey)
-            if not os.path.exists(epic_manifests_path+'/{}.item'.format(epic_install_id)):
+            if not os.path.exists(epic_manifests_path):
                 epic_manifests_path = None
                 raise Exception
         except Exception as e:
@@ -132,20 +199,20 @@ class FileTools:
             epic_manifests_path_guess = "{}:/ProgramData/Epic/EpicGamesLauncher/Data/Manifests"
             for i in range(ord('C'), ord('Z')):
                 current_guess = epic_manifests_path_guess.format(chr(i))
-                if os.path.exists(current_guess+'/{}.item'.format(epic_install_id)):
+                if os.path.exists(current_guess):
                     epic_manifests_path = current_guess
                     break
         try:
             if epic_manifests_path is not None:
-                manifest = json.load(open(epic_manifests_path+'/{}.item'.format(epic_install_id),'r'))
-                if manifest:
-                    game_path = manifest.get('InstallLocation')
-                    if os.path.exists(game_path):
-                        return os.path.abspath(os.path.join(game_path, os.pardir))
+                for filename in os.listdir(epic_manifests_path):
+                    manifest = json.load(open(os.path.join(epic_manifests_path,filename),'r'))
+                    if manifest.get("DisplayName") == "The Stanley Parable":
+                        game_path =  manifest.get('InstallLocation')
+                        if os.path.exists(game_path):
+                            return os.path.abspath(os.path.join(game_path, os.pardir))
         except:
             return None
         return None
-
     def steam_path_linux(self):
         return "~/.steam/steam/steamapps/common"
 
@@ -234,12 +301,17 @@ class FileTools:
         return filename
     def get_mod_version_path(self):
         return self.mod_folder + "\\portl.txt"
+    def get_temp_version_path(self,temp_path):
+        return temp_path+ "\\portl.txt"
     def write_patch_version_file(self):
         rtl_text=""
         if self.total_chars_in_line is not None:
-            rtl_text = "RTL version\n"
+            rtl_text = "RTL version"
+        gender_text = ""
+        if self.gender is not None:
+            gender_text = " " + self.gender
         with open(self.get_mod_version_path(),'w') as file:
-            file.write(self.shortname+"-"+self.version+" "+rtl_text+"\n"+ REPO)
+            file.write(self.shortname+"-"+self.version+" "+rtl_text+ " " + self.store + gender_text + "\n"+ REPO)
     def create_mod_folders(self):
         cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(cfg_folder):
@@ -256,7 +328,7 @@ class FileTools:
         self.write_patch_version_file()
         if self.mod_type == 'dlc':
             basegame_cache_path = self.get_basegame_cache_path()
-            if not os.path.exists(basegame_cache_path):
+            if (not self.unattended) and not os.path.exists(basegame_cache_path):
                 input("Note: You'll have to start the game, get to the loading screen, wait for a while, and then restart it. Press any key.")
             else:
                 mod_cache_folder = self.get_mod_cache_folder()
@@ -264,12 +336,33 @@ class FileTools:
                     os.makedirs(mod_cache_folder)
                 copy(basegame_cache_path,mod_cache_folder)
     def remove_mod_folder(self):
-        if os.path.exists(self.mod_folder):
+        if not os.path.exists(self.mod_folder):
+            return
+        if self.not_deletable:
+            temp_path = self.mod_folder+"_"+str(math.floor(time.time()))
+            os.makedirs(temp_path)
+            moved = False
+            for file in self.not_deletable:
+                file_path = self.mod_folder+"\\"+file
+                new_file_path = temp_path + "\\"+file
+                if os.path.exists(file_path):
+                    if (not moved):
+                        move(self.get_mod_version_path(), self.get_temp_version_path(temp_path))
+                    moved = True
+                    if os.path.isdir(file_path):
+                        move_tree(file_path,new_file_path)
+                    else:
+                        move(file_path,new_file_path)
             rmtree(self.mod_folder)
+            if moved:
+                os.rename(temp_path,self.mod_folder)
+            else:
+                rmtree(temp_path)
     def remove_mod(self):
         self.remove_mod_folder()
         for file_data in self.other_files:
-            if file_data.get('override'):
+            file_store = file_data.get('store')
+            if file_store and file_store == self.store and file_data.get('override'):
                 self.restore_basegame_english_other_path(file_data)
 
     def get_compiler_resource_folder(self):
@@ -320,10 +413,11 @@ class FileTools:
         orig_captions_text_path = self.english_captions_text_path
         to_compile_text_path = self.get_to_compile_text_path()
         translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
-        translated_lines = tt.read_translation_from_csv(csv_path)
+        translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         if not os.path.exists(orig_captions_text_path):
             raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
-        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,'utf-16',self.language)
+        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,source_encoding='utf-16',prefix=self.captions_prefix,filter=self.captions_filter)
+        #TODO self.language,
         move(translated_path,to_compile_text_path)
         # this works because "translated path" is also the file name of to_compile_text_path
         subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
@@ -366,8 +460,9 @@ class FileTools:
 
     def backup_basegame_english_other_path(self,file_data):
         orig_path = self.get_basegame_english_other_path(file_data)
-        if os.path.exists(orig_path):
-            move(orig_path, self.get_basegame_english_backup_other_path(file_data))
+        backup_path = self.get_basegame_english_backup_other_path(file_data)
+        if os.path.exists(orig_path) and not(os.path.exists(backup_path)):
+            move(orig_path,backup_path)
     def restore_basegame_english_other_path(self, file_data):
         backup_path = self.get_basegame_english_backup_other_path(file_data)
         if os.path.exists(backup_path):
@@ -390,7 +485,10 @@ class FileTools:
             return self.get_gamefiles_folder() + "\\" + self.game + " translation - " + file_data.get('name') + ".csv"
 
     def write_other_from_patch(self,file_data):
-        dest_other_path = self.get_mod_other_path(file_data)
+        if file_data.get('base_override'):
+            dest_other_path = self.get_basegame_english_other_path(file_data)
+        else:
+            dest_other_path = self.get_mod_other_path(file_data)
         copyfile(self.get_patch_other_path(file_data), dest_other_path)
 
     def write_other_from_csv(self,file_data,csv_path):
@@ -416,29 +514,9 @@ class FileTools:
             else:
                 raise Exception(
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
-        translated_lines = tt.read_translation_from_csv(csv_path)
+        translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
-        # if compile:
-        #     encoding = 'utf-16'
-        # elif is_on_vpk:
-        #     encoding = None
-        # elif extension == 'res':
-        #     encoding = 'utf-8'
-        # else:
-        #     encoding = 'utf-16'
-        tt.translate(source_other_path,dest_other_path,translated_lines,multi_line,self.max_chars_before_break,self.total_chars_in_line,encoding,self.language,prefix=self.captions_prefix,filter=self.captions_filter)
-        if compile:
-            to_compile_text_path = self.get_to_compile_text_path()
-            move(dest_other_path, to_compile_text_path)
-            # this works because "translated path" is also the file name of to_compile_text_path
-            subprocess.run([self.compiler_path, to_compile_text_path], cwd=self.get_compiler_resource_folder())
-            #TODO generalize this
-            compiled_captions_path = self.get_compiled_captions_path()
-            dest_captions_path = self.get_mod_captions_path()
-            move(compiled_captions_path, dest_captions_path)
-            # Let's be nice and also move the uncompiled file to the mod folder
-            dest_captions_text_path = self.get_mod_captions_text_path()
-            move(to_compile_text_path, dest_captions_text_path)
+        tt.translate(source_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line,source_encoding= encoding)
         if is_on_vpk:
             os.remove(source_other_path)
 
@@ -465,11 +543,17 @@ class FileTools:
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
 
-    def copy_assets(self):
+    def copy_assets(self,patch=False):
         for filename in ["materials","sound"]:
             src_path = self.get_patch_file_path(filename)
             if os.path.exists(src_path):
                 copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
+        if (not patch) and self.gender is not None:
+            for texture in self.gender_textures:
+                gender_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+"_"+self.gender+".vtf"
+                if os.path.exists(gender_texture_path):
+                    dest_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+".vtf"
+                    move(gender_texture_path,dest_texture_path)
 
     def get_mod_cfg_folder(self):
         return self.mod_folder + "\cfg"
@@ -507,7 +591,8 @@ class FileTools:
     def write_autoexec_cfg(self):
         with open(self.get_mod_cfg_path('autoexec.cfg'), 'w') as file:
             file.write('cc_subtitles "1"\n')
-            file.write('cc_lang "' + self.original_language + '"')
+            file.write('cc_lang "' + self.original_language + '"\n')
+            file.write('closecaption "1"')
 
     def get_csv_from_url(self,filename,url):
         response = urlopen(url)
@@ -533,6 +618,11 @@ class FileTools:
         # if not os.path.isfile(captions_csv_path):
         #    self.write_captions_from_patch()
         for file_data in self.other_files:
+            file_store = file_data.get('store')
+            if file_store and file_store != self.store:
+                continue
+            if file_data.get('override'):
+                self.backup_basegame_english_other_path(file_data)
             other_csv_path = self.get_patch_other_csv_path(file_data)
             sheet = file_data.get("translation_sheet")
 
@@ -548,3 +638,17 @@ class FileTools:
             if file_data.get('override'):
                 self.backup_basegame_english_other_path(file_data)
         self.copy_assets()
+
+    ## patch write function
+    def write_patch_files(self):
+        self.create_mod_folders()
+        self.write_autoexec_cfg()
+        self.write_captions_from_patch()
+        for file_data in self.other_files:
+            file_store = file_data.get('store')
+            if file_store and file_store != self.store:
+                continue
+            if file_data.get('override'):
+                self.backup_basegame_english_other_path(file_data)
+            self.write_other_from_patch(file_data)
+        self.copy_assets(patch=True)
