@@ -93,7 +93,7 @@ def read_translation_from_csv(csv_path,gender,store):
                 translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding,language,prefix="",filter=None):
+def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,language,source_encoding,prefix="",filter=None):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':

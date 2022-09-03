@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['..\\..\\src\\blackmesa\\install_black_mesa_heb_win.py'],
+    ['..\\..\\src\\blackmesa\\install_black_mesa_non_patch_heb_win.py'],
     pathex=['..\\..\\'],
     binaries=[],
     datas=[

@@ -1,19 +1,16 @@
 {
   "shortname": "blackmesa",
-  "version": "0.9.1",
+  "version": "0.9.3",
   "game": "Black Mesa",
-  "steam_main_folder": "Black Mesa",
-  "game_service": "Steam",
+  "gameguid": "c9ff75f0-d7ca-43d3-bf3d-94fa0514be49",
   "basegame": "bms",
-  "caption_file_name": "closecaption",
   "max_chars_before_break": 45,
   "mod_type": "custom",
   "os" : "WIN",
   "vpk_file_name": "bms_misc_dir.vpk",
-  "captions_translation_sheet": "closecaption",
 
   "other_files": [
-    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","multi_line": false, "compile":  false}
-    ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","multi_line": true, "compile":  true}
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","multi_line": false}
+    ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","multi_line": true, "dest_extension": "dat","encoding": "utf-16"}
   ]
 }

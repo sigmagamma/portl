@@ -73,7 +73,7 @@ class FileTools:
                     self.shortname = data['shortname']
                     self.version = data['version']
                     self.gender = gender
-                    self.gender_textures = data['gender_textures']
+                    self.gender_textures = data.get('gender_textures')
                     if self.gender_textures is None:
                         self.gender_textures = []
 
@@ -82,7 +82,7 @@ class FileTools:
                     self.language = language
 
                     # translation file details
-                    self.caption_file_name = data['caption_file_name']
+                    # self.caption_file_name = data['caption_file_name']
                     self.other_files = data.get('other_files')
                     if self.other_files is None:
                         self.other_files = []
@@ -98,11 +98,11 @@ class FileTools:
                         self.compiler_basegame_path = self.basegame_path
                         self.compiler_game = self.game
                     self.compiler_path = self.get_compiler_path()
-                    self.english_captions_text_path = data.get('english_captions_text_path')
-                    if self.english_captions_text_path is None:
-                        self.english_captions_text_path = self.get_english_captions_text_path()
-                    else:
-                        self.english_captions_text_path = self.get_patch_file_path(self.english_captions_text_path)
+                    # self.english_captions_text_path = data.get('english_captions_text_path')
+                    # if self.english_captions_text_path is None:
+                    #     self.english_captions_text_path = self.get_english_captions_text_path()
+                    # else:
+                    #     self.english_captions_text_path = self.get_patch_file_path(self.english_captions_text_path)
 
                     # mod folder logic
                     mod_type = data.get('mod_type')
@@ -121,15 +121,15 @@ class FileTools:
                     private_file = self.get_patch_gamedata_private(game_filename)
 
                     # External translation sheet details
-                    self.captions_translation_url = None
+                    # self.captions_translation_url = None
                     self.translation_url = None
                     if os.path.exists(private_file):
                         with  open(private_file,'r') as game_data_file_private:
                             data_private = json.load(game_data_file_private)
                             self.translation_url = data_private.get('translation_url')
-                            translation_sheet = data.get('captions_translation_sheet')
-                            if self.translation_url is not None and translation_sheet is not None:
-                                self.captions_translation_url = self.translation_url + translation_sheet
+                            # translation_sheet = data.get('captions_translation_sheet')
+                            # if self.translation_url is not None and translation_sheet is not None:
+                            #     self.captions_translation_url = self.translation_url + translation_sheet
 
                     # text transformation details
                     self.captions_prefix = data.get('captions_prefix')
@@ -169,7 +169,6 @@ class FileTools:
 
 
     def steam_path_windows(self,main_folder):
-
         try:
             hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam",0, winreg.KEY_READ)
             steam_path = winreg.QueryValueEx(hkey, "InstallPath")
@@ -338,26 +337,25 @@ class FileTools:
     def remove_mod_folder(self):
         if not os.path.exists(self.mod_folder):
             return
-        if self.not_deletable:
-            temp_path = self.mod_folder+"_"+str(math.floor(time.time()))
-            os.makedirs(temp_path)
-            moved = False
-            for file in self.not_deletable:
-                file_path = self.mod_folder+"\\"+file
-                new_file_path = temp_path + "\\"+file
-                if os.path.exists(file_path):
-                    if (not moved):
-                        move(self.get_mod_version_path(), self.get_temp_version_path(temp_path))
-                    moved = True
-                    if os.path.isdir(file_path):
-                        move_tree(file_path,new_file_path)
-                    else:
-                        move(file_path,new_file_path)
-            rmtree(self.mod_folder)
-            if moved:
-                os.rename(temp_path,self.mod_folder)
-            else:
-                rmtree(temp_path)
+        temp_path = self.mod_folder+"_"+str(math.floor(time.time()))
+        os.makedirs(temp_path)
+        moved = False
+        for file in self.not_deletable:
+            file_path = self.mod_folder+"\\"+file
+            new_file_path = temp_path + "\\"+file
+            if os.path.exists(file_path):
+                if (not moved):
+                    move(self.get_mod_version_path(), self.get_temp_version_path(temp_path))
+                moved = True
+                if os.path.isdir(file_path):
+                    move_tree(file_path,new_file_path)
+                else:
+                    move(file_path,new_file_path)
+        rmtree(self.mod_folder)
+        if moved:
+            os.rename(temp_path,self.mod_folder)
+        else:
+            rmtree(temp_path)
     def remove_mod(self):
         self.remove_mod_folder()
         for file_data in self.other_files:
@@ -374,69 +372,67 @@ class FileTools:
 
     ## Close Captions logic
 
-    def get_mod_captions_path(self):
-        return self.get_mod_resource_folder() + "\{}_{}.dat".format(self.caption_file_name,self.original_language)
+    def get_mod_captions_path(self,file_data):
+        return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'),self.original_language)
 
-    def get_compiled_captions_path(self):
-        return self.get_compiler_resource_folder()+"\{}_{}.dat".format(self.caption_file_name,self.language)
+    def get_compiled_captions_path(self,file_data):
+        return self.get_compiler_resource_folder()+"\{}_{}.dat".format(file_data.get('name'),self.language)
 
-    def get_to_compile_text_path(self):
-        return self.get_compiler_resource_folder()+"\{}_{}.txt".format(self.caption_file_name,self.language)
+    def get_to_compile_text_path(self,file_data):
+        return self.get_compiler_resource_folder()+"\{}_{}.txt".format(file_data.get('name'),self.language)
+
+    def get_mod_captions_text_path(self,file_data):
+        return self.get_mod_resource_folder() + "\{}_{}.txt".format(file_data.get('name'),self.original_language)
+
+    # def get_patch_captions_path(self):
+    #     filename = self.get_gamefiles_folder() + "\\{}_{}.dat".format(self.caption_file_name, "english")
+    #     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    #         filename = path.abspath(path.join(path.dirname(__file__), filename))
+    #     return filename
 
 
-    def get_mod_captions_text_path(self):
-        return self.get_mod_resource_folder() + "\{}_{}.txt".format(self.caption_file_name,self.original_language)
-
-    def get_patch_captions_path(self):
-        filename = self.get_gamefiles_folder() + "\\{}_{}.dat".format(self.caption_file_name, "english")
-        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-            filename = path.abspath(path.join(path.dirname(__file__), filename))
-        return filename
-
-
-    def get_english_captions_text_path(self):
-        return self.get_basegame_resource_folder()+"\{}_english.txt".format(self.caption_file_name)
+    # def get_english_captions_text_path(self):
+    #     return self.get_basegame_resource_folder()+"\{}_english.txt".format(self.caption_file_name)
     def get_gamefiles_folder(self):
         return "gamefiles\\"+self.shortname
 
-    def get_patch_captions_csv_path(self):
-        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-            return self.game + " translation - " + self.caption_file_name + ".csv"
-        else:
-            return self.get_gamefiles_folder() + "\\" + self.game + " translation - " + self.caption_file_name + ".csv"
+    # def get_patch_captions_csv_path(self):
+    #     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    #         return self.game + " translation - " + self.caption_file_name + ".csv"
+    #     else:
+    #         return self.get_gamefiles_folder() + "\\" + self.game + " translation - " + self.caption_file_name + ".csv"
 
-    def write_captions_from_patch(self):
-        dest_captions_path = self.get_mod_captions_path()
-        copyfile(self.get_patch_captions_path(), dest_captions_path)
+    # def write_captions_from_patch(self):
+    #     dest_captions_path = self.get_mod_captions_path()
+    #     copyfile(self.get_patch_captions_path(), dest_captions_path)
 
-    def write_captions_from_csv(self,csv_path):
-        orig_captions_text_path = self.english_captions_text_path
-        to_compile_text_path = self.get_to_compile_text_path()
-        translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
-        translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
-        if not os.path.exists(orig_captions_text_path):
-            raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
-        tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,source_encoding='utf-16',prefix=self.captions_prefix,filter=self.captions_filter)
-        #TODO self.language,
-        move(translated_path,to_compile_text_path)
-        # this works because "translated path" is also the file name of to_compile_text_path
-        subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
-        compiled_captions_path = self.get_compiled_captions_path()
-        dest_captions_path = self.get_mod_captions_path()
-        move(compiled_captions_path,dest_captions_path)
-        # Let's be nice and also move the uncompiled file to the mod folder
-        dest_captions_text_path = self.get_mod_captions_text_path()
-        move(to_compile_text_path,dest_captions_text_path)
+    # def write_captions_from_csv(self,csv_path):
+    #     orig_captions_text_path = self.english_captions_text_path
+    #     to_compile_text_path = self.get_to_compile_text_path()
+    #     translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
+    #     translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
+    #     if not os.path.exists(orig_captions_text_path):
+    #         raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
+    #     tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,self.language,source_encoding='utf-16',prefix=self.captions_prefix,filter=self.captions_filter)
+    #     move(translated_path,to_compile_text_path)
+    #     # this works because "translated path" is also the file name of to_compile_text_path
+    #     subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
+    #     compiled_captions_path = self.get_compiled_captions_path()
+    #     dest_captions_path = self.get_mod_captions_path()
+    #     move(compiled_captions_path,dest_captions_path)
+    #     # Let's be nice and also move the uncompiled file to the mod folder
+    #     dest_captions_text_path = self.get_mod_captions_text_path()
+    #     move(to_compile_text_path,dest_captions_text_path)
 
     ## Other files logic - text files not for compilation
-    def get_mod_other_path(self, file_data):
+    def get_mod_other_path(self, file_data,use_dest):
         override = file_data.get('override')
         if override:
             language = self.get_localized_suffix(file_data,"english")
         else:
             language = self.get_localized_suffix(file_data,self.original_language)
         name = file_data.get('name')
-        extension = file_data.get('extension')
+        extension = self.get_dest_extension_else_extension(file_data,use_dest)
         folder = file_data.get('folder')
         return self.get_mod_subfolder(folder)+"\{}{}.{}".format(name,language,extension)
     def get_localized_suffix(self,file_data,language):
@@ -468,9 +464,17 @@ class FileTools:
         if os.path.exists(backup_path):
             move(backup_path,self.get_basegame_english_other_path(file_data))
 
+    def get_dest_extension_else_extension(self,file_data,use_dest):
+        extension = file_data.get('extension')
+        if use_dest:
+            dest_extension = file_data.get('dest_extension')
+            if (dest_extension):
+                extension = dest_extension
+        return extension
     def get_local_other_path(self,file_data):
         language = self.get_localized_suffix(file_data,"english")
-        return self.get_gamefiles_folder() + "\\"+file_data.get('name')+language+"."+file_data.get('extension')
+        return self.get_gamefiles_folder() + "\\"+file_data.get('name')+language+"."+\
+               self.get_dest_extension_else_extension(file_data,False)
 
     def get_patch_other_path(self,file_data):
         filename = self.get_local_other_path(file_data)
@@ -488,17 +492,17 @@ class FileTools:
         if file_data.get('base_override'):
             dest_other_path = self.get_basegame_english_other_path(file_data)
         else:
-            dest_other_path = self.get_mod_other_path(file_data)
+            dest_other_path = self.get_mod_other_path(file_data,True)
         copyfile(self.get_patch_other_path(file_data), dest_other_path)
 
     def write_other_from_csv(self,file_data,csv_path):
-        dest_other_path = self.get_mod_other_path(file_data)
+        dest_other_path = self.get_mod_other_path(file_data,False)
         is_on_vpk = file_data.get('is_on_vpk')
         folder = file_data.get('folder')
         name = file_data.get('name')
         extension = file_data.get('extension')
         multi_line = file_data.get('multi_line')
-        compile = file_data.get('compile')
+        dest_extension = file_data.get('dest_extension')
         language = self.get_localized_suffix(file_data,'english')
         if is_on_vpk:
             source_other_path = self.get_patch_other_path(file_data)
@@ -516,7 +520,19 @@ class FileTools:
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
         translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
-        tt.translate(source_other_path,dest_other_path,translated_lines,False,self.max_chars_before_break,self.total_chars_in_line,source_encoding= encoding)
+        tt.translate(source_other_path,dest_other_path,translated_lines,multi_line,self.max_chars_before_break,self.total_chars_in_line,self.language,source_encoding= encoding,prefix=self.captions_prefix,filter=self.captions_filter)
+        if dest_extension:
+            to_compile_text_path = self.get_to_compile_text_path(file_data)
+            move(dest_other_path, to_compile_text_path)
+            # this works because "translated path" is also the file name of to_compile_text_path
+            subprocess.run([self.compiler_path, to_compile_text_path], cwd=self.get_compiler_resource_folder())
+            # TODO generalize this
+            compiled_captions_path = self.get_compiled_captions_path(file_data)
+            dest_captions_path = self.get_mod_captions_path(file_data)
+            move(compiled_captions_path, dest_captions_path)
+            # Let's be nice and also move the uncompiled file to the mod folder
+            dest_captions_text_path = self.get_mod_captions_text_path(file_data)
+            move(to_compile_text_path, dest_captions_text_path)
         if is_on_vpk:
             os.remove(source_other_path)
 
@@ -605,7 +621,7 @@ class FileTools:
     def write_files(self):
         self.create_mod_folders()
         self.write_autoexec_cfg()
-        captions_csv_path = self.get_patch_captions_csv_path()
+        # captions_csv_path = self.get_patch_captions_csv_path()
 
         # if self.captions_translation_url is not None:
         #     self.get_csv_from_url(captions_csv_path,self.captions_translation_url)
@@ -643,7 +659,7 @@ class FileTools:
     def write_patch_files(self):
         self.create_mod_folders()
         self.write_autoexec_cfg()
-        self.write_captions_from_patch()
+        # self.write_captions_from_patch()
         for file_data in self.other_files:
             file_store = file_data.get('store')
             if file_store and file_store != self.store:
