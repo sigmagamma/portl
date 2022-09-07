@@ -3,14 +3,17 @@ Source engine translation framework with support for right-to-left languages.
 
 Currently Portal 1 and The Stanley Parable (2013) are supported. 
 Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portl/tree/feat-black-mesa). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
-Portal is currently broken in main, but works in feat-black-mesa. 
+Portal is currently broken in main, untested in feat-black-mesa. 
+Stanley is working in main, untested in feat-black-mesa.
 Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
+see https://github.com/sigmagamma/portl/issues/6 for details on other games.
+Snapshot branch for latest Stanley release is [stanley-0.9.2](https://github.com/sigmagamma/portl/tree/stanley-0.9.2)
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
 
 This project was originally created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find here:
 
-https://www.facebook.com/groups/200491360554968/posts/868793153724782
+https://docs.google.com/document/d/1CYy4ddqIiKt0RwiUZftUVhPl0Pv8gTgZl8HHrvQCkF8/edit?usp=sharing
 
 Or in English here:
 
@@ -91,11 +94,13 @@ This process is required as the game does not support native right to left align
 
 1. Get Stanley Parable:
 https://store.steampowered.com/app/221910/The_Stanley_Parable/
-(Epic not supported yet)
+or in Epic:
+https://store.epicgames.com/en-US/p/the-stanley-parable
 2. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
-3. git clone https://github.com/sigmagamma/portl.git and switch to feat-stanley
-4. If you want to change the actual translation, put the relevant csv in the gamefiles\stanley folder. 
-It has to be named "The Stanley Parable translation - subtitles.csv". You also need to have subtitles_english.txt in that folder.
+3. git clone https://github.com/sigmagamma/portl.git and switch to stanley-0.9.2
+4. You will need a file named The `Stanley Parable RTL private.json` under gamefiles/stanley  including the link to the 
+translation sheet. Alterantively you will need the csvs for the various files under that folder.
+You also need to have subtitles_english.txt in that folder.
 For this mode you have to get an additional game that has captioncompiler, like Portal or Portal 2 (sourcesdk will be supported later). Configure the compiler_game settings in 'The Stanley Parable.json'.
 Otherwise, if you want to work with an existing translation and patch the game, put the modified `subtitles_english.dat` in that folder.
 5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_stanley_steam_heb_win.py` performs the patching for windows.
