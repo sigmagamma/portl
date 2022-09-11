@@ -92,11 +92,11 @@ class FileTools:
                     if compiler_game_service_path is not None:
                         self.compiler_game_parent_path = compiler_game_service_path
                         self.compiler_basegame_path = data.get('compiler_game_path')
-                        self.compiler_game = data.get('compiler_game')
+                        self.compiler_main_folder = data.get('compiler_game')
                     else:
                         self.compiler_game_parent_path = self.game_parent_path
                         self.compiler_basegame_path = self.basegame_path
-                        self.compiler_game = self.game
+                        self.compiler_main_folder = self.main_folder
                     self.compiler_path = self.get_compiler_path()
                     # self.english_captions_text_path = data.get('english_captions_text_path')
                     # if self.english_captions_text_path is None:
@@ -368,7 +368,7 @@ class FileTools:
 
     def get_compiler_path(self):
         return self.compiler_game_parent_path + \
-               "\{}\\bin\captioncompiler.exe".format(self.compiler_game)
+               "\{}\\bin\captioncompiler.exe".format(self.compiler_main_folder)
 
     ## Close Captions logic
 
