@@ -16,6 +16,7 @@ import re
 from urllib.request import urlopen
 import tkinter as tk
 from tkinter import filedialog
+import win32security
 
 REPO = "https://github.com/sigmagamma/portl/"
 # this is required due to AV software flagging shutil.move for some reason
@@ -319,6 +320,13 @@ class FileTools:
         with open(self.get_mod_version_path(),'w') as file:
             file.write(self.shortname+"-"+self.version+" "+rtl_text+ " " + self.store + gender_text + "\n"+ REPO)
     def create_mod_folders(self):
+        # We want to create the main mod folder with the same permissions
+        # as the main folder. This does not happen naturally when elevated to admin
+        # this allows creating save and screenshots folders for epic, for instance
+        security_info = win32security.GetFileSecurity(self.get_full_game_path(), win32security.DACL_SECURITY_INFORMATION)
+        if not os.path.exists(self.mod_folder):
+            os.makedirs(self.mod_folder)
+        win32security.SetFileSecurity(self.mod_folder, win32security.DACL_SECURITY_INFORMATION, security_info)
         cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(cfg_folder):
             os.makedirs(cfg_folder)
