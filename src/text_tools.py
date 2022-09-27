@@ -105,11 +105,13 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
         j = 0
         upserts = []
         # Collecting possible upserts
+        upsert_originals = set()
         while True:
             j = j+1
             upsert = translated_lines.get("upsert_"+str(j))
             if upsert:
                 upserts.append(upsert)
+                upsert_originals.add(upsert.get('original'))
             else:
                 break
         for l in source_file:
@@ -119,6 +121,8 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                 orig = translatedLine['original']
                 translated = translatedLine.get('actual translation')
                 not_reversed = translatedLine.get('not reversed')
+                if translated == 'DELETE' or not_reversed == 'DELETE':
+                    continue
                 if orig in l:
                     if not_reversed:
                         l = l.replace(orig, not_reversed)
@@ -134,14 +138,19 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
             else:
                 # checking line against remaining upserts
                 popped = None
-                for k in range(0,len(upserts)-1):
-                    upsert = upserts[k]
-                    if upsert.get('original') == l.strip():
-                        dest_file.write(upsert.get('not reversed')+"\n")
-                        popped = upserts.pop(k)
-                        break
-                if popped:
-                    continue
+                if l.strip() in upsert_originals:
+                    while upserts:
+                        upsert = upserts[0]
+                        orig = upsert.get('original')
+                        not_reversed = upsert.get('not reversed')
+                        if orig == l.strip():
+                            new_line = l.replace(orig,not_reversed)
+                            dest_file.write(new_line)
+                            popped = upserts.pop(0)
+                            if upsert.get('multi') != 'TRUE':
+                                break
+                    if popped:
+                        continue
             dest_file.write(l)
         # printing out remaining upserts
         for upsert in upserts:
