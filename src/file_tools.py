@@ -390,39 +390,12 @@ class FileTools:
     #         filename = path.abspath(path.join(path.dirname(__file__), filename))
     #     return filename
 
-
-    # def get_english_captions_text_path(self):
-    #     return self.get_basegame_resource_folder()+"\{}_english.txt".format(self.caption_file_name)
     def get_gamefiles_folder(self):
         return "gamefiles\\"+self.shortname
-
-    # def get_patch_captions_csv_path(self):
-    #     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-    #         return self.game + " translation - " + self.caption_file_name + ".csv"
-    #     else:
-    #         return self.get_gamefiles_folder() + "\\" + self.game + " translation - " + self.caption_file_name + ".csv"
 
     # def write_captions_from_patch(self):
     #     dest_captions_path = self.get_mod_captions_path()
     #     copyfile(self.get_patch_captions_path(), dest_captions_path)
-
-    # def write_captions_from_csv(self,csv_path):
-    #     orig_captions_text_path = self.english_captions_text_path
-    #     to_compile_text_path = self.get_to_compile_text_path()
-    #     translated_path = "{}_{}.txt".format(self.caption_file_name,self.language)
-    #     translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
-    #     if not os.path.exists(orig_captions_text_path):
-    #         raise Exception("file "+ orig_captions_text_path+ " doesn't exist. Verify game files integrity")
-    #     tt.translate(orig_captions_text_path,translated_path,translated_lines,True,self.max_chars_before_break,self.total_chars_in_line,self.language,source_encoding='utf-16',prefix=self.captions_prefix,filter=self.captions_filter)
-    #     move(translated_path,to_compile_text_path)
-    #     # this works because "translated path" is also the file name of to_compile_text_path
-    #     subprocess.run([self.compiler_path,translated_path], cwd=self.get_compiler_resource_folder())
-    #     compiled_captions_path = self.get_compiled_captions_path()
-    #     dest_captions_path = self.get_mod_captions_path()
-    #     move(compiled_captions_path,dest_captions_path)
-    #     # Let's be nice and also move the uncompiled file to the mod folder
-    #     dest_captions_text_path = self.get_mod_captions_text_path()
-    #     move(to_compile_text_path,dest_captions_text_path)
 
     ## Other files logic - text files not for compilation
     def get_mod_other_path(self, file_data,use_dest):
@@ -621,14 +594,7 @@ class FileTools:
     def write_files(self):
         self.create_mod_folders()
         self.write_autoexec_cfg()
-        # captions_csv_path = self.get_patch_captions_csv_path()
 
-        # if self.captions_translation_url is not None:
-        #     self.get_csv_from_url(captions_csv_path,self.captions_translation_url)
-        # if (os.path.isfile(captions_csv_path)):
-        #     self.write_captions_from_csv(captions_csv_path)
-        #     if self.captions_translation_url is not None:
-        #         os.remove(captions_csv_path)
         #TODO handle patch end case for compilation
 
         # if not os.path.isfile(captions_csv_path):

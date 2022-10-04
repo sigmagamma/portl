@@ -17,8 +17,9 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
     currentLine = ""
     lastColor = ""
     italic = False
+    linePrefix = ""
     for word in array:
-        colors =  re.findall("(<clr:[a-zA-Z0-9:,.]*>)",word)
+        # italicize logic - we wrap each word in italic tags from the moment an italic appears until it doesn't
         if re.match("(^<I>)",word):
             if italic:
                 word = re.sub("(<I>)","",word)
@@ -33,35 +34,49 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
                 word = re.sub("(<I>)", "", word)
                 italic = True
         else:
-            if italic:
+            if italic and re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
                 word = "<I>" + word + "<I>"
 
+        # colors logic - we prefix each word with the color tag until the next color tag
+        colors =  re.findall("(<clr:[a-zA-Z0-9:,.]*>)",word)
         if colors != []:
             lastColor = colors[-1]
-        else:
+        elif re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
             word = lastColor+word
-        if word != "<cr>":
+
+        # fixing digits and punctuation
+        if re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
+            word = word.replace('[','_tempstring_').replace(']','[').replace('_tempstring_',']')
             parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
                          else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})',s)
                             else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})', word) if s is not None )
             word = ''.join(parts)
-    #        word = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
             shortword = re.sub("(<[a-zA-Z0-9:,.]*>)","",word)
             addspace = 0
+            # if it's an actual word, we'll add a space which also affects length
             if shortword != "":
                 addspace = 1
             counter += len(shortword) + addspace
+        # we break when passing the limit or encountering a cr.
+        # sometimes crs would be used to manually split problematic titles
         if counter/max_chars >= 1 or word == "<cr>":
             lineCounter += 1
+            currentLine = linePrefix + currentLine
             lines.append(currentLine)
+            linePrefix = ""
             currentLine = ""
             counter = 0
-        if word != "<cr>":
+        # delays and lens are force-prefixed for now
+        if re.match('<delay:.*>',word) or re.match('<len:.*>',word):
+            linePrefix = word + linePrefix
+        elif word != "<cr>":
             currentLine = word + " " + currentLine
+
     lines.append(currentLine)
     result = ""
     for line in lines:
         fill = 	""
+        # spacing logic
         if total_chars is not None:
             line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
             fill_count = total_chars - len(line_no_tags)

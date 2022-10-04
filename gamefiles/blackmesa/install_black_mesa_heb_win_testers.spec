@@ -30,7 +30,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='install_black_mesa_heb_win',
+    name='install_black_mesa_heb_wintesters',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
