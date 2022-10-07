@@ -26,6 +26,8 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
         # fixing digits and punctuation
         if re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
             word = word.replace('[','_tempstring_').replace(']','[').replace('_tempstring_',']')
+            if language == 'hebrew':
+                word = word.replace('"','״')
             parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
                          else s if is_number_or_time(s) or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})',s)
                             else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})', word) if s is not None )
