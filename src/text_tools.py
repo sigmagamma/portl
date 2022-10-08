@@ -10,10 +10,29 @@ def move_digits_to_end(s):
         s = s[1:len(s)]+c
     return s
 
+#TODO better english handling
+def move_punctuation_to_end(s: str):
+    for c in s:
+        if s.isalnum():
+            break
+        s = s[1:len(s)]+c
+    return s
+
 def is_number_or_time(s):
     return s.isdigit() or re.match("^[0-9]{1,2}:[0-9]{2}$",s)
 
-def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
+def is_english_word(s):
+    # for now only matches perfect english words
+    return re.match('^[a-zA-Z]{1,}$',s)
+
+def is_parameter(s):
+    return s.startswith("%")
+
+def is_not_reversible(s):
+    return is_number_or_time(s) or is_parameter(s) or \
+           re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})',s) or is_english_word(s)
+
+def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>"):
     array = caption.split()
     counter = 0
     lines = []
@@ -25,12 +44,12 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
     lineSuffix = ""
     for word in array:
         # fixing digits and punctuation
-        if re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
+        if re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "" and word != seperator:
             word = word.replace('[','_tempstring_').replace(']','[').replace('_tempstring_',']')
             if language == 'hebrew':
                 word = word.replace('"','״')
             parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
-                         else s if is_number_or_time(s) or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})',s)
+                         else s if is_not_reversible(s)
                             else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})', word) if s is not None )
             word = ''.join(parts)
             shortword = re.sub("(<[a-zA-Z0-9:,.]*>)","",word)
@@ -67,7 +86,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
 
         # we break when passing the limit or encountering a cr.
         # sometimes crs would be used to manually split problematic titles
-        if counter/max_chars >= 1 or word == "<cr>":
+        if (max_chars is not None and counter/max_chars) >= 1 or word == seperator:
             lineCounter += 1
             if lineSuffix != "":
                 lineSuffix = lineSuffix + " "
@@ -82,7 +101,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
             linePrefix = word + linePrefix
         elif re.match('<len:.*>',word):
             lineSuffix = word + lineSuffix
-        elif word != "<cr>":
+        elif word != seperator:
             currentLine = word + " " + currentLine
 
     lines.append(currentLine)
@@ -94,7 +113,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
             line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
             fill_count = total_chars - len(line_no_tags)
             fill = "".zfill(fill_count).replace("0", " ")
-        result += fill   + line + "<cr>"
+        result += fill   + line + seperator
     return prefix + result
 
 def rearrange_single_line(s):
@@ -158,7 +177,7 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                         if multi_line:
                             new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix)
                         else:
-                            new_line = rearrange_single_line(translated)
+                            new_line = rearrange_multiple_lines(translated,None,None,language,prefix,"\\n")
                         l = l.replace(orig, new_line)
                         if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
                             l = l.replace(filter, "")
