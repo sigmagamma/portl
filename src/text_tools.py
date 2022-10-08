@@ -22,6 +22,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
     lastColor = ""
     italic = False
     linePrefix = ""
+    lineSuffix = ""
     for word in array:
         # fixing digits and punctuation
         if re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
@@ -68,14 +69,19 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix=""):
         # sometimes crs would be used to manually split problematic titles
         if counter/max_chars >= 1 or word == "<cr>":
             lineCounter += 1
-            currentLine = linePrefix + currentLine
+            if lineSuffix != "":
+                lineSuffix = lineSuffix + " "
+            currentLine = linePrefix + currentLine + lineSuffix
             lines.append(currentLine)
             linePrefix = ""
+            lineSuffix = ""
             currentLine = ""
             counter = 0
-        # delays and lens are force-prefixed for now
-        if re.match('<delay:.*>',word) or re.match('<len:.*>',word):
+        # delays and lens are force-pre/suffixed for now
+        if re.match('<delay:.*>',word):
             linePrefix = word + linePrefix
+        elif re.match('<len:.*>',word):
+            lineSuffix = word + lineSuffix
         elif word != "<cr>":
             currentLine = word + " " + currentLine
 
