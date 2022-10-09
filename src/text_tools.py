@@ -1,5 +1,6 @@
 import csv
 import re
+import arabic_reshaper
 
 def is_digit_with_punctuation(s):
     return re.match('^\d+(?:-\d)*[!.?,\']{1,}$',s) is not None
@@ -33,7 +34,11 @@ def is_not_reversible(s):
            re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})',s) or is_english_word(s)
 
 def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>"):
-    array = caption.split()
+    if language == "arabnew":
+        reshaped_text = arabic_reshaper.reshape(caption)
+        array = reshaped_text.split()
+    else:
+        array = caption.split()
     counter = 0
     lines = []
     lineCounter = 1

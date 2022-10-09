@@ -5,12 +5,12 @@ block_cipher = None
 
 
 a = Analysis(
-    ['..\\..\\src\\blackmesa\\install_black_mesa_non_patch_heb_win.py'],
+    ['..\\..\\src\\blackmesa\\install_black_mesa_non_patch_arabic_win.py'],
     pathex=['..\\..\\'],
     binaries=[],
     datas=[
-    ('Black Mesa Hebrew.json', 'src\gamefiles\\blackmesa'),
-    ('Black Mesa Hebrew private.json', 'src\gamefiles\\blackmesa')],
+    ('Black Mesa Arabic.json', 'src\gamefiles\\blackmesa'),
+    ('Black Mesa Arabic private.json', 'src\gamefiles\\blackmesa')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -30,7 +30,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='install_black_mesa_heb_win_testers',
+    name='install_black_mesa_arabic_win_testers',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

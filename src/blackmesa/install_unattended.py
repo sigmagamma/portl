@@ -3,10 +3,10 @@ import sys
 
 
 def arabic_install():
-    ft = FileTools("gamefiles/blackmesa/Black Mesa Arabic.json", "arabic", store="Steam",unattended=True)
+    ft = FileTools("gamefiles/blackmesa/Black Mesa Arabic.json", "arabnew", store="Steam",unattended=True)
     ft.write_files()
 def arabic_rtl_install():
-    ft = FileTools("gamefiles/blackmesa/Black Mesa Arabic RTL.json", "arabic", store="Steam",unattended=True)
+    ft = FileTools("gamefiles/blackmesa/Black Mesa Arabic RTL.json", "arabnew", store="Steam",unattended=True)
     ft.write_files()
 
 def hebrew_install():
