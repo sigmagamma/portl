@@ -91,14 +91,18 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
 
     lines.append(currentLine)
     result = ""
-    for line in lines:
+    num_lines = len(lines)
+    line_seperator = seperator
+    for i,line in enumerate(lines):
         fill = 	""
         # spacing logic
         if total_chars is not None:
             line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
             fill_count = total_chars - len(line_no_tags)
             fill = "".zfill(fill_count).replace("0", " ")
-        result += fill   + line + seperator
+        if i == num_lines - 1:
+            line_seperator = ""
+        result += fill   + line + line_seperator
     return prefix + result
 
 def rearrange_single_line(s):
