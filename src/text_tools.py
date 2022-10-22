@@ -1,37 +1,19 @@
 import csv
 import re
 import arabic_reshaper
+from bidi.algorithm import get_display
 
-def is_digit_with_punctuation(s):
-    return re.match('^\d+(?:-\d)*[!.?,\']{1,}$',s) is not None
-def move_digits_to_end(s):
+# english and digits are written left to right, but punctuation is moved to comply
+# with RTL language
+def is_digit_or_english_with_punctuation(s):
+    return re.match('^[\da-zA-Z]+(?:-[\da-zA-Z])*[!.?,\']{1,}$',s) is not None
+
+def move_digits_or_english_to_end(s):
     for c in s:
-        if not c.isdigit() and not c == '-':
+        if not re.match('[a-zA-Z0-9]',c) and not c == '-' :
             break
         s = s[1:len(s)]+c
     return s
-
-#TODO better english handling
-def move_punctuation_to_end(s: str):
-    for c in s:
-        if s.isalnum():
-            break
-        s = s[1:len(s)]+c
-    return s
-
-def is_number_or_time(s):
-    return s.isdigit() or re.match("^[0-9]{1,2}:[0-9]{2}$",s)
-
-def is_english_word(s):
-    # for now only matches perfect english words
-    return re.match('^[a-zA-Z]{1,}$',s)
-
-def is_parameter(s):
-    return s.startswith("%")
-
-def is_not_reversible(s):
-    return is_number_or_time(s) or is_parameter(s) or \
-           re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})',s) or is_english_word(s)
 
 def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>"):
     if language == "arabnew":
@@ -50,13 +32,11 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
     for word in array:
         # fixing digits and punctuation
         if re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "" and word != seperator:
-            word = word.replace('[','_tempstring_').replace(']','[').replace('_tempstring_',']')
             if language == 'hebrew':
                 word = word.replace('"','״')
-            parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
-                         else s if is_not_reversible(s)
-                            else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})', word) if s is not None )
-            word = ''.join(parts)
+            word = get_display(word)
+            if is_digit_or_english_with_punctuation(word):
+                word = move_digits_or_english_to_end(word)
             shortword = re.sub("(<[a-zA-Z0-9:,.]*>)","",word)
             addspace = 0
             # if it's an actual word, we'll add a space which also affects length
