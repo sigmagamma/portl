@@ -2,7 +2,7 @@
 Source engine translation framework with support for right-to-left languages.
 
 Currently Portal 1 and The Stanley Parable (2013) are supported. 
-Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portl/tree/feat-black-mesa). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
+Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portpyinsl/tree/feat-black-mesa). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
 Portal is currently broken in main, untested in feat-black-mesa. 
 Stanley is working in main, untested in feat-black-mesa.
 Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
@@ -52,7 +52,9 @@ https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resol
 Some additional points to follow:
 Within the Visual Studio Installer, make sure you add "Desktop development with C++".
 In step 5, if you're working with Pycharm, you should probably copy the release into the project folder in order to have it install pyinstaller into your Virtual Environment.
-Also you may have to run Pycharm as administrator.
+Remember to run setup.py with your python venv executable. You may have to run Pycharm as administrator.
+
+
 I've used the pyinstaller develop branch:
 https://github.com/pyinstaller/pyinstaller/archive/develop.zip
 
