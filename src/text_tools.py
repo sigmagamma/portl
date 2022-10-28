@@ -83,7 +83,9 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             counter = 0
         # delays and lens are force-pre/suffixed for now
         if re.match('<delay:.*>',word):
-            linePrefix = word + linePrefix
+            linePrefix = word + prefix + linePrefix
+            lastColor  = ""
+            italic = False
         elif re.match('<len:.*>',word):
             lineSuffix = word + lineSuffix
         elif word != seperator:
@@ -98,7 +100,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
         # spacing logic
         if total_chars is not None:
             line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
-            fill_count = total_chars - len(line_no_tags)
+            fill_count = (total_chars - len(line_no_tags))*2
             fill = "".zfill(fill_count).replace("0", " ")
         if i == num_lines - 1:
             line_seperator = ""
@@ -129,7 +131,7 @@ def read_translation_from_csv(csv_path,gender,store):
                 translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,language,source_encoding,prefix="",filter=None):
+def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="", filter=None):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':
@@ -163,10 +165,10 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                     if not_reversed:
                         l = l.replace(orig, not_reversed)
                     else:
-                        if multi_line:
+                        if is_captions:
                             new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix)
                         else:
-                            new_line = rearrange_multiple_lines(translated,None,None,language,prefix,"\\n")
+                            new_line = rearrange_multiple_lines(translated,None,None,language,"","\\n")
                         l = l.replace(orig, new_line)
                         if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
                             l = l.replace(filter, "")

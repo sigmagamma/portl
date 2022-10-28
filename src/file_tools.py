@@ -474,7 +474,7 @@ class FileTools:
         folder = file_data.get('folder')
         name = file_data.get('name')
         extension = file_data.get('extension')
-        multi_line = file_data.get('multi_line')
+        is_captions = file_data.get('is_captions')
         dest_extension = file_data.get('dest_extension')
         language = self.get_localized_suffix(file_data,'english')
         if is_on_vpk:
@@ -493,7 +493,7 @@ class FileTools:
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
         translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
-        tt.translate(source_other_path,dest_other_path,translated_lines,multi_line,self.max_chars_before_break,self.total_chars_in_line,self.language,source_encoding= encoding,prefix=self.captions_prefix,filter=self.captions_filter)
+        tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,source_encoding= encoding,prefix=self.captions_prefix,filter=self.captions_filter)
         if dest_extension:
             to_compile_text_path = self.get_to_compile_text_path(file_data)
             move(dest_other_path, to_compile_text_path)

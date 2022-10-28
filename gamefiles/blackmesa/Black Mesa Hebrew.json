@@ -8,12 +8,12 @@
   "mod_type": "custom",
   "os" : "WIN",
   "vpk_file_name": "bms_misc_dir.vpk",
-
+"captions_prefix": "<B>",
   "other_files": [
-    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","multi_line": false},
-    {"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","dest_extension":"dat","multi_line": true,
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","is_captions": false},
+    {"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","dest_extension":"dat","is_captions": true,
       "encoding": "utf-16"}
-    ,{"name": "bms","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","multi_line": false,
+    ,{"name": "bms","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","is_captions": false,
       "encoding": "utf-16"}
 
   ]
