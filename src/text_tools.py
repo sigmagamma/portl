@@ -6,11 +6,11 @@ from bidi.algorithm import get_display
 # english and digits are written left to right, but punctuation is moved to comply
 # with RTL language
 def is_digit_or_english_with_punctuation(s):
-    return re.match('^[\da-zA-Z]+(?:-[\da-zA-Z])*[!.?,\']{1,}$',s) is not None
+    return re.match('^[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,\']{1,}$',s) is not None
 
 def move_digits_or_english_to_end(s):
     for c in s:
-        if not re.match('[a-zA-Z0-9]',c) and not c == '-' :
+        if not re.match('[a-zA-Z0-9\u0660-\u0669]',c) and not c == '-' :
             break
         s = s[1:len(s)]+c
     return s
@@ -21,6 +21,9 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
         array = reshaped_text.split()
     else:
         array = caption.split()
+    is_phrase = False
+    if str(caption).startswith('\"') and str(caption).endswith('\"'):
+        is_phrase = True
     counter = 0
     lines = []
     lineCounter = 1
@@ -32,7 +35,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
     for word in array:
         # fixing digits and punctuation
         if re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "" and word != seperator:
-            if language == 'hebrew':
+            if language == 'hebrew' and not is_phrase:
                 word = word.replace('"','״')
             word = get_display(word)
             if is_digit_or_english_with_punctuation(word):
@@ -71,8 +74,9 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
 
         # we break when passing the limit or encountering a cr.
         # sometimes crs would be used to manually split problematic titles
-        if (max_chars is not None and counter/max_chars) >= 1 or word == seperator:
+        if (max_chars is not None and (counter-1)/max_chars) >= 1 or word == seperator:
             lineCounter += 1
+            #currentLine = currentLine.strip()
             if lineSuffix != "":
                 lineSuffix = lineSuffix + " "
             currentLine = linePrefix + currentLine + lineSuffix
@@ -100,7 +104,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
         # spacing logic
         if total_chars is not None:
             line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
-            fill_count = (total_chars - len(line_no_tags))*2
+            fill_count = (total_chars - len(line_no_tags))
             fill = "".zfill(fill_count).replace("0", " ")
         if i == num_lines - 1:
             line_seperator = ""

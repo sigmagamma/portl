@@ -58,7 +58,8 @@ def restore_cfg(file_tools):
         os.remove(backup_config_path)
 
 def restore_captions(file_tools):
-    main_caption_path = file_tools.get_compiled_captions_path()
+    file_data = {"name": "closecaption", "folder": "resource", "localized": True}
+    main_caption_path = file_tools.get_compiled_captions_path(file_data)
     if (os.path.isfile(main_caption_path)):
         os.remove(main_caption_path)
     backup_captions_text_path = get_backup_captions_text_path(file_tools)
@@ -70,7 +71,7 @@ def restore_captions(file_tools):
         if answer == "y":
             os.remove(backup_captions_text_path)
 
-def restore_other(file_tools):
+def restore_portal(file_tools):
     backup_other_path = get_backup_other_path(file_tools)
     file_data = {"name": "portal","folder":"resource","localized": True}
     if (os.path.isfile(backup_other_path)):
@@ -78,7 +79,7 @@ def restore_other(file_tools):
         os.remove(backup_other_path)
 def restore_backup(file_tools):
     restore_cfg(file_tools)
-    restore_other(file_tools)
+    restore_portal(file_tools)
     restore_captions(file_tools)
 
 

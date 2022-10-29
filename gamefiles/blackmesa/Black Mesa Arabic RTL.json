@@ -11,7 +11,7 @@
   "vpk_file_name": "bms_misc_dir.vpk",
 
   "other_files": [
-    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","multi_line": false}
-    ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","multi_line": true, "dest_extension":"dat","encoding": "utf-16"}
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","is_captions": false}
+    ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","is_captions": true, "dest_extension":"dat","encoding": "utf-16"}
   ]
 }

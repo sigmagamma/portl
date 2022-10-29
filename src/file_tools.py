@@ -46,8 +46,13 @@ class FileTools:
                     # game path
                     self.game_parent_path = None
                     self.basegame = data['basegame']
-                    self.gameguid = data['gameguid']
-                    path_guess = self.reg_path_windows()
+                    self.gameguid = data.get('gameguid')
+                    if self.gameguid:
+                        path_guess = self.reg_path_windows()
+                    elif store == 'Steam':
+                        steam_main_folder = data.get('steam_main_folder')
+                        if steam_main_folder is not None:
+                            path_guess = self.steam_path_windows(steam_main_folder) + "\\" + steam_main_folder
                     if unattended:
                         file_path = path_guess
                     else:
