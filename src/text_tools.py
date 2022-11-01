@@ -76,7 +76,9 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
         # sometimes crs would be used to manually split problematic titles
         if (max_chars is not None and (counter-1)/max_chars) >= 1 or word == seperator:
             lineCounter += 1
-            #currentLine = currentLine.strip()
+            length = len(currentLine)
+            if (length != 0 and currentLine[-1] == " "):
+                currentLine = currentLine[0:-1]
             if lineSuffix != "":
                 lineSuffix = lineSuffix + " "
             currentLine = linePrefix + currentLine + lineSuffix
@@ -94,7 +96,12 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             lineSuffix = word + lineSuffix
         elif word != seperator:
             currentLine = word + " " + currentLine
-
+    length = len(currentLine)
+    if (length != 0 and currentLine[-1] == " "):
+        currentLine = currentLine[0:-1]
+    if lineSuffix != "":
+        lineSuffix = lineSuffix + " "
+    currentLine = linePrefix + currentLine + lineSuffix
     lines.append(currentLine)
     result = ""
     num_lines = len(lines)

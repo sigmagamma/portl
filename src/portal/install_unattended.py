@@ -2,7 +2,7 @@ from src.file_tools import FileTools
 import sys
 from src import legacy_backup_tools as lbt
 
-def hebrew_install():
+def hebrew_ltr_install():
     ft = FileTools("gamefiles/portal/Portal.json", "hebrew", store="Steam",unattended=True)
     lbt.restore_backup(ft)
     ft.write_files()

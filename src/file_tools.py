@@ -11,8 +11,6 @@ import vpk
 import src.text_tools as tt
 import subprocess
 import json
-import shlex
-import re
 from urllib.request import urlopen
 import tkinter as tk
 from tkinter import filedialog
@@ -52,7 +50,11 @@ class FileTools:
                     elif store == 'Steam':
                         steam_main_folder = data.get('steam_main_folder')
                         if steam_main_folder is not None:
-                            path_guess = self.steam_path_windows(steam_main_folder) + "\\" + steam_main_folder
+                            steam_path = self.steam_path_windows(steam_main_folder)
+                            if steam_path is not None:
+                                path_guess = steam_path + "\\" + steam_main_folder
+                            else:
+                                path_guess = None
                     if unattended:
                         file_path = path_guess
                     else:
@@ -190,7 +192,10 @@ class FileTools:
                 if os.path.exists(current_guess +"\\" + main_folder):
                     return current_guess
         return None
+
+    # This is unused, but is left for some general reference of how to achieve this
     def epic_path_windows(self):
+        epic_manifests_path = None
         try:
             hkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "SOFTWARE\\Epic Games\\EOS",0, winreg.KEY_READ)
             epic_manifests_path = winreg.QueryValueEx(hkey, "ModSdkMetadataDir")[0]
@@ -389,18 +394,9 @@ class FileTools:
     def get_mod_captions_text_path(self,file_data):
         return self.get_mod_resource_folder() + "\{}_{}.txt".format(file_data.get('name'),self.original_language)
 
-    # def get_patch_captions_path(self):
-    #     filename = self.get_gamefiles_folder() + "\\{}_{}.dat".format(self.caption_file_name, "english")
-    #     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-    #         filename = path.abspath(path.join(path.dirname(__file__), filename))
-    #     return filename
 
     def get_gamefiles_folder(self):
         return "gamefiles\\"+self.shortname
-
-    # def write_captions_from_patch(self):
-    #     dest_captions_path = self.get_mod_captions_path()
-    #     copyfile(self.get_patch_captions_path(), dest_captions_path)
 
     ## Other files logic - text files not for compilation
     def get_mod_other_path(self, file_data,use_dest):
@@ -449,13 +445,13 @@ class FileTools:
             if (dest_extension):
                 extension = dest_extension
         return extension
-    def get_local_other_path(self,file_data):
+    def get_local_other_path(self,file_data,get_from_dest):
         language = self.get_localized_suffix(file_data,"english")
         return self.get_gamefiles_folder() + "\\"+file_data.get('name')+language+"."+\
-               self.get_dest_extension_else_extension(file_data,False)
+               self.get_dest_extension_else_extension(file_data,get_from_dest)
 
-    def get_patch_other_path(self,file_data):
-        filename = self.get_local_other_path(file_data)
+    def get_patch_other_path(self,file_data,get_from_dest):
+        filename = self.get_local_other_path(file_data,get_from_dest)
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             filename = path.abspath(path.join(path.dirname(__file__), filename))
         return filename
@@ -471,7 +467,7 @@ class FileTools:
             dest_other_path = self.get_basegame_english_other_path(file_data)
         else:
             dest_other_path = self.get_mod_other_path(file_data,True)
-        copyfile(self.get_patch_other_path(file_data), dest_other_path)
+        copyfile(self.get_patch_other_path(file_data,True), dest_other_path)
 
     def write_other_from_csv(self,file_data,csv_path):
         dest_other_path = self.get_mod_other_path(file_data,False)
@@ -483,7 +479,7 @@ class FileTools:
         dest_extension = file_data.get('dest_extension')
         language = self.get_localized_suffix(file_data,'english')
         if is_on_vpk:
-            source_other_path = self.get_patch_other_path(file_data)
+            source_other_path = self.get_patch_other_path(file_data,False)
             self.save_file_from_vpk(folder+"/"+name+language+'.'+extension,source_other_path)
         else:
             basegame_other_path = self.get_basegame_english_other_path(file_data)
@@ -600,10 +596,6 @@ class FileTools:
         self.create_mod_folders()
         self.write_autoexec_cfg()
 
-        #TODO handle patch end case for compilation
-
-        # if not os.path.isfile(captions_csv_path):
-        #    self.write_captions_from_patch()
         for file_data in self.other_files:
             file_store = file_data.get('store')
             if file_store and file_store != self.store:
@@ -612,7 +604,7 @@ class FileTools:
                 self.backup_basegame_english_other_path(file_data)
             other_csv_path = self.get_patch_other_csv_path(file_data)
             sheet = file_data.get("translation_sheet")
-
+            file_url = None
             if sheet is not None and self.translation_url is not None:
                 file_url = self.translation_url + sheet
                 self.get_csv_from_url(other_csv_path, file_url)
