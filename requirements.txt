@@ -1,4 +1,4 @@
 vpk==1.4.0
-pytest=7.1.1
-arabic-reshaper=2.1.4
-python-bidi=0.4.2
+pytest==7.1.1
+arabic-reshaper==2.1.4
+python-bidi==0.4.2

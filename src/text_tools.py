@@ -6,16 +6,11 @@ from bidi.algorithm import get_display
 # english and digits are written left to right, but punctuation is moved to comply
 # with RTL language
 def is_digit_or_english_with_punctuation(s):
-    return re.match('^[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,\']{1,}$',s) is not None
+    return re.match('^[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None \
+           or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*$',s) is not None \
+           or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None
 
-def move_digits_or_english_to_end(s):
-    for c in s:
-        if not re.match('[a-zA-Z0-9\u0660-\u0669]',c) and not c == '-' :
-            break
-        s = s[1:len(s)]+c
-    return s
-
-def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>"):
+def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",end_with_space=True):
     if language == "arabnew":
         reshaped_text = arabic_reshaper.reshape(caption)
         array = reshaped_text.split()
@@ -34,18 +29,20 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
     lineSuffix = ""
     for word in array:
         # fixing digits and punctuation
-        if re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "" and word != seperator:
-            if language == 'hebrew' and not is_phrase:
-                word = word.replace('"','״')
-            word = get_display(word)
-            if is_digit_or_english_with_punctuation(word):
-                word = move_digits_or_english_to_end(word)
-            shortword = re.sub("(<[a-zA-Z0-9:,.]*>)","",word)
-            addspace = 0
-            # if it's an actual word, we'll add a space which also affects length
-            if shortword != "":
-                addspace = 1
-            counter += len(shortword) + addspace
+        if language == 'hebrew' and not is_phrase:
+            word = word.replace('"', '״')
+        shortword = re.sub("(<[a-zA-Z0-9:,.]*>)", "", word)
+        if shortword != "" and word != seperator:
+            if shortword != word:
+                newshortword = get_display(shortword)
+                word = word.replace(shortword, newshortword)
+            elif is_digit_or_english_with_punctuation(word):
+                word = 'א' + word + 'א'
+                word = get_display(word)
+                word = word.replace('א','')
+            else:
+                word = get_display(word)
+            counter += len(shortword) + 1
         # italicize logic - we wrap each word in italic tags from the moment an italic appears until it doesn't
         if re.match("(^<I>)",word):
             if italic:
@@ -71,13 +68,15 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
         elif re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
             word = lastColor+word
 
-
+        counter_check = counter
+        if not end_with_space:
+            counter_check = counter_check - 1
         # we break when passing the limit or encountering a cr.
         # sometimes crs would be used to manually split problematic titles
-        if (max_chars is not None and (counter-1)/max_chars) >= 1 or word == seperator:
+        if (max_chars is not None and (counter_check)/max_chars) >= 1 or word == seperator:
             lineCounter += 1
             length = len(currentLine)
-            if (length != 0 and currentLine[-1] == " "):
+            if ((not end_with_space) and length != 0 and currentLine[-1] == " "):
                 currentLine = currentLine[0:-1]
             if lineSuffix != "":
                 lineSuffix = lineSuffix + " "
@@ -97,7 +96,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
         elif word != seperator:
             currentLine = word + " " + currentLine
     length = len(currentLine)
-    if (length != 0 and currentLine[-1] == " "):
+    if ((not end_with_space) and length != 0 and currentLine[-1] == " "):
         currentLine = currentLine[0:-1]
     if lineSuffix != "":
         lineSuffix = lineSuffix + " "
@@ -177,9 +176,9 @@ def translate(source, dest, translated_lines, is_captions, max_chars_before_brea
                         l = l.replace(orig, not_reversed)
                     else:
                         if is_captions:
-                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix)
+                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix,end_with_space=True)
                         else:
-                            new_line = rearrange_multiple_lines(translated,None,None,language,"","\\n")
+                            new_line = rearrange_multiple_lines(translated,None,None,language,"","\\n",end_with_space=False)
                         l = l.replace(orig, new_line)
                         if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
                             l = l.replace(filter, "")

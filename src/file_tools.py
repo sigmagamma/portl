@@ -519,6 +519,7 @@ class FileTools:
             pak = vpk.open(vpk_path)
             pakfile = pak.get_file(path_in_vpk)
             pakfile.save(path_on_disk)
+            pakfile.close()
 
         else:
             raise Exception("file " +vpk_path + " doesn't exist. Verify game files integrity")
