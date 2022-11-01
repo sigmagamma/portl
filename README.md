@@ -1,9 +1,9 @@
 # poRTL
 Source engine translation framework with support for right-to-left languages.
 
-Currently Portal 1 and The Stanley Parable (2013) are supported. 
+Currently, Portal 1 and The Stanley Parable (2013) are supported. 
 Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portpyinsl/tree/feat-black-mesa). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
-Portal is currently broken in main, untested in feat-black-mesa. 
+Portal is currently working in feat-portal-folder-picker (and the portal release branches),
 Stanley is working in main, untested in feat-black-mesa.
 Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
@@ -55,8 +55,8 @@ In step 5, if you're working with Pycharm, you should probably copy the release 
 Remember to run setup.py with your python venv executable. You may have to run Pycharm as administrator.
 
 
-I've used the pyinstaller develop branch:
-https://github.com/pyinstaller/pyinstaller/archive/develop.zip
+I've used pyinstaller 5.6.2:
+https://github.com/pyinstaller/pyinstaller/releases/tag/v5.6.2
 
 Once Pyinstaller is installed into your environment,modify the path for the portalhebrew folder within the file. Then run 
 
@@ -69,16 +69,19 @@ Spec file was generated with:
 ## Development setup - Portal
 1. Get Portal: 
 https://store.steampowered.com/app/400/Portal/
-2. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
-3. git clone https://github.com/sigmagamma/portl.git
-4. If you want to change the actual translation, put the relevant csvs in the gamefiles\portal folder
+2. Install Python 3.11 
+3. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
+4. git clone https://github.com/sigmagamma/portl.git
+5. Open a project in the created folder, create a virtual environment, and install the requirements from requirements.txt. 
+6. You will need a file named The `Portal private.json` under gamefiles/portal  including the link to the 
+translation sheet. Alterantively you will need the csvs for the various files under that folder.
 These have to be named "Portal translation - closecaption.csv", "Portal translation - credits.csv" and "Portal translation - portal.csv."
 Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_english.dat` `credits.txt` and `portal_english.txt` in the project folder.
-5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win.py` performs the patching for windows.
-6. Once you've applied the patch, run the game. You should be able to see subtitles
+7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win_ltr.py` performs the patching for windows. 
+8. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the following settings in the Portal console
-(runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
-7. If you want to work on the right-aligned version, follow similar instructions with install_po_rtl_heb_win_rtl.py, and see additional procedure below.
+(runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work. 
+9. If you want to work on the right-aligned version, follow similar instructions with install_po_rtl_heb_win_rtl.py, and see additional procedure below.
 
 ## Right alignment instructions
 This branch contains code that supports right alignment for the captions (not for the song). For this to work correctly:
@@ -98,15 +101,17 @@ This process is required as the game does not support native right to left align
 https://store.steampowered.com/app/221910/The_Stanley_Parable/
 or in Epic:
 https://store.epicgames.com/en-US/p/the-stanley-parable
-2. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
-3. git clone https://github.com/sigmagamma/portl.git and switch to stanley-0.9.2
-4. You will need a file named The `Stanley Parable RTL private.json` under gamefiles/stanley  including the link to the 
+2. Install Python 3.11
+3. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
+4. git clone https://github.com/sigmagamma/portl.git and switch to stanley-0.9.2 
+5. Open a project in the created folder, create a virtual environment, and install the requirements from requirements.txt. 
+6. You will need a file named The `Stanley Parable RTL private.json` under gamefiles/stanley  including the link to the 
 translation sheet. Alterantively you will need the csvs for the various files under that folder.
 You also need to have subtitles_english.txt in that folder.
 For this mode you have to get an additional game that has captioncompiler, like Portal or Portal 2 (sourcesdk will be supported later). Configure the compiler_game settings in 'The Stanley Parable.json'.
 Otherwise, if you want to work with an existing translation and patch the game, put the modified `subtitles_english.dat` in that folder.
-5. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_stanley_steam_heb_win.py` performs the patching for windows.
-6. Once you've applied the patch, run the game. You should be able to see subtitles
+7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_stanley_steam_heb_win.py` performs the patching for windows. 
+8. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the following settings in the console
 (runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
 
@@ -133,8 +138,5 @@ within that file.
 * english_captions_text_path - name of local file with english text for captions
 
 
-Deprecated, Portal only:
-* scheme_on_vpk - true/false. Some games have the scheme file outside the VPK.
-* scheme_file_name - just the file name, not the path
-* format_replacements: - defines which keys to change in the scheme files and to which values.
+Deprecated:
 * os - deprecated use to determine how to change configuration in the res file such as text size. 
