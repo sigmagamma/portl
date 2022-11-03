@@ -1,6 +1,6 @@
 from src.file_tools import FileTools
 def install_black_mesa(filename,language,store,patch):
-    answer = input("This is a beta version. By proceeding you acknowledge you are responsible for running this. Press y to install, u to uninstall, any other key to quit")
+    answer = input("This is an alpha version. By proceeding you acknowledge you are responsible for running this. Press y to install, u to uninstall, any other key to quit")
     try:
         if answer in ['y','u']:
             print('Please select folder. This may appear in a separate window.')
