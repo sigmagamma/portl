@@ -33,7 +33,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='install_black_mesa_a_win',
+    name='install_black_mesa_a_win_ltr',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

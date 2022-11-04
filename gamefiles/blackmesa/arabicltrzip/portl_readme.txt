@@ -3,6 +3,10 @@ This is an alpha version. By following these instructions you acknowledge you ar
 Installation instructions:
 Assuming C:\Program Files (x86)\Steam\steamapps\common\Black Mesa is the game folder,
 Extract the contents of the zip file into that folder.
-The game may get stuck upon the first run. This is the game building the sound cache, you'll have to restart it and then it will work.
+The game may get stuck upon the first run. This is the game building the sound cache, you'll have to restart it and then
+it will work.
+Notice not to change the localization to Arabic - this mod REPLACES the english localization.
+Switching to Arabic will run the game's built in Arabic localization which isn't working.
 
-In order to uninstall, remove the bms\custom\portl folder
+
+In order to uninstall the mod (and restore the English localization), remove the bms\custom\portl folder
