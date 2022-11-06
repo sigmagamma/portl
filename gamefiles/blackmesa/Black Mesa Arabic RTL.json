@@ -4,15 +4,17 @@
   "game": "Black Mesa",
   "gameguid": "c9ff75f0-d7ca-43d3-bf3d-94fa0514be49",
   "basegame": "bms",
-  "max_chars_before_break": 20,
-  "total_chars_in_line": 28,
+  "max_chars_before_break": 45,
+  "total_chars_in_line": 53,
   "mod_type": "custom",
   "os" : "WIN",
   "vpk_file_name": "bms_misc_dir.vpk",
   "captions_filter": "<I>",
-
+  "captions_prefix": "<B>",
   "other_files": [
-    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","is_captions": false}
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme_RTL","extension": "res","is_captions": false}
     ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","is_captions": true, "dest_extension":"dat","encoding": "utf-16"}
+    ,{"name": "bms","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","is_captions": false,
+      "encoding": "utf-16"}
   ]
 }
