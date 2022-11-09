@@ -44,7 +44,10 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
                 word = get_display(word)
             counter += len(shortword) + 1
         # italicize logic - we wrap each word in italic tags from the moment an italic appears until it doesn't
-        if re.match("(^<I>)",word):
+        if word == "<I>":
+            italic = True
+            continue
+        elif re.match("(^<I>)",word):
             if italic:
                 word = re.sub("(<I>)","",word)
                 italic = False
@@ -65,6 +68,8 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
         colors =  re.findall("(<clr:[a-zA-Z0-9:,.]*>)",word)
         if colors != []:
             lastColor = colors[-1]
+            if re.sub("(<clr:[a-zA-Z0-9:,.]*>)", "", word) == "":
+                continue
         elif re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
             word = lastColor+word
 
@@ -87,11 +92,11 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             currentLine = ""
             counter = 0
         # delays and lens are force-pre/suffixed for now
-        if re.match('<delay:.*>',word):
+        if re.match('<delay:[0-9.]*>',word):
             linePrefix = word + prefix + linePrefix
             lastColor  = ""
             italic = False
-        elif re.match('<len:.*>',word):
+        elif re.match('<len:[0-9.]*>',word):
             lineSuffix = word + lineSuffix
         elif word != seperator:
             currentLine = word + " " + currentLine
@@ -103,7 +108,6 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
     currentLine = linePrefix + currentLine + lineSuffix
     lines.append(currentLine)
     result = ""
-    num_lines = len(lines)
     line_seperator = seperator
     for i,line in enumerate(lines):
         fill = 	""
@@ -114,6 +118,11 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             fill = "".zfill(fill_count).replace("0", " ")
         # if i == num_lines - 1:
         #     line_seperator = ""
+        # delay_match = re.match('<delay:[0-9.]*>', line)
+        # if delay_match:
+        #     delay = delay_match.group()
+        #     line = line.replace(delay+prefix,delay+prefix+fill)
+        #     fill = ""
         result += fill   + line + line_seperator
     return prefix + result
 
