@@ -10,7 +10,7 @@ copy gamefiles\blackmesa\%language%%align%zip\portl_readme.txt tempzip
 cd tempzip
 start "" "C:\Program Files\7-Zip\7z.exe" a ..\gamefiles\blackmesa\dist\install_black_mesa_%language%_win_%align%.zip *
 :: wait 5 seconds. Seriously.
-ping 192.0.2.2 -n 1 -w 5000 > nul
+ping 192.0.2.2 -n 1 -w 10000 > nul
 cd ..
 del /s /q tempzip
 rmdir /s /q tempzip

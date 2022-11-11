@@ -14,7 +14,7 @@
   "other_files": [
     {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme_RTL","extension": "res","is_captions": false},
     {"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","dest_extension":"dat","is_captions": true,
-      "encoding": "utf-16"}
+      "encoding": "utf-16","basic_formatting": true}
     ,{"name": "bms","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","is_captions": false,
       "encoding": "utf-16"}
 

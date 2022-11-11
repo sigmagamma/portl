@@ -10,7 +10,7 @@ def is_digit_or_english_with_punctuation(s):
            or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*$',s) is not None \
            or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None
 
-def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",end_with_space=True):
+def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",end_with_space=True,basic_formatting=False):
     if language == "arabnew":
         reshaped_text = arabic_reshaper.reshape(caption)
         array = reshaped_text.split()
@@ -44,12 +44,16 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
                 word = get_display(word)
             counter += len(shortword) + 1
         # italicize logic - we wrap each word in italic tags from the moment an italic appears until it doesn't
-        if word == "<I>":
+        if basic_formatting:
+            if word == "<I>":
+                continue
+            word = word.replace("<I>", "")
+        elif word == "<I>":
             italic = True
             continue
         elif re.match("(^<I>)",word):
             if italic:
-                word = re.sub("(<I>)","",word)
+                word = word.replace("<I>","")
                 italic = False
             else:
                 word = word + "<I>"
@@ -58,7 +62,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             if italic:
                 word = "<I>" + word
             else:
-                word = re.sub("(<I>)", "", word)
+                word = word.replace("<I>","")
                 italic = True
         else:
             if italic and re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
@@ -72,7 +76,21 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
                 continue
         elif re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
             word = lastColor+word
-
+        # delays and lens are force-pre/suffixed for now
+        if re.match('<delay:[0-9.]*>',word):
+            delay = re.findall("(<delay:[0-9.]*>)", word)[0]
+            word = word.replace(delay,"")
+            if not basic_formatting:
+                linePrefix = delay + prefix + linePrefix
+            lastColor  = ""
+            italic = False
+        elif re.match('<len:[0-9.]*>',word):
+            len_text = re.findall("(<len:[0-9.]*>)", word)[0]
+            word = word.replace(len_text, "")
+            if not basic_formatting:
+                lineSuffix = len_text + lineSuffix
+        if word == "":
+            continue
         counter_check = counter
         if not end_with_space:
             counter_check = counter_check - 1
@@ -91,14 +109,8 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             lineSuffix = ""
             currentLine = ""
             counter = 0
-        # delays and lens are force-pre/suffixed for now
-        if re.match('<delay:[0-9.]*>',word):
-            linePrefix = word + prefix + linePrefix
-            lastColor  = ""
-            italic = False
-        elif re.match('<len:[0-9.]*>',word):
-            lineSuffix = word + lineSuffix
-        elif word != seperator:
+
+        if word != seperator:
             currentLine = word + " " + currentLine
     length = len(currentLine)
     if ((not end_with_space) and length != 0 and currentLine[-1] == " "):
@@ -116,13 +128,6 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
             fill_count = (total_chars - len(line_no_tags))
             fill = "".zfill(fill_count).replace("0", " ")
-        # if i == num_lines - 1:
-        #     line_seperator = ""
-        # delay_match = re.match('<delay:[0-9.]*>', line)
-        # if delay_match:
-        #     delay = delay_match.group()
-        #     line = line.replace(delay+prefix,delay+prefix+fill)
-        #     fill = ""
         result += fill   + line + line_seperator
     return prefix + result
 
@@ -150,7 +155,7 @@ def read_translation_from_csv(csv_path,gender,store):
                 translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="", filter=None):
+def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="", filter=None,basic_formatting=False):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':
@@ -185,9 +190,9 @@ def translate(source, dest, translated_lines, is_captions, max_chars_before_brea
                         l = l.replace(orig, not_reversed)
                     else:
                         if is_captions:
-                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix,end_with_space=True)
+                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix,end_with_space=True,basic_formatting=basic_formatting)
                         else:
-                            new_line = rearrange_multiple_lines(translated,None,None,language,"","\\n",end_with_space=False)
+                            new_line = rearrange_multiple_lines(translated,None,None,language,"","\\n",end_with_space=False,basic_formatting=basic_formatting)
                         l = l.replace(orig, new_line)
                         if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
                             l = l.replace(filter, "")
