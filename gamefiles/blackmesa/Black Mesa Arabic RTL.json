@@ -9,12 +9,19 @@
   "mod_type": "custom",
   "os" : "WIN",
   "vpk_file_name": "bms_misc_dir.vpk",
+  "change_language": true,
   "captions_filter": "<I>",
   "captions_prefix": "<B>",
   "other_files": [
     {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme_RTL","extension": "res","is_captions": false}
     ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","is_captions": true, "dest_extension":"dat","encoding": "utf-16","basic_formatting": true}
     ,{"name": "bms","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","is_captions": false,
+      "encoding": "utf-16"},
+    {"name": "l10n","folder":"ui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "l10n","extension": "qml","is_caption": false,
+      "encoding": "utf-8"}
+    ,{"name": "routeview-audio","folder":"ui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "routeviewaudio","extension": "qml","is_caption": false,
+      "encoding": "utf-8"}
+    ,{"name": "crowbarcollective","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "crowbarcollective","extension": "txt","is_caption": false,
       "encoding": "utf-16"}
   ]
 }

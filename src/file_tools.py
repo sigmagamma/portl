@@ -84,7 +84,11 @@ class FileTools:
                         self.gender_textures = []
 
                     #language details
-                    self.original_language = self.get_original_localization_lang()
+                    change_language = data.get('change_language')
+                    if change_language:
+                        self.target_language = language
+                    else:
+                        self.target_language = self.get_original_localization_lang()
                     self.language = language
 
                     # translation file details
@@ -325,7 +329,7 @@ class FileTools:
         if not os.path.exists(cfg_folder):
             os.makedirs(cfg_folder)
         # TODO make this game specific
-        for folder in ['resource','scripts','resource\\ui\\basemodui']:
+        for folder in ['resource','scripts','resource\\ui\\basemodui','ui']:
             mod_subfolder = self.get_mod_subfolder(folder)
             if not os.path.exists(mod_subfolder):
                 os.makedirs(mod_subfolder)
@@ -382,7 +386,7 @@ class FileTools:
     ## Close Captions logic
 
     def get_mod_captions_path(self,file_data):
-        return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'),self.original_language)
+        return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'), self.target_language)
 
     def get_compiled_captions_path(self,file_data):
         return self.get_compiler_resource_folder()+"\{}_{}.dat".format(file_data.get('name'),self.language)
@@ -391,7 +395,7 @@ class FileTools:
         return self.get_compiler_resource_folder()+"\{}_{}.txt".format(file_data.get('name'),self.language)
 
     def get_mod_captions_text_path(self,file_data):
-        return self.get_mod_resource_folder() + "\{}_{}.txt".format(file_data.get('name'),self.original_language)
+        return self.get_mod_resource_folder() + "\{}_{}.txt".format(file_data.get('name'), self.target_language)
 
 
     def get_gamefiles_folder(self):
@@ -403,7 +407,7 @@ class FileTools:
         if override:
             language = self.get_localized_suffix(file_data,"english")
         else:
-            language = self.get_localized_suffix(file_data,self.original_language)
+            language = self.get_localized_suffix(file_data, self.target_language)
         name = file_data.get('name')
         extension = self.get_dest_extension_else_extension(file_data,use_dest)
         folder = file_data.get('folder')
@@ -582,7 +586,7 @@ class FileTools:
     def write_autoexec_cfg(self):
         with open(self.get_mod_cfg_path('autoexec.cfg'), 'w') as file:
             file.write('cc_subtitles "1"\n')
-            file.write('cc_lang "' + self.original_language + '"\n')
+            file.write('cc_lang "' + self.target_language + '"\n')
             file.write('closecaption "1"')
 
     def get_csv_from_url(self,filename,url):
