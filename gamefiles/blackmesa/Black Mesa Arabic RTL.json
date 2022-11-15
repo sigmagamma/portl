@@ -21,7 +21,11 @@
       "encoding": "utf-8"}
     ,{"name": "routeview-audio","folder":"ui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "routeviewaudio","extension": "qml","is_caption": false,
       "encoding": "utf-8"}
-    ,{"name": "crowbarcollective","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "crowbarcollective","extension": "txt","is_caption": false,
+    ,{"name": "crowbarcollective_english","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "crowbarcollective","extension": "txt","is_caption": false,
       "encoding": "utf-16"}
+    ,{"name": "credits_english","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "credits_english","extension": "txt","is_caption": false,
+      "encoding": "utf-16"}
+    ,{"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "credits","extension": "txt","is_caption": false,
+      "encoding": "utf-8"}
   ]
 }

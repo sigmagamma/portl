@@ -5,6 +5,10 @@ ECHO %modpath%
 DEL /Q gamefiles\blackmesa\dist\install_black_mesa_a_win_ltr.*
 call ./gamefiles/blackmesa/packmod_generic.bat ltr arabic
 move gamefiles\blackmesa\dist\install_black_mesa_arabic_win_ltr.zip gamefiles\blackmesa\dist\install_black_mesa_a_win_ltr.zip
+cd \Program Files (x86)\Steam\steamapps\common\Black Mesa\bms\custom
+call "C:\Program Files (x86)\Steam\steamapps\common\Black Mesa\bin\vpk.exe" portl
+move portl.vpk c:\projects\portalhebrew\gamefiles\blackmesa\dist
+cd \projects\portalhebrew\
 DEL /Q gamefiles\blackmesa\dist\install_black_mesa_a_win_rtl*.*
 call ./gamefiles/blackmesa/packmod_generic.bat rtl arabic
 move gamefiles\blackmesa\dist\install_black_mesa_arabic_win_rtl.zip gamefiles\blackmesa\dist\install_black_mesa_a_win_rtl.zip
