@@ -5,7 +5,8 @@ Assuming C:\Program Files (x86)\Steam\steamapps\common\Black Mesa is the game fo
 Extract the contents of the zip file into that folder.
 The game may get stuck upon the first run. This is the game building the sound cache, you'll have to restart it and then
 it will work.
-This mod creates an additional localization named Unofficial Arabic - choose this in the menu.
+This mod creates an additional localization named Unofficial Arabic - it should be selected automatically, but choose
+it if it isn't.
 It does not change the game's official Arabic localization, which at this time is not working correctly.
 
 

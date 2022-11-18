@@ -1,17 +1,18 @@
 # poRTL
 Source engine translation framework with support for right-to-left languages.
 
-Currently, Portal 1 and The Stanley Parable (2013) are supported. 
-Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portpyinsl/tree/feat-black-mesa). If you want to start working on a new game, checkout that branch and then create a new one out of it. 
+Currently, Portal The Stanley Parable (2013) and Black Mesa Arabic are supported.
+Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portpyinsl/tree/feat-black-mesa). If you want 
+to start working on a new game, checkout that branch and then create a new one out of it. 
 Portal is currently working in feat-portal-folder-picker (and the portal release branches),
-Stanley is working in main, untested in feat-black-mesa.
+Stanley is working in its release branch, untested in feat-black-mesa.
 Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
-see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 Snapshot branch for latest Stanley release is [stanley-0.9.2](https://github.com/sigmagamma/portl/tree/stanley-0.9.2)
 see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
 
-This project was originally created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find here:
+This project was originally created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find 
+here:
 
 https://docs.google.com/document/d/1CYy4ddqIiKt0RwiUZftUVhPl0Pv8gTgZl8HHrvQCkF8/edit?usp=sharing
 
@@ -25,10 +26,14 @@ https://docs.google.com/document/d/1lsCQosS-TDPFxHi6mnZCE653AfrbqW5MhDCbnV-U_Ds/
 details in English:
 https://steamcommunity.com/sharedfiles/filedetails/?id=2850801993
 
+Release notes for Black Mesa in Arabic:
+https://docs.google.com/document/d/1Yyc_eQwug51asbru8EZ4m6JrIgBErdMdJhBaW--I6kQ/edit?usp=sharing
+
 ## What this does
 * The program takes translation files and text files for Source games and generates content for the relevant language,
  reversing RTL text if necessary so that the text is readable. Support for right-to-left alignment of the text is limited.
-* The program installs the content into the mod folder. In some cases where the mod cannot override the base game folder the file in the base game folder is moved to a backup.
+* The program installs the content into the mod folder. In some cases where the mod cannot override the base game folder 
+the file in the base game folder is moved to a backup.
 * The installer also allows removing the mod and restoring the backup
 * The installer doubles as a tool to generate the required content for easier installation later.
 * The installer now copies the folders "materials" and "sound" to the mod folder
@@ -51,7 +56,8 @@ https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resol
 
 Some additional points to follow:
 Within the Visual Studio Installer, make sure you add "Desktop development with C++".
-In step 5, if you're working with Pycharm, you should probably copy the release into the project folder in order to have it install pyinstaller into your Virtual Environment.
+In step 5, if you're working with Pycharm, you should probably copy the release into the project folder in order to have 
+it install pyinstaller into your Virtual Environment.
 Remember to run setup.py with your python venv executable. You may have to run Pycharm as administrator.
 
 
@@ -74,10 +80,9 @@ https://store.steampowered.com/app/400/Portal/
 4. git clone https://github.com/sigmagamma/portl.git
 5. Open a project in the created folder, create a virtual environment, and install the requirements from requirements.txt. 
 6. You will need a file named The `Portal private.json` under gamefiles/portal  including the link to the 
-translation sheet. Alterantively you will need the csvs for the various files under that folder.
-These have to be named "Portal translation - closecaption.csv", "Portal translation - credits.csv" and "Portal translation - portal.csv."
-Otherwise, if you want to work with an existing translation and patch the game, put the modified `closecaption_english.dat` `credits.txt` and `portal_english.txt` in the project folder.
-7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_po_rtl_heb_win_ltr.py` performs the patching for windows. 
+translation sheet. 
+7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. 
+`install_po_rtl_heb_win_ltr.py` performs the patching for windows. 
 8. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the following settings in the Portal console
 (runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work. 
@@ -95,9 +100,9 @@ Once you're done playing, to restore Tahoma run the remove_fonts_portal.reg file
 This process is required as the game does not support native right to left alignment, and also does not allow setting the font for Hebrew characters.
 
 
-## Development setup - Stanley Parable
+## Development setup - The Stanley Parable
 
-1. Get Stanley Parable:
+1. Get The Stanley Parable:
 https://store.steampowered.com/app/221910/The_Stanley_Parable/
 or in Epic:
 https://store.epicgames.com/en-US/p/the-stanley-parable
@@ -106,14 +111,37 @@ https://store.epicgames.com/en-US/p/the-stanley-parable
 4. git clone https://github.com/sigmagamma/portl.git and switch to stanley-0.9.2 
 5. Open a project in the created folder, create a virtual environment, and install the requirements from requirements.txt. 
 6. You will need a file named The `Stanley Parable RTL private.json` under gamefiles/stanley  including the link to the 
-translation sheet. Alterantively you will need the csvs for the various files under that folder.
-You also need to have subtitles_english.txt in that folder.
-For this mode you have to get an additional game that has captioncompiler, like Portal or Portal 2 (sourcesdk will be supported later). Configure the compiler_game settings in 'The Stanley Parable.json'.
-Otherwise, if you want to work with an existing translation and patch the game, put the modified `subtitles_english.dat` in that folder.
-7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. `install_stanley_steam_heb_win.py` performs the patching for windows. 
+translation sheet. 
+You have to get an additional game that has captioncompiler, like Portal or Portal 2 (sourcesdk will be supported later). 
+Configure the compiler_game settings in 'The Stanley Parable.json'.
+Otherwise, if you want to work with an existing translation and patch the game, put the modified `subtitles_english.dat` 
+in that folder.
+7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics.
+`portal/install_unattended.py` contains quick installers and assumes your registry contains the correct folder placement. 
+Otherwise use one of the other installers. 
 8. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the following settings in the console
-(runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work.
+(runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of 
+the game to work.
+
+
+## Development setup - Black Mesa
+
+1. Get Black Mesa
+https://store.steampowered.com/app/362890/Black_Mesa/
+2. Install Python 3.11
+3. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
+4. git clone https://github.com/sigmagamma/portl.git and switch to feat-black-mesa
+5. Open a project in the created folder, create a virtual environment, and install the requirements from requirements.txt. 
+6. You will need a file named The `Black Mesa Arabic RTL private.json` (with or without RTL, and with the relevant 
+language) under gamefiles/blackmesa  including the link to the translation sheet. 
+7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. 
+`portal/install_unattended.py` contains quick installers and assumes your registry contains the correct folder placement. 
+Otherwise use one of the other installers.
+8. Once you've applied the patch, run the game. You should be able to see subtitles
+in the chosen language - if not, try manually applying the following settings in the console
+(runnable by using \`): `cc_lang uarabic` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of 
+9. the game to work.
 
 
 ## Configuration reference

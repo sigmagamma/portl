@@ -10,7 +10,7 @@ a = Analysis(
     binaries=[],
     datas=[
     (os.environ['modpath']+'\\resource\\closecaption_uarabic.dat', 'src\gamefiles\\blackmesa'),
-    (os.environ['modpath']+'\\resource\\bms_uarabic.txt', 'src\gamefiles\\blackmesa'),
+    (os.environ['modpath']+'\\resource\\bms_english.txt', 'src\gamefiles\\blackmesa'),
     (os.environ['modpath']+'\\resource\\clientscheme.res', 'src\gamefiles\\blackmesa'),
     (os.environ['modpath']+'\\resource\\credits_english.txt', 'src\gamefiles\\blackmesa'),
     (os.environ['modpath']+'\\resource\\crowbarcollective_english.txt', 'src\gamefiles\\blackmesa'),

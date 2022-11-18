@@ -11,7 +11,7 @@ def is_digit_or_english_with_punctuation(s):
            or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None
 
 def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",end_with_space=True,basic_formatting=False):
-    if language == "arabnew":
+    if language == "uarabic":
         reshaped_text = arabic_reshaper.reshape(caption)
         array = reshaped_text.split()
     else:

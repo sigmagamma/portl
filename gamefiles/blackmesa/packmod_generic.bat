@@ -4,7 +4,7 @@ del /Q gamefiles\blackmesa\dist\*%language%*%align%*.*
 venv\Scripts\python.exe -c "from src.blackmesa.install_unattended import uninstall;uninstall()"
 venv\Scripts\python.exe -c "from src.blackmesa.install_unattended import %language%_%align%_install;%language%_%align%_install()"
 mkdir -p tempzip\bms\custom\portl
-for %%I in (cfg maps materials resource scripts) do robocopy "%modpath%\%%I" tempzip\bms\custom\portl\%%I /e
+for %%I in (cfg maps materials resource scripts ui) do robocopy "%modpath%\%%I" tempzip\bms\custom\portl\%%I /e
 copy "%modpath%\portl.txt" tempzip\bms\custom\portl\portl.txt
 copy gamefiles\blackmesa\%language%%align%zip\portl_readme.txt tempzip
 cd tempzip
