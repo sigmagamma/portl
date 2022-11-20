@@ -3,7 +3,7 @@ del /Q gamefiles\portal\dist\*%align%*.*
 venv\Scripts\python.exe -c "from src.portal.install_unattended import uninstall;uninstall()"
 venv\Scripts\python.exe -c "from src.portal.install_unattended import hebrew_%align%_install;hebrew_%align%_install()"
 mkdir -p tempzip\custom\portl
-for %%I in (cfg maps materials resource scripts) do robocopy "%modpath%\%%I" tempzip\custom\portl\%%I /e
+for %%I in (cfg maps materials resource scripts surprise) do robocopy "%modpath%\%%I" tempzip\custom\portl\%%I /e
 copy "%modpath%\portl.txt" tempzip\custom\portl\portl.txt
 copy gamefiles\portal\%align%zip\portl_readme.txt tempzip
 cd tempzip
