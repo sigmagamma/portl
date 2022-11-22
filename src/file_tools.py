@@ -82,7 +82,9 @@ class FileTools:
                     self.gender_textures = data.get('gender_textures')
                     if self.gender_textures is None:
                         self.gender_textures = []
-
+                    self.additional_folders = data.get('additional_folders')
+                    if self.additional_folders is None:
+                        self.additional_folders = []
                     #language details
                     change_language = data.get('change_language')
                     if change_language:
@@ -542,7 +544,7 @@ class FileTools:
         return filename
 
     def copy_assets(self,patch=False):
-        for filename in ["materials","sound"]:
+        for filename in self.additional_folders:
             src_path = self.get_patch_file_path(filename)
             if os.path.exists(src_path):
                 copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)

@@ -60,7 +60,6 @@ In step 5, if you're working with Pycharm, you should probably copy the release 
 it install pyinstaller into your Virtual Environment.
 Remember to run setup.py with your python venv executable. You may have to run Pycharm as administrator.
 
-
 I've used pyinstaller 5.6.2:
 https://github.com/pyinstaller/pyinstaller/releases/tag/v5.6.2
 
@@ -71,6 +70,7 @@ Once Pyinstaller is installed into your environment,modify the path for the port
 Spec file was generated with:
 `.\venv\Scripts\pyi-makespec.exe --onefile .\install_po_rtl_heb_win.py`
 
+For antivirus software, make sure you tell it to exclude the dist folder of the relevant folder in gamefiles.
 
 ## Development setup - Portal
 1. Get Portal: 
