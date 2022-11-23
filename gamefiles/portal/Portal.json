@@ -18,6 +18,6 @@
     {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false}
 
 ],
-  "additionalfolders":["materials","sound","surprise"]
+  "additional_folders":["materials","sound","surprise"]
 
 }
