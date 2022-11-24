@@ -25,5 +25,7 @@
     {"name": "config","folder":"cfg","localized": false,"override": false,"is_on_vpk": false, "extension": "cfg","base_override": false,"translation_sheet": "config","store":  "Epic","encoding":"utf-8"}
 
   ],
-  "gender_textures": ["stanley\\babyfinal"]
+  "gender_textures": ["stanley\\babyfinal"],
+
+  "additional_folders":["materials","sound"]
 }

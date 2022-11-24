@@ -18,5 +18,7 @@
     ,{"name": "bms","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","is_captions": false,
       "encoding": "utf-16"}
 
-  ]
+  ],
+
+  "additional_folders":["materials"]
 }
