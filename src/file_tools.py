@@ -56,6 +56,7 @@ class FileTools:
                                 path_guess = steam_path + "\\" + steam_main_folder
                     if unattended:
                         file_path = path_guess
+
                     else:
                         if path_guess is None:
                             action_text = "choose"
@@ -123,6 +124,7 @@ class FileTools:
                         self.mod_folder = self.get_custom_folder()
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
+                    self.dlc_compiler = data.get('dlc_compiler')
                     self.not_deletable = data.get('not_deletable')
                     if not self.not_deletable:
                         self.not_deletable = []
@@ -391,9 +393,15 @@ class FileTools:
         return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'), self.target_language)
 
     def get_compiled_captions_path(self,file_data):
+        if self.dlc_compiler:
+            return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'), self.language)
         return self.get_compiler_resource_folder()+"\{}_{}.dat".format(file_data.get('name'),self.language)
 
     def get_to_compile_text_path(self,file_data):
+        return self.get_compiler_resource_folder()+"\{}_{}.txt".format(file_data.get('name'),self.language)
+    def get_from_compile_text_path(self,file_data):
+        if self.dlc_compiler:
+            return "{}_{}.txt".format(file_data.get('name'),self.language)
         return self.get_compiler_resource_folder()+"\{}_{}.txt".format(file_data.get('name'),self.language)
 
     def get_mod_captions_text_path(self,file_data):
@@ -506,9 +514,16 @@ class FileTools:
         tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,insert_newlines=insert_newlines,source_encoding= encoding,prefix=self.captions_prefix,filter=self.captions_filter,basic_formatting=basic_formatting)
         if dest_extension:
             to_compile_text_path = self.get_to_compile_text_path(file_data)
+            from_compile_text_path = self.get_from_compile_text_path(file_data)
             move(dest_other_path, to_compile_text_path)
+
             # this works because "translated path" is also the file name of to_compile_text_path
-            subprocess.run([self.compiler_path, to_compile_text_path], cwd=self.get_compiler_resource_folder())
+            if self.dlc_compiler:
+                dlc_folder, dlc_number = self.search_dlc_folders()
+                subprocess.check_output([self.compiler_path, from_compile_text_path,"-d",str(dlc_number)], cwd=self.get_compiler_resource_folder())
+            else:
+                subprocess.run([self.compiler_path, from_compile_text_path],
+                               cwd=self.get_compiler_resource_folder())
             # TODO generalize this
             compiled_captions_path = self.get_compiled_captions_path(file_data)
             dest_captions_path = self.get_mod_captions_path(file_data)

@@ -1,0 +1,20 @@
+{
+  "shortname": "portal2",
+  "version": "0.9.3",
+  "game": "Portal 2",
+  "basegame": "portal2",
+  "steam_main_folder": "Portal 2",
+  "max_chars_before_break": 45,
+  "mod_type": "dlc",
+  "dlc_compiler" : true,
+  "os" : "WIN",
+  "vpk_file_name": "pak01_dir.vpk",
+  "other_files": [
+    {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
+      "encoding": "utf-16"}
+
+
+  ],
+  "vpk_output_folder": "portal2_portl.vpk"
+
+}
