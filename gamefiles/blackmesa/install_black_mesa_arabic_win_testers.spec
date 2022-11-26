@@ -5,13 +5,12 @@ block_cipher = None
 
 
 a = Analysis(
-    ['..\\..\\src\install_po_rtl_heb_win_rtl.py'],
+    ['..\\..\\src\\blackmesa\\install_black_mesa_non_patch_arabic_win.py'],
     pathex=['..\\..\\'],
     binaries=[],
-    datas=[(os.environ['modpath']+'\\resource\\portal_english.txt', 'src\gamefiles\\portal'),
-    (os.environ['modpath']+'\\resource\\closecaption_english.dat', 'src\gamefiles\\portal'),
-    ('Portal.json', 'src\gamefiles\\portal'),
-    (os.environ['modpath']+'\\scripts\\credits.txt', 'src\gamefiles\\portal')],
+    datas=[
+    ('Black Mesa Arabic.json', 'src\gamefiles\\blackmesa'),
+    ('Black Mesa Arabic private.json', 'src\gamefiles\\blackmesa')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -28,11 +27,10 @@ exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
-    Tree('.\\materials', prefix='src\gamefiles\\portal\materials\\'),
     a.zipfiles,
     a.datas,
     [],
-    name='install_po_rtl_heb_win_rtl',
+    name='install_black_mesa_a_win_testers',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

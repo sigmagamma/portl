@@ -1,37 +1,25 @@
 {
+  "shortname": "portal",
+  "version": "0.9.3",
   "game":"Portal",
   "steam_main_folder": "Portal",
-  "shortname": "portal",
-  "version": "0.9.1",
-  "game_service": "Steam",
   "basegame": "portal",
-  "caption_file_name":"closecaption",
-  "captions_filter" : "<I>",
-  "other_files": [
-    {"name": "portal","folder":"resource","localized": true,"override": true,"is_on_vpk": false},
-    {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true}],
   "max_chars_before_break": 39,
   "total_chars_in_line": 48,
   "mod_type": "custom",
   "os" : "WIN",
-  "scheme_on_vpk":  true,
   "vpk_file_name": "portal_pak_dir.vpk",
-  "scheme_file_name": "clientscheme.res",
+  "caption_file_name":"closecaption",
+  "captions_prefix" : "<B>",
+  "captions_filter": "<I>",
+  "other_files": [
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme","extension": "res","is_captions": false,  "encoding":  "utf-8"},
+    {"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "closecaption","extension": "txt","dest_extension":"dat","is_captions": true,"encoding":  "utf-16"},
 
-  "format_replacements": {
-    "CloseCaption_Normal": {
-      "1": {
-        "tall": "16"}
-    },
 
-    "CloseCaption_Italic": {
-      "1": {
-        "tall": "20"}
-    },
-    "CreditsOutroText": {
-      "1": {
-        "tall": "11",
-        "name":  "Miriam Fixed"}
-    }
-  }
+    {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false}
+],
+
+  "additional_folders":["materials","sound","surprise"]
+
 }

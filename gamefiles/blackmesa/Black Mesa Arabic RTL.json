@@ -1,0 +1,33 @@
+{
+  "shortname": "blackmesa",
+  "version": "0.9.3",
+  "game": "Black Mesa",
+  "gameguid": "c9ff75f0-d7ca-43d3-bf3d-94fa0514be49",
+  "basegame": "bms",
+  "max_chars_before_break": 45,
+  "total_chars_in_line": 53,
+  "mod_type": "custom",
+  "os" : "WIN",
+  "vpk_file_name": "bms_misc_dir.vpk",
+  "change_language": true,
+  "captions_filter": "<I>",
+  "captions_prefix": "<B>",
+  "other_files": [
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme_RTL","extension": "res","is_captions": false}
+    ,{"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","is_captions": true, "dest_extension":"dat","encoding": "utf-16","basic_formatting": true}
+    ,{"name": "bms_english","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","is_captions": false,
+      "encoding": "utf-16"},
+    {"name": "l10n","folder":"ui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "l10n","extension": "qml","is_captions": false,
+      "encoding": "utf-8"}
+    ,{"name": "routeview-audio","folder":"ui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "routeviewaudio","extension": "qml","is_captions": false,
+      "encoding": "utf-8"}
+    ,{"name": "crowbarcollective_english","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "crowbarcollective","extension": "txt","is_captions": false,
+      "encoding": "utf-16"}
+    ,{"name": "credits_english","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "credits_english","extension": "txt","is_captions": false,
+      "encoding": "utf-16"}
+    ,{"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "credits","extension": "txt","is_captions": false,
+      "encoding": "utf-8"}
+  ],
+
+  "additional_folders":["materials"]
+}

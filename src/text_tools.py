@@ -1,27 +1,59 @@
 import csv
 import re
+import arabic_reshaper
+from bidi.algorithm import get_display
 
-def is_digit_with_punctuation(s):
-    return re.match('^\d+(?:-\d)*[!.?,\']{1,}$',s) is not None
-def move_digits_to_end(s):
-    for c in s:
-        if not c.isdigit() and not c == '-':
-            break
-        s = s[1:len(s)]+c
-    return s
-def rearrange_multiple_lines(caption,max_chars,total_chars,prefix=""):
-    array = caption.split()
+# english and digits are written left to right, but punctuation is moved to comply
+# with RTL language
+def is_digit_or_english_with_punctuation(s):
+    return re.match('^[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None \
+           or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*$',s) is not None \
+           or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None
+
+def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False):
+    if language == "uarabic":
+        reshaped_text = arabic_reshaper.reshape(caption)
+        array = reshaped_text.split()
+    else:
+        array = caption.split()
+    is_phrase = False
+    if str(caption).startswith('\"') and str(caption).endswith('\"'):
+        is_phrase = True
     counter = 0
     lines = []
     lineCounter = 1
     currentLine = ""
     lastColor = ""
     italic = False
+    linePrefix = ""
+    lineSuffix = ""
     for word in array:
-        colors =  re.findall("(<clr:[a-zA-Z0-9:,]*>)",word)
-        if re.match("(^<I>)",word):
+        # fixing digits and punctuation
+        if language == 'hebrew' and not is_phrase:
+            word = word.replace('"', '״')
+        shortword = re.sub("(<[a-zA-Z0-9:,.]*>)", "", word)
+        if shortword != "" and word != seperator:
+            if shortword != word:
+                newshortword = get_display(shortword)
+                word = word.replace(shortword, newshortword)
+            elif is_digit_or_english_with_punctuation(word):
+                word = 'א' + word + 'א'
+                word = get_display(word)
+                word = word.replace('א','')
+            else:
+                word = get_display(word)
+            counter += len(shortword) + 1
+        # italicize logic - we wrap each word in italic tags from the moment an italic appears until it doesn't
+        if basic_formatting:
+            if word == "<I>":
+                continue
+            word = word.replace("<I>", "")
+        elif word == "<I>":
+            italic = True
+            continue
+        elif re.match("(^<I>)",word):
             if italic:
-                word = re.sub("(<I>)","",word)
+                word = word.replace("<I>","")
                 italic = False
             else:
                 word = word + "<I>"
@@ -30,44 +62,75 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,prefix=""):
             if italic:
                 word = "<I>" + word
             else:
-                word = re.sub("(<I>)", "", word)
+                word = word.replace("<I>","")
                 italic = True
         else:
-            if italic:
+            if italic and re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
                 word = "<I>" + word + "<I>"
 
+        # colors logic - we prefix each word with the color tag until the next color tag
+        colors =  re.findall("(<clr:[a-zA-Z0-9:,.]*>)",word)
         if colors != []:
             lastColor = colors[-1]
-        else:
+            if re.sub("(<clr:[a-zA-Z0-9:,.]*>)", "", word) == "":
+                continue
+        elif re.sub("(<[a-zA-Z0-9:,.]*>)","",word) != "":
             word = lastColor+word
-        if word != "<cr>":
-            parts = list(move_digits_to_end(s) if is_digit_with_punctuation(s)
-                         else s if s.isdigit() or re.match('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})',s)
-                            else s[::-1] for s in re.split('(^\d+(?:-\d)*[!.?,\']{0,}$)|(<[a-zA-Z0-9:,.]*>{1})', word) if s is not None )
-            word = ''.join(parts)
-    #        word = re.sub("(<[a-zA-Z0-9:,]*>)","",word)
-            shortword = re.sub("(<[a-zA-Z0-9:,.]*>)","",word)
-            addspace = 0
-            if shortword != "":
-                addspace = 1
-            counter += len(shortword) + addspace
-        if counter/max_chars >= 1 or word == "<cr>":
+        # delays and lens are force-pre/suffixed for now
+        if re.match('<delay:[0-9.]*>',word):
+            delay = re.findall("(<delay:[0-9.]*>)", word)[0]
+            word = word.replace(delay,"")
+            if not basic_formatting:
+                linePrefix = delay + prefix + linePrefix
+            lastColor  = ""
+            italic = False
+        elif re.match('<len:[0-9.]*>',word):
+            len_text = re.findall("(<len:[0-9.]*>)", word)[0]
+            word = word.replace(len_text, "")
+            if not basic_formatting:
+                lineSuffix = len_text + lineSuffix
+        if word == "":
+            continue
+        counter_check = counter
+        if not end_with_space:
+            counter_check = counter_check - 1
+        # we break when passing the limit or encountering a cr.
+        # sometimes crs would be used to manually split problematic titles
+        if (max_chars is not None and (counter_check)/max_chars) >= 1 or word == seperator:
             lineCounter += 1
+            length = len(currentLine)
+            if ((not end_with_space) and length != 0 and currentLine[-1] == " "):
+                currentLine = currentLine[0:-1]
+            if lineSuffix != "":
+                lineSuffix = lineSuffix + " "
+            currentLine = linePrefix + currentLine + lineSuffix
             lines.append(currentLine)
+            linePrefix = ""
+            lineSuffix = ""
             currentLine = ""
             counter = 0
-        if word != "<cr>":
+
+        if word != seperator:
             currentLine = word + " " + currentLine
+    length = len(currentLine)
+    if ((not end_with_space) and length != 0 and currentLine[-1] == " "):
+        currentLine = currentLine[0:-1]
+    if lineSuffix != "":
+        lineSuffix = lineSuffix + " "
+    currentLine = linePrefix + currentLine + lineSuffix
     lines.append(currentLine)
     result = ""
-    for line in lines:
+    line_seperator = seperator if insert_newlines else ""
+    for i,line in enumerate(lines):
         fill = 	""
+        # spacing logic
         if total_chars is not None:
             line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
-            fill_count = total_chars - len(line_no_tags)
+            fill_count = (total_chars - len(line_no_tags))
             fill = "".zfill(fill_count).replace("0", " ")
-        result += fill   + line + "<cr>"
+        result += fill   + line + line_seperator
     return prefix + result
+
 def rearrange_single_line(s):
     return s[::-1]
 
@@ -92,7 +155,7 @@ def read_translation_from_csv(csv_path,gender,store):
                 translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source,dest,translated_lines,multi_line,max_chars_before_break,total_chars_in_line,source_encoding,prefix="",filter=None):
+def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True, filter=None,basic_formatting=False):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':
@@ -104,11 +167,13 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
         j = 0
         upserts = []
         # Collecting possible upserts
+        upsert_originals = set()
         while True:
             j = j+1
             upsert = translated_lines.get("upsert_"+str(j))
             if upsert:
                 upserts.append(upsert)
+                upsert_originals.add(upsert.get('original'))
             else:
                 break
         for l in source_file:
@@ -118,14 +183,16 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
                 orig = translatedLine['original']
                 translated = translatedLine.get('actual translation')
                 not_reversed = translatedLine.get('not reversed')
+                if translated == 'DELETE' or not_reversed == 'DELETE':
+                    continue
                 if orig in l:
                     if not_reversed:
                         l = l.replace(orig, not_reversed)
                     else:
-                        if multi_line:
-                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,prefix)
+                        if is_captions:
+                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix,insert_newlines=insert_newlines,end_with_space=True,basic_formatting=basic_formatting)
                         else:
-                            new_line = rearrange_single_line(translated)
+                            new_line = rearrange_multiple_lines(translated,None,None,language,"","\\n",insert_newlines=insert_newlines,end_with_space=False,basic_formatting=basic_formatting)
                         l = l.replace(orig, new_line)
                         if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
                             l = l.replace(filter, "")
@@ -133,14 +200,19 @@ def translate(source,dest,translated_lines,multi_line,max_chars_before_break,tot
             else:
                 # checking line against remaining upserts
                 popped = None
-                for k in range(0,len(upserts)-1):
-                    upsert = upserts[k]
-                    if upsert.get('original') == l.strip():
-                        dest_file.write(upsert.get('not reversed')+"\n")
-                        popped = upserts.pop(k)
-                        break
-                if popped:
-                    continue
+                if l.strip() in upsert_originals:
+                    while upserts:
+                        upsert = upserts[0]
+                        orig = upsert.get('original')
+                        not_reversed = upsert.get('not reversed')
+                        if orig == l.strip():
+                            new_line = l.replace(orig,not_reversed)
+                            dest_file.write(new_line)
+                            popped = upserts.pop(0)
+                            if upsert.get('multi') != 'TRUE':
+                                break
+                    if popped:
+                        continue
             dest_file.write(l)
         # printing out remaining upserts
         for upsert in upserts:

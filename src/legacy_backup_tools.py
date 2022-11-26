@@ -13,6 +13,9 @@ def get_backup_cfg_path(file_tools,type):
 def get_backup_other_path(file_tools):
     return file_tools.get_full_basegame_path() + "\\resource\portal_english-portl-backup.txt"
 
+def get_backup_other_path_2(file_tools):
+    return file_tools.get_full_basegame_path() + "\\resource\portal_english_backup.txt"
+
 def get_backup_captions_text_path(file_tools):
     return file_tools.get_full_basegame_path() +  \
            "\\resource\closecaption_{}-portl-backup.txt".format(file_tools.language)
@@ -58,7 +61,8 @@ def restore_cfg(file_tools):
         os.remove(backup_config_path)
 
 def restore_captions(file_tools):
-    main_caption_path = file_tools.get_compiled_captions_path()
+    file_data = {"name": "closecaption", "folder": "resource", "localized": True}
+    main_caption_path = file_tools.get_compiled_captions_path(file_data)
     if (os.path.isfile(main_caption_path)):
         os.remove(main_caption_path)
     backup_captions_text_path = get_backup_captions_text_path(file_tools)
@@ -70,15 +74,19 @@ def restore_captions(file_tools):
         if answer == "y":
             os.remove(backup_captions_text_path)
 
-def restore_other(file_tools):
-    backup_other_path = get_backup_other_path(file_tools)
-    file_data = {"name": "portal","folder":"resource","localized": True}
-    if (os.path.isfile(backup_other_path)):
-        copyfile(backup_other_path, file_tools.get_basegame_english_other_path(file_data))
-        os.remove(backup_other_path)
+def restore_portal(file_tools):
+    file_data = {"name": "portal","folder":"resource","localized": True,"extension":"txt"}
+    actual_file = file_tools.get_basegame_english_other_path(file_data)
+    if not (os.path.isfile(actual_file)):
+        backup_other_path = get_backup_other_path(file_tools)
+        if (not os.path.isfile(backup_other_path)):
+            backup_other_path = get_backup_other_path_2(file_tools)
+        if (os.path.isfile(backup_other_path)):
+            copyfile(backup_other_path, file_tools.get_basegame_english_other_path(file_data))
+            os.remove(backup_other_path)
 def restore_backup(file_tools):
     restore_cfg(file_tools)
-    restore_other(file_tools)
+    restore_portal(file_tools)
     restore_captions(file_tools)
 
 

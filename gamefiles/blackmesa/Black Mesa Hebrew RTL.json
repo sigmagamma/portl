@@ -1,0 +1,24 @@
+{
+  "shortname": "blackmesa",
+  "version": "0.9.3",
+  "game": "Black Mesa",
+  "gameguid": "c9ff75f0-d7ca-43d3-bf3d-94fa0514be49",
+  "basegame": "bms",
+  "max_chars_before_break": 25,
+  "total_chars_in_line": 33,
+  "mod_type": "custom",
+  "os" : "WIN",
+  "vpk_file_name": "bms_misc_dir.vpk",
+"captions_prefix": "<B>",
+
+  "other_files": [
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme_RTL","extension": "res","is_captions": false},
+    {"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "closecaption","extension": "txt","dest_extension":"dat","is_captions": true,
+      "encoding": "utf-16","basic_formatting": true}
+    ,{"name": "bms","folder":"resource","localized": true,"override": false,"is_on_vpk": true, "translation_sheet": "bms","extension": "txt","is_captions": false,
+      "encoding": "utf-16"}
+
+  ],
+
+  "additional_folders":["materials"]
+}
