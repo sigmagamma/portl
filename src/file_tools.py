@@ -451,7 +451,11 @@ class FileTools:
                 extension = dest_extension
         return extension
     def get_local_other_path(self,file_data,get_from_dest):
-        language = self.get_localized_suffix(file_data,"english")
+        override = file_data.get('override')
+        if override:
+            language = self.get_localized_suffix(file_data,"english")
+        else:
+            language = self.get_localized_suffix(file_data, self.target_language)
         return self.get_gamefiles_folder() + "\\"+file_data.get('name')+language+"."+\
                self.get_dest_extension_else_extension(file_data,get_from_dest)
 
@@ -471,7 +475,12 @@ class FileTools:
         if file_data.get('base_override'):
             dest_other_path = self.get_basegame_english_other_path(file_data)
         else:
-            dest_other_path = self.get_mod_other_path(file_data,True)
+            #TODO make this more generic
+            is_captions = file_data.get('is_captions')
+            if is_captions:
+                dest_other_path = self.get_mod_captions_path(file_data)
+            else:
+                dest_other_path = self.get_mod_other_path(file_data,True)
         copyfile(self.get_patch_other_path(file_data,True), dest_other_path)
 
     def write_other_from_csv(self,file_data,csv_path):
