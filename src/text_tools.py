@@ -155,7 +155,7 @@ def read_translation_from_csv(csv_path,gender,store):
                 translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True, filter=None,basic_formatting=False):
+def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True, filters=None,basic_formatting=False):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':
@@ -194,8 +194,9 @@ def translate(source, dest, translated_lines, is_captions, max_chars_before_brea
                         else:
                             new_line = rearrange_multiple_lines(translated,None,None,language,"","\\n",insert_newlines=insert_newlines,end_with_space=False,basic_formatting=basic_formatting)
                         l = l.replace(orig, new_line)
-                        if total_chars_in_line is not None and total_chars_in_line > 0 and filter:
-                            l = l.replace(filter, "")
+                        if filters:
+                            for filter in filters:
+                                l = l.replace(filter, "")
                     print(l)
             else:
                 # checking line against remaining upserts

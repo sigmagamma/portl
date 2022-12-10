@@ -2,7 +2,7 @@ import unittest
 from src.file_tools import FileTools
 from text_tools import rearrange_multiple_lines
 stanley_ft = FileTools("../gamefiles/stanley/The Stanley Parable RTL.json", "hebrew")
-portal_ft = FileTools("../gamefiles/portal/Portal.json", "hebrew")
+portal_ft = FileTools("../gamefiles/portal/Portal 2007.json", "hebrew")
 def normalize(st):
     return st.replace(" ","").replace("<cr>","")
 
