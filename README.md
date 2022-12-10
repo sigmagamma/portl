@@ -1,7 +1,7 @@
 # poRTL
 Source engine translation framework with support for right-to-left languages.
 
-Currently, Portal The Stanley Parable (2013) and Black Mesa Arabic are supported.
+Currently, Portal, The Stanley Parable (2013) and Black Mesa Arabic are supported.
 Current working branch is [feat-black-mesa](https://github.com/sigmagamma/portpyinsl/tree/feat-black-mesa). If you want 
 to start working on a new game, checkout that branch and then create a new one out of it. 
 Portal is currently working in feat-portal-folder-picker (and the portal release branches),

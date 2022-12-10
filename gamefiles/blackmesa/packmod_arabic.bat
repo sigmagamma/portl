@@ -14,7 +14,7 @@ call ./gamefiles/blackmesa/packmod_generic.bat rtl arabic
 move gamefiles\blackmesa\dist\install_black_mesa_arabic_win_rtl.zip gamefiles\blackmesa\dist\install_black_mesa_a_win_rtl.zip
 copy registry/apply_fonts_black_mesa_arabic.reg gamefiles\blackmesa\dist
 copy registry/remove_fonts_black_mesa.reg gamefiles\blackmesa\dist
-copy arabicrtlexe/portal_readme.txt gamefiles\blackmesa\dist
+copy arabicrtlexe/portl_readme.txt gamefiles\blackmesa\dist
 cd gamefiles\blackmesa\dist
 start "" "C:\Program Files\7-Zip\7z.exe" a install_black_mesa_a_win_rtl_ex.zip install_black_mesa_a_win_rtl.exe apply_fonts_black_mesa_arabic.reg remove_fonts_black_mesa.reg portl_readme.txt
 start "" "C:\Program Files\7-Zip\7z.exe" a install_black_mesa_a_win_rtl.zip apply_fonts_black_mesa_arabic.reg remove_fonts_black_mesa.reg

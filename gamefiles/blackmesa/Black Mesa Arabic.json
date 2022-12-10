@@ -25,5 +25,7 @@
     ,{"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "credits","extension": "txt","is_captions": false,
       "encoding": "utf-8"}
 
-  ]
+  ],
+
+  "additional_folders":["materials"]
 }
