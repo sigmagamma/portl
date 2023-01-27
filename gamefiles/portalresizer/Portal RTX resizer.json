@@ -1,0 +1,23 @@
+{
+  "shortname": "portalresizer",
+  "version": "0.9.2.4",
+  "game":"PortalRTX",
+  "steam_main_folder": "PortalRTX",
+  "compiler_game_service_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common",
+  "compiler_game": "Portal",
+  "compiler_game_path": "\\Portal\\portal",
+  "basegame": "portal_rtx",
+  "max_chars_before_break": 50,
+  "mod_type": "custom",
+  "os" : "WIN",
+  "vpk_file_name": "portal_pak_dir.vpk",
+  "caption_file_name":"closecaption",
+  "captions_prefix" : "<B>",
+  "captions_filters": ["_rtx"],
+  "other_files": [
+    {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "clientscheme_resizer","extension": "res","is_captions": false,  "encoding":  "utf-8"}
+
+],
+  "disable_cfg": true
+
+}
