@@ -11,9 +11,13 @@ cd tempzip
 start "" "C:\Program Files\7-Zip\7z.exe" a ..\gamefiles\portal\dist\install_portal_%edition%_heb_win_%align%.zip *
 :: wait 5 seconds. Seriously.
 ping 192.0.2.2 -n 1 -w 5000 > nul
+del portl_readme.txt
+start "" "C:\Program Files\7-Zip\7z.exe" a ..\gamefiles\portal\dist\install_portal_%edition%_heb_win_%align%_gui.zip *
+:: wait 5 seconds. Seriously.
+ping 192.0.2.2 -n 1 -w 5000 > nul
 cd ..
 del /s /q tempzip
 rmdir /s /q tempzip
-cd gamefiles\portal
-..\..\venv\Scripts\pyinstaller.exe  --clean .\install_portal_%edition%_heb_win_%align%.spec
-cd ..\..
+:: cd gamefiles\portal
+:: ..\..\venv\Scripts\pyinstaller.exe  --clean .\install_portal_%edition%_heb_win_%align%.spec
+:: cd ..\..
