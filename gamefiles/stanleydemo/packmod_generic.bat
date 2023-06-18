@@ -15,6 +15,7 @@ venv\Scripts\python.exe -c "from src.stanleydemo.install_unattended import %stor
 ::cd tempzip
 ::start "" "D:\Program Files\7-Zip\7z.exe" a ..\gamefiles\stanleydemo\dist\stanley-parable-demo-hebrew-%gender%.zip *
 move "%modpath%resource\subtitles_english.dat" gamefiles\stanleydemo\%gender%\thestanleyparabledemo\resource
+move "%modpath%resource\basemodui_english.txt" gamefiles\stanleydemo\%gender%\thestanleyparabledemo\resource
 :: wait 5 seconds. Seriously.
 ::ping 192.0.2.2 -n 1 -w 5000 > nul
 ::cd ..
