@@ -10,15 +10,17 @@ def is_digit_or_english_with_punctuation(s):
            or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*$',s) is not None \
            or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None
 
-def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False):
+def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False,space_within_phrases=False):
+    is_phrase = False
+    if str(caption).startswith('\"') and str(caption).endswith('\"'):
+        is_phrase = True
+        if space_within_phrases:
+            caption = caption.replace('"', '')
     if language == "uarabic":
         reshaped_text = arabic_reshaper.reshape(caption)
         array = reshaped_text.split()
     else:
         array = caption.split()
-    is_phrase = False
-    if str(caption).startswith('\"') and str(caption).endswith('\"'):
-        is_phrase = True
     counter = 0
     lines = []
     lineCounter = 1
@@ -129,7 +131,10 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             fill_count = (total_chars - len(line_no_tags))
             fill = "".zfill(fill_count).replace("0", " ")
         result += fill   + line + line_seperator
-    return prefix + result
+    result = prefix + result
+    if is_phrase and space_within_phrases:
+        result = '"' + result + '"'
+    return result
 
 def rearrange_single_line(s):
     return s[::-1]
@@ -155,7 +160,7 @@ def read_translation_from_csv(csv_path,gender,store):
                 translated_lines[line['number']] = line
     return translated_lines
 
-def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True, filters=None,basic_formatting=False):
+def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True, filters=None,basic_formatting=False,text_spacings=[]):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':
@@ -195,7 +200,18 @@ def translate(source, dest, translated_lines, is_captions, max_chars_before_brea
                         if is_captions:
                             new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix,insert_newlines=insert_newlines,end_with_space=True,basic_formatting=basic_formatting)
                         else:
-                            new_line = rearrange_multiple_lines(translated,None,None,language,"","\\n",insert_newlines=insert_newlines,end_with_space=False,basic_formatting=basic_formatting)
+                            spacing_style = translatedLine.get('spacing style')
+                            max_chars_before_break = None
+                            total_chars_in_line = None
+                            space_within_phrases = False
+                            if spacing_style is not None:
+                                for spacing in text_spacings:
+                                    if spacing.get('name') == spacing_style:
+                                        max_chars_before_break = spacing.get('max_chars_before_break')
+                                        total_chars_in_line = spacing.get('total_chars_in_line')
+                                        space_within_phrases = True
+                                        break
+                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,"","\\n",insert_newlines=insert_newlines,end_with_space=False,basic_formatting=basic_formatting,space_within_phrases=space_within_phrases)
                         l = l.replace(orig, new_line)
                         if filters:
                             for filter in filters:

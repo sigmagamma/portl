@@ -7,6 +7,11 @@
   "captions_prefix": "<B>",
   "max_chars_before_break": 35,
   "total_chars_in_line": 43,
+
+  "text_spacings": [
+    {"name":"header_1",   "max_chars_before_break": 40, "total_chars_in_line": 12},
+    {"name":"header_2",  "max_chars_before_break": 40, "total_chars_in_line": 9},
+    {"name": "menu_choices",  "max_chars_before_break": 40, "total_chars_in_line": 15}],
   "compiler_game_service_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common",
   "compiler_game": "Black Mesa",
   "compiler_game_path": "\\Black Mesa\\bms",
