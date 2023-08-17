@@ -39,22 +39,51 @@ the file in the base game folder is moved to a backup.
 * The installer now copies the folders "materials" and "sound" to the mod folder
 
 ## Windows Hebrew installation for Portal
-This repository does not include any file with actual source or translation material from the game.
-In order to run this you'll need to put either:
+See releases, also see the guide above.
 
-1. closecaption_english.dat credits.txt and portal_english.txt that already contain the hebrew translation OR
-2. Portal translation - additions.csv, Portal translation - closecaption.csv, Portal translation - credits.csv
-in the gamefiles\portal folder.
+## Development setup - Portal
+1. Get Portal: 
+https://store.steampowered.com/app/400/Portal/
+2. Install Python 3.11 
+3. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
+4. git clone https://github.com/sigmagamma/portl.git
+5. Open a project in the created folder, create a virtual environment, and install the requirements from 
+requirements.txt. 
+6. You will need a seprately distributed file named The `Portal 2007 private.json` under gamefiles/portal including the 
+link to the translation sheet. 
+7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. 
+`install_portal_2007_heb_win_ltr.py` performs the patching for windows for the ltr version (there are also quick 
+installers in the install_unattended script). make sure the working directory is above gamefiles.
+8. Once you've applied the patch, run the game. You should be able to see subtitles
+in Hebrew - if not, try manually applying the following settings in the Portal console
+(runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of
+the game to work. 
+9. If you want to work on the right-aligned version, follow similar instructions with 
+`install_portal_2007_heb_win_rtl.py`,  and see additional procedure below.
 
-You can then run install_po_rtl_heb_win.py for a Windows installation.
+## Right alignment instructions
+This branch contains code that supports right alignment for the captions (not for the song). For this to work correctly:
+The installer that does this is `install_portal_2007_heb_win_rtl.py`.
 
-You can use the spec files with pyinstaller to create the executable.
+It is assumed you're running Windows 10 with Hebrew support, meaning you have the Tahoma font.
+Run registry/apply_fonts_portal_hebrew.reg to map Tahoma to Miriam Fixed. Restart your PC.
+When you start the game, set the game resolution to 1366 * 768. (not tested on other sizes - your mileage may vary)
+Once you're done playing, to restore Tahoma run the remove_fonts_portal.reg file and restart Windows.
 
-Pyinstaller is a very fragile solution that's currently working on a crutch.
-Use this guide:
+This process is required as the game does not support native right to left alignment, and also does not allow setting 
+the font for Hebrew characters.
+
+
+# creating releases
+
+packmod_2007.bat and packmod_rtx currently pack zip files, and also exes using pyinstaller.
+The spec files define pyinstaller behavior
+
+Pyinstaller is a very fragile solution that's currently working on a crutch. We plan on replacing it with NSIS.
+If you still want to make pyinstaller work, Use this guide:
 https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resolved-b33842bd3184
 
-Some additional points to follow:
+Some additional points to those in the guide:
 Within the Visual Studio Installer, make sure you add "Desktop development with C++".
 In step 5, if you're working with Pycharm, you should probably copy the release into the project folder in order to have 
 it install pyinstaller into your Virtual Environment.
@@ -71,34 +100,6 @@ Spec file was generated with:
 `.\venv\Scripts\pyi-makespec.exe --onefile .\install_po_rtl_heb_win.py`
 
 For antivirus software, make sure you tell it to exclude the dist folder of the relevant folder in gamefiles.
-
-## Development setup - Portal
-1. Get Portal: 
-https://store.steampowered.com/app/400/Portal/
-2. Install Python 3.11 
-3. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
-4. git clone https://github.com/sigmagamma/portl.git
-5. Open a project in the created folder, create a virtual environment, and install the requirements from requirements.txt. 
-6. You will need a file named The `Portal private.json` under gamefiles/portal  including the link to the 
-translation sheet. 
-7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. 
-`install_po_rtl_heb_win_ltr.py` performs the patching for windows. 
-8. Once you've applied the patch, run the game. You should be able to see subtitles
-in Hebrew - if not, try manually applying the following settings in the Portal console
-(runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of the game to work. 
-9. If you want to work on the right-aligned version, follow similar instructions with install_po_rtl_heb_win_rtl.py, and see additional procedure below.
-
-## Right alignment instructions
-This branch contains code that supports right alignment for the captions (not for the song). For this to work correctly:
-The installer that does this is 'install_po_rtl_heb_win_rtl.py'.
-
-It is assumed you're running Windows 10 with Hebrew support, meaning you have the Tahoma font.
-Run apply_fonts_portal_hebrew.reg to map Tahoma to Miriam Fixed. Restart your PC.
-When you start the game, set the game resolution to 1366 * 768. (The plan is to support other sizes)
-Once you're done playing, to restore Tahoma run the remove_fonts_portal.reg file and restart Windows.
-
-This process is required as the game does not support native right to left alignment, and also does not allow setting the font for Hebrew characters.
-
 
 ## Development setup - The Stanley Parable
 
@@ -117,8 +118,8 @@ Configure the compiler_game settings in 'The Stanley Parable.json'.
 Otherwise, if you want to work with an existing translation and patch the game, put the modified `subtitles_english.dat` 
 in that folder.
 7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics.
-`portal/install_unattended.py` contains quick installers and assumes your registry contains the correct folder placement. 
-Otherwise use one of the other installers. 
+`portal/install_unattended.py` contains quick installers and assumes your registry contains the correct folder 
+placement. Otherwise use one of the other installers. 
 8. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the following settings in the console
 (runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of 
@@ -132,11 +133,13 @@ https://store.steampowered.com/app/362890/Black_Mesa/
 2. Install Python 3.11
 3. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
 4. git clone https://github.com/sigmagamma/portl.git and switch to feat-black-mesa
-5. Open a project in the created folder, create a virtual environment, and install the requirements from requirements.txt. 
+5. Open a project in the created folder, create a virtual environment, and install the requirements from 
+requirements.txt. 
 6. You will need a file named The `Black Mesa Arabic RTL private.json` (with or without RTL, and with the relevant 
 language) under gamefiles/blackmesa  including the link to the translation sheet. 
 7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. 
-`portal/install_unattended.py` contains quick installers and assumes your registry contains the correct folder placement. 
+`portal/install_unattended.py` contains quick installers and assumes your registry contains the correct folder 
+placement. 
 Otherwise use one of the other installers.
 8. Once you've applied the patch, run the game. You should be able to see subtitles
 in the chosen language - if not, try manually applying the following settings in the console
@@ -153,18 +156,28 @@ within that file.
 * shortname - name of the game for versioning
 * version - version of distribution
 * basegame - the name of inner central game folder. example "portal"
-* caption_file_name - the prefix for the subtitle file. For example if the file is closecaption_english.txt then this will be "closecaption".
-* other_file_names - other files in the resource folder that need translation.
+* other_files - files that need translation or reconfiguration from sheets
 * max_chars_before_break - This determines the length of each line before portl puts a <cr> to create a new one.
 * mod_type - for old games like Portal use "custom". For later games use "dlc".
 * os - future use for other OS support
 * vpk_file_name - should be the dir file in the basegame folder.
-* language_name_other_override - unfortunately Portal didn't allow portal_hebrew.txt, so this logic specifically overrides it to be called portal_english.txt, while renaming the original.
 * compiler_game_service_path - If the game has no caption compiler, then this is the steam path under which the main game folder is found
 * compiler_game - name of the main folder for the compiler
 * compiler_game_path - additional path after the steam folder and into the basegame folder, such as \\Black Mesa\\bms
-* english_captions_text_path - name of local file with english text for captions
 
-
+other_files reference:
+* name - basic filename without directory, language or suffix
+* folder - folder name for the file
+* localized - whether the file has a localized suffix
+* override - override the file in the source folder rather than in the mod folder
+* is_on_vpk - whether the source file should be taken from the VPK
+* translation_sheet - the sheet in the translation file with which the file needs to be translated
+* extension - the extension for the file
+* is_captions - whether the file should be compiled to captions
+* extension - the source extension for the file
+* dest_extension - the target extension, if different 
+* encoding - the source encoding for the game file
+* insert_newlines - are lines separated using a new line
 Deprecated:
 * os - deprecated use to determine how to change configuration in the res file such as text size. 
+* caption_file_name - the prefix for the subtitle file. For example if the file is closecaption_english.txt then this will be "closecaption".
