@@ -112,15 +112,15 @@ https://store.epicgames.com/en-US/p/the-stanley-parable
 4. git clone https://github.com/sigmagamma/portl.git and switch to stanley-0.9.2 
 5. Open a project in the created folder, create a virtual environment, and install the requirements from requirements.txt. 
 6. You will need a file named The `Stanley Parable RTL private.json` under gamefiles/stanley  including the link to the 
-translation sheet. 
+translation sheet.  You will also need subtitle_english.txt in the same folder, which is the source file for the english subtitles.
 You have to get an additional game that has captioncompiler, like Portal or Portal 2 (sourcesdk will be supported later). 
-Configure the compiler_game settings in 'The Stanley Parable.json'.
+Configure the compiler_game settings in '`Stanley Parable RTL.json'.
 Otherwise, if you want to work with an existing translation and patch the game, put the modified `subtitles_english.dat` 
 in that folder.
-7. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics.
-`portal/install_unattended.py` contains quick installers and assumes your registry contains the correct folder 
+8. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics.
+`stanley/install_unattended.py` contains quick installers and assumes your registry contains the correct folder 
 placement. Otherwise use one of the other installers. 
-8. Once you've applied the patch, run the game. You should be able to see subtitles
+9. Once you've applied the patch, run the game. You should be able to see subtitles
 in Hebrew - if not, try manually applying the following settings in the console
 (runnable by using \`): `cc_lang english` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of 
 the game to work.
