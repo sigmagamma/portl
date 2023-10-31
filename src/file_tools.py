@@ -54,8 +54,12 @@ class FileTools:
                             steam_path = self.steam_path_windows(steam_main_folder)
                             if steam_path is not None:
                                 path_guess = steam_path + "\\" + steam_main_folder
+                    target_folder = data.get('target_folder')
                     if unattended:
-                        file_path = path_guess
+                        if target_folder:
+                            file_path = target_folder
+                        else:
+                            file_path = path_guess
                     else:
                         if path_guess is None:
                             action_text = "choose"
