@@ -25,5 +25,7 @@
     {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
       "encoding": "utf-16"},
         {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "styles","extension": "res","encoding":"utf-8"}
-  ]
+  ],
+  "additional_folders":["materials"]
+
 }
