@@ -1,0 +1,23 @@
+{
+  "shortname": "portalrevolution",
+  "version": "0.9.3",
+  "game": "Portal Revolution",
+  "basegame": "revolution",
+  "steam_main_folder": "Portal Revolution",
+  "max_chars_before_break": 25,
+  "total_chars_in_line": 33,
+  "mod_type": "dlc",
+  "dlc_compiler" : true,
+  "os" : "WIN",
+  "vpk_file_name": "pak01_dir.vpk",
+  "other_files": [
+    {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
+      "encoding": "utf-16"}
+
+
+  ],
+  "vpk_output": true,
+  "compiler_game_service_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common",
+  "compiler_game": "Portal 2",
+  "compiler_game_path": "\\Portal 2\\portal2"
+}

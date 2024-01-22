@@ -356,7 +356,8 @@ class FileTools:
                 mod_cache_folder = self.get_mod_cache_folder()
                 if not os.path.exists(mod_cache_folder):
                     os.makedirs(mod_cache_folder)
-                copy(basegame_cache_path,mod_cache_folder)
+                if os.path.exists(basegame_cache_path):
+                    copy(basegame_cache_path,mod_cache_folder)
     def remove_mod_folder(self):
         if not os.path.exists(self.mod_folder):
             return
