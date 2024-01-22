@@ -149,7 +149,10 @@ class FileTools:
                     self.captions_prefix = data.get('captions_prefix')
                     if self.captions_prefix is None:
                         self.captions_prefix = ""
-                    self.captions_filter = data.get('captions_filter')
+                    self.captions_filters = data.get('captions_filters')
+
+                    # CFG disable
+                    self.disable_cfg = data.get('disable_cfg')
 
     ##Steam/Epic logic
 
@@ -459,7 +462,11 @@ class FileTools:
                 extension = dest_extension
         return extension
     def get_local_other_path(self,file_data,get_from_dest):
-        language = self.get_localized_suffix(file_data,"english")
+        override = file_data.get('override')
+        if override:
+            language = self.get_localized_suffix(file_data,"english")
+        else:
+            language = self.get_localized_suffix(file_data, self.target_language)
         return self.get_gamefiles_folder() + "\\"+file_data.get('name')+language+"."+\
                self.get_dest_extension_else_extension(file_data,get_from_dest)
 
@@ -479,7 +486,12 @@ class FileTools:
         if file_data.get('base_override'):
             dest_other_path = self.get_basegame_english_other_path(file_data)
         else:
-            dest_other_path = self.get_mod_other_path(file_data,True)
+            #TODO make this more generic
+            is_captions = file_data.get('is_captions')
+            if is_captions:
+                dest_other_path = self.get_mod_captions_path(file_data)
+            else:
+                dest_other_path = self.get_mod_other_path(file_data,True)
         copyfile(self.get_patch_other_path(file_data,True), dest_other_path)
 
     def write_other_from_csv(self,file_data,csv_path):
@@ -511,7 +523,7 @@ class FileTools:
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
         translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
-        tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,insert_newlines=insert_newlines,source_encoding= encoding,prefix=self.captions_prefix,filter=self.captions_filter,basic_formatting=basic_formatting)
+        tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,insert_newlines=insert_newlines,source_encoding= encoding,prefix=self.captions_prefix,filters=self.captions_filters,basic_formatting=basic_formatting)
         if dest_extension:
             to_compile_text_path = self.get_to_compile_text_path(file_data)
             from_compile_text_path = self.get_from_compile_text_path(file_data)
@@ -619,7 +631,8 @@ class FileTools:
     ## main write function
     def write_files(self):
         self.create_mod_folders()
-        self.write_autoexec_cfg()
+        if (not self.disable_cfg):
+            self.write_autoexec_cfg()
 
         for file_data in self.other_files:
             file_store = file_data.get('store')
@@ -646,7 +659,8 @@ class FileTools:
     ## patch write function
     def write_patch_files(self):
         self.create_mod_folders()
-        self.write_autoexec_cfg()
+        if (not self.disable_cfg):
+            self.write_autoexec_cfg()
         # self.write_captions_from_patch()
         for file_data in self.other_files:
             file_store = file_data.get('store')

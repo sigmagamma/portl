@@ -4,7 +4,7 @@ import os
 def install_po_rtl(filename,language,store,patch):
     ft = FileTools(filename,language,store=store)
     base_text = "This is a beta version. By proceeding you acknowledge you are responsible for running this."+ \
-                "\r\nNotice that this will remove previous hebrew patch installations as well as the unofficial size patch. "
+                "\r\nNotice that this will remove previous patch installations. "
     backup_exists = False
     for file_data in ft.other_files:
         if file_data.get('override'):
