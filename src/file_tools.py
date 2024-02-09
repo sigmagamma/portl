@@ -83,6 +83,7 @@ class FileTools:
                     if self.gender_textures is None:
                         self.gender_textures = []
                     self.additional_folders = data.get('additional_folders')
+                    self.additional_configuration = data.get('additional_configuration')
                     if self.additional_folders is None:
                         self.additional_folders = []
                     #language details
@@ -604,10 +605,13 @@ class FileTools:
         return lang
 
     def write_autoexec_cfg(self):
+        #TODO move this to spreadsheet
         with open(self.get_mod_cfg_path('autoexec.cfg'), 'w') as file:
             file.write('cc_subtitles "1"\n')
             file.write('cc_lang "' + self.target_language + '"\n')
-            file.write('closecaption "1"')
+            file.write('closecaption "1"' + '"\n')
+            if self.additional_configuration:
+                file.write(self.additional_configuration)
 
     def get_csv_from_url(self,filename,url):
         response = urlopen(url)
