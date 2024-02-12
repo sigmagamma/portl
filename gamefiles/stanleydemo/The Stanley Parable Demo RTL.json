@@ -21,10 +21,6 @@
   "other_files": [
      {"name": "basemodui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "basemodui","extension": "txt","encoding":"utf-16","insert_newlines": false},
  {"name": "mainmenu_tsp","folder":"resource\\ui\\basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "mainmenu_tsp","extension": "res","encoding":"utf-8","insert_newlines": false},
- {"name": "options","folder":"resource\\ui\\basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "options","extension": "res","encoding":"utf-8","insert_newlines": false},
-
-
- {"name": "gameui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "gameui_english","extension": "txt","encoding":"utf-16","insert_newlines": false},
 
     {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
       "encoding": "utf-16"},
