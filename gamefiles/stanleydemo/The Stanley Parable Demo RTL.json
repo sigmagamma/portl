@@ -7,33 +7,154 @@
   "captions_prefix": "<B>",
   "max_chars_before_break": 35,
   "total_chars_in_line": 43,
-
   "text_spacings": [
-    {"name":"header_1",   "max_chars_before_break": 40, "total_chars_in_line": 10},
-    {"name":"header_2",  "max_chars_before_break": 40, "total_chars_in_line": 20},
-    {"name": "menu_choices",  "max_chars_before_break": 40, "total_chars_in_line": 17},
-    {"name": "menu_choices_2",  "max_chars_before_break": 40, "total_chars_in_line": 8}],
+    {
+      "name": "header_1",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 10
+    },
+    {
+      "name": "header_2",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 20
+    },
+    {
+      "name": "menu_choices",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 17
+    },
+    {
+      "name": "menu_choices_2",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 8
+    }
+  ],
   "compiler_game_service_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common",
   "compiler_game": "Black Mesa",
   "compiler_game_path": "\\Black Mesa\\bms",
   "mod_type": "dlc",
-  "not_deletable": ["SAVE","screenshots","maps\\soundcache"],
-  "os" : "WIN",
-  "other_files": [
-     {"name": "basemodui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "basemodui","extension": "txt","encoding":"utf-16","insert_newlines": false},
- {"name": "mainmenu_tsp","folder":"resource\\ui\\basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "mainmenu_tsp","extension": "res","encoding":"utf-8","insert_newlines": false},
-{"name": "ingamemainmenu","folder":"resource\\ui\\basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "ingamemainmenu","extension": "res","encoding":"utf-8","insert_newlines": false},
-{"name": "options","folder":"resource\\ui\\basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "options","extension": "res","encoding":"utf-8","insert_newlines": false},
-
-{"name": "audio","folder":"resource\\ui\\basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "audio","extension": "res","encoding":"utf-8","insert_newlines": false},
-
- {"name": "gameui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "gameui_english","extension": "txt","encoding":"utf-16","insert_newlines": false},
-
-    {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
-      "encoding": "utf-16"},
-        {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "styles","extension": "res","encoding":"utf-8"}
+  "not_deletable": [
+    "SAVE",
+    "screenshots",
+    "maps\\soundcache"
   ],
-  "additional_folders":["materials"],
-  "additional_configuration": "r_aspectratio \"1\""
+  "os": "WIN",
+  "additional_folders": [
+    "materials"
+  ],
+  "additional_configuration": "r_aspectratio \"1\"",
+  "other_files": [
+        {
+      "name": "keyboardmouse",
+      "folder": "resource\\ui\\basemodui",
+      "localized": false,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "keyboardmouse",
+      "extension": "res",
+      "encoding": "utf-8",
+      "insert_newlines": false
+    },
+    {
+      "name": "basemodui",
+      "folder": "resource",
+      "localized": true,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "basemodui",
+      "extension": "txt",
+      "encoding": "utf-16",
+      "insert_newlines": false
+    },
+    {
+      "name": "mainmenu_tsp",
+      "folder": "resource\\ui\\basemodui",
+      "localized": false,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "mainmenu_tsp",
+      "extension": "res",
+      "encoding": "utf-8",
+      "insert_newlines": false
+    },
+    {
+      "name": "ingamemainmenu",
+      "folder": "resource\\ui\\basemodui",
+      "localized": false,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "ingamemainmenu",
+      "extension": "res",
+      "encoding": "utf-8",
+      "insert_newlines": false
+    },
+    {
+      "name": "options",
+      "folder": "resource\\ui\\basemodui",
+      "localized": false,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "options",
+      "extension": "res",
+      "encoding": "utf-8",
+      "insert_newlines": false
+    },
 
+    {
+      "name": "tspvideo",
+      "folder": "resource\\ui",
+      "localized": false,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "tspvideo",
+      "extension": "res",
+      "encoding": "utf-8",
+      "insert_newlines": false
+    },
+
+    {
+      "name": "audio",
+      "folder": "resource\\ui\\basemodui",
+      "localized": false,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "audio",
+      "extension": "res",
+      "encoding": "utf-8",
+      "insert_newlines": false
+    },
+    {
+      "name": "gameui",
+      "folder": "resource",
+      "localized": true,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "gameui_english",
+      "extension": "txt",
+      "encoding": "utf-16",
+      "insert_newlines": false
+    },
+    {
+      "name": "subtitles",
+      "folder": "resource",
+      "localized": true,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "subtitles",
+      "extension": "txt",
+      "dest_extension": "dat",
+      "is_captions": true,
+      "encoding": "utf-16"
+    },
+    {
+      "name": "basemodui_scheme",
+      "folder": "resource",
+      "localized": false,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "styles",
+      "extension": "res",
+      "encoding": "utf-8"
+    }
+  ]
 }
