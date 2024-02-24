@@ -40,7 +40,7 @@
   ],
   "os": "WIN",
   "additional_folders": [
-    "materials"
+    "materials","sound"
   ],
   "additional_configuration": "r_aspectratio \"1\"",
   "other_files": [

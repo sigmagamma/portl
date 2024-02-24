@@ -352,10 +352,11 @@ class FileTools:
             if (not self.unattended) and not os.path.exists(basegame_cache_path):
                 input("Note: You'll have to start the game, get to the loading screen, wait for a while, and then restart it. Press any key.")
             else:
-                mod_cache_folder = self.get_mod_cache_folder()
-                if not os.path.exists(mod_cache_folder):
-                    os.makedirs(mod_cache_folder)
-                copy(basegame_cache_path,mod_cache_folder)
+                if os.path.exists(basegame_cache_path):
+                    mod_cache_folder = self.get_mod_cache_folder()
+                    if not os.path.exists(mod_cache_folder):
+                        os.makedirs(mod_cache_folder)
+                    copy(basegame_cache_path,mod_cache_folder)
     def remove_mod_folder(self):
         if not os.path.exists(self.mod_folder):
             return
