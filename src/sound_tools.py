@@ -13,18 +13,25 @@ def get_duration(wave_folder,file_name):
     except Exception:
         print("problem with file {}".format(file_name))
 
-def rewrite_scene(wave_folder,src_scene_filename, target_scene_filename,scene_map):
+def rewrite_scene(speech_folder, src_scene_filename, target_scene_filename, scene_map):
     with open(src_scene_filename,errors="ignore") as source_scene, open(target_scene_filename, "w") as target_scene:
         current_time = 0
+        stopped=False
         for line in source_scene:
-            if line.strip().startswith('event speak'):
+            if stopped:
+                target_scene.write(line)
+            elif line.strip().startswith('event speak'):
                 event = line.split()[2].strip('"')
                 event_details = scene_map[event.lower()]
                 event_gap = event_details['start_time']
+                if event_gap is None or event_gap is '':
+                    stopped=True
+                    target_scene.write(line)
+                    continue
                 target_scene.write(line)
                 target_scene.write(source_scene.readline())
                 actual_start_time = current_time + float(event_gap)
-                actual_end_time = actual_start_time + get_duration(wave_folder,event_details.get('audiofile'))
+                actual_end_time = actual_start_time + get_duration(speech_folder, event_details.get('audiofile')+".wav")
                 out_line = "      time "+"{:.6f}".format(actual_start_time)+" "+"{:.6f}".format(actual_end_time)+"\n"
                 current_time = actual_end_time
                 target_scene.write(out_line)

@@ -145,6 +145,7 @@ def read_translation_from_csv(csv_path,gender,store):
     with open(csv_path, encoding="utf-8-sig") as csvfile:
 
         csvreader = csv.DictReader(csvfile)
+        scene_map = {}
         for line in csvreader:
             translated = line.get('actual translation')
             if (gender is not None and gender == 'f'):
@@ -158,7 +159,15 @@ def read_translation_from_csv(csv_path,gender,store):
                 line['number'] = line[store+"_number"]
             if line['number'] is not None:
                 translated_lines[line['number']] = line
-    return translated_lines
+            scene = line.get('scene')
+            if scene is not None and scene is not '':
+                if scene_map.get(scene) is None:
+                    scene_map[scene] = {}
+                speaker = line.get('speaker')
+                scene_map[scene][speaker] = {}
+                scene_map[scene][speaker]['start_time'] = line.get('start_time')
+                scene_map[scene][speaker]['audiofile'] = line.get('audiofile')
+    return translated_lines,scene_map
 
 def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True, filters=None,basic_formatting=False,text_spacings=[]):
     i = 0
@@ -199,6 +208,10 @@ def translate(source, dest, translated_lines, is_captions, max_chars_before_brea
                     else:
                         if is_captions:
                             new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix,insert_newlines=insert_newlines,end_with_space=True,basic_formatting=basic_formatting)
+                            speaker = translatedLine.get('speaker')
+                            original_speaker = translatedLine.get('original_speaker')
+                            if original_speaker and speaker:
+                                l = l.replace(original_speaker, speaker)
                         else:
                             spacing_style = translatedLine.get('spacing style')
                             max_chars_before_break = None
@@ -224,9 +237,14 @@ def translate(source, dest, translated_lines, is_captions, max_chars_before_brea
                     while upserts:
                         upsert = upserts[0]
                         orig = upsert.get('original')
-                        not_reversed = upsert.get('not reversed')
                         if orig == l.strip():
-                            new_line = l.replace(orig,not_reversed)
+                            translated = upsert.get('actual translation')
+                            speaker = upsert.get('speaker')
+                            if (translated and speaker):
+                                new_line = '\t\t"'+speaker +'"\t\t"'+ rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,prefix,insert_newlines=insert_newlines,end_with_space=True,basic_formatting=basic_formatting)+'"\n'
+                            else:
+                                not_reversed = upsert.get('not reversed')
+                                new_line = l.replace(orig,not_reversed)
                             dest_file.write(new_line)
                             popped = upserts.pop(0)
                             if upsert.get('multi') != 'TRUE':

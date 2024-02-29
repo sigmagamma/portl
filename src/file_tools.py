@@ -7,7 +7,7 @@ from shutil import copyfile,copy,rmtree
 from os import path
 from distutils.dir_util import copy_tree
 import vpk
-
+import src.sound_tools as sound_tools
 import src.text_tools as tt
 import subprocess
 import json
@@ -155,6 +155,8 @@ class FileTools:
                     self.text_spacings = data.get('text_spacings')
                     if self.text_spacings is None:
                         self.text_spacings = []
+                    self.speech_folder = data.get('speech_folder')
+                    self.scene_folder = data.get('scene_folder')
 
     ##Steam/Epic logic
 
@@ -267,9 +269,6 @@ class FileTools:
     def get_basegame_cache_path(self):
         return self.get_basegame_cache_folder()+"\_master.cache"
 
-    def get_basegame_resource_folder(self):
-        return self.get_full_basegame_path() + "\\resource"
-
     def get_basegame_subfolder(self,subfolder):
         return self.get_full_basegame_path() + "\\"+subfolder
 
@@ -338,7 +337,7 @@ class FileTools:
         if not os.path.exists(cfg_folder):
             os.makedirs(cfg_folder)
         # TODO make this game specific
-        for folder in ['resource','scripts','resource\\ui\\basemodui','ui']:
+        for folder in ['resource','scripts','resource\\ui\\basemodui','ui',self.scene_folder]:
             mod_subfolder = self.get_mod_subfolder(folder)
             if not os.path.exists(mod_subfolder):
                 os.makedirs(mod_subfolder)
@@ -518,7 +517,7 @@ class FileTools:
             else:
                 raise Exception(
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
-        translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
+        translated_lines,scene_map = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
         tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,insert_newlines=insert_newlines,source_encoding= encoding,prefix=self.captions_prefix,filters=self.captions_filters,basic_formatting=basic_formatting,text_spacings=self.text_spacings)
         if dest_extension:
@@ -535,6 +534,12 @@ class FileTools:
             move(to_compile_text_path, dest_captions_text_path)
         if is_on_vpk:
             os.remove(source_other_path)
+        if scene_map:
+            for scene_filename,scene in scene_map.items():
+                speech_folder = self.get_basegame_subfolder(self.speech_folder)
+                source_scene_filename = os.path.join(self.get_basegame_subfolder(self.scene_folder),scene_filename)
+                target_scene_filename = os.path.join(self.get_mod_subfolder(self.scene_folder),scene_filename)
+                sound_tools.rewrite_scene(speech_folder,source_scene_filename,target_scene_filename,scene)
 
     def get_basegame_vpk_path(self):
         return self.get_full_basegame_path() + "\\" + self.vpk_file_name

@@ -27,6 +27,12 @@
       "name": "menu_choices_2",
       "max_chars_before_break": 40,
       "total_chars_in_line": 8
+    },
+
+    {
+      "name": "titles",
+      "max_chars_before_break": 45,
+      "total_chars_in_line": 42
     }
   ],
   "compiler_game_service_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common",
@@ -42,8 +48,22 @@
   "additional_folders": [
     "materials","sound"
   ],
+  "speech_folder" : "sound\\narrator_demo",
+  "scene_folder" : "scenes\\narrator_demo",
   "additional_configuration": "r_aspectratio \"1\"",
   "other_files": [
+
+    {
+      "name": "titles",
+      "folder": "scripts",
+      "localized": false,
+      "override": false,
+      "is_on_vpk": false,
+      "translation_sheet": "titles",
+      "extension": "txt",
+      "encoding": "utf-8",
+      "insert_newlines": false
+    },
         {
       "name": "keyboardmouse",
       "folder": "resource\\ui\\basemodui",
