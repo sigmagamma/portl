@@ -536,7 +536,7 @@ class FileTools:
             os.remove(source_other_path)
         if scene_map:
             for scene_filename,scene in scene_map.items():
-                speech_folder = self.get_basegame_subfolder(self.speech_folder)
+                speech_folder = self.get_mod_subfolder(self.speech_folder)
                 source_scene_filename = os.path.join(self.get_basegame_subfolder(self.scene_folder),scene_filename)
                 target_scene_filename = os.path.join(self.get_mod_subfolder(self.scene_folder),scene_filename)
                 sound_tools.rewrite_scene(speech_folder,source_scene_filename,target_scene_filename,scene)
@@ -631,6 +631,8 @@ class FileTools:
         self.create_mod_folders()
         if (not self.disable_cfg):
             self.write_autoexec_cfg()
+        # need to copy assets first since scenes are based on sounds
+        self.copy_assets()
 
         for file_data in self.other_files:
             file_store = file_data.get('store')
@@ -652,7 +654,6 @@ class FileTools:
                 self.write_other_from_patch(file_data)
             if file_data.get('override'):
                 self.backup_basegame_english_other_path(file_data)
-        self.copy_assets()
 
     ## patch write function
     def write_patch_files(self):

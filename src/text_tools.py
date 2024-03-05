@@ -160,7 +160,7 @@ def read_translation_from_csv(csv_path,gender,store):
             if line['number'] is not None:
                 translated_lines[line['number']] = line
             scene = line.get('scene')
-            if scene is not None and scene is not '':
+            if scene is not None and scene != '':
                 if scene_map.get(scene) is None:
                     scene_map[scene] = {}
                 speaker = line.get('speaker')

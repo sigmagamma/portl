@@ -24,8 +24,8 @@ def rewrite_scene(speech_folder, src_scene_filename, target_scene_filename, scen
                 event = line.split()[2].strip('"')
                 event_details = scene_map[event.lower()]
                 event_gap = event_details['start_time']
-                if event_gap is None or event_gap is '':
-                    stopped=True
+                if event_gap is None or event_gap == '':
+                    stopped = True
                     target_scene.write(line)
                     continue
                 target_scene.write(line)
