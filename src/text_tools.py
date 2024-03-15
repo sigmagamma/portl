@@ -8,7 +8,8 @@ from bidi.algorithm import get_display
 def is_digit_or_english_with_punctuation(s):
     return re.match('^[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None \
            or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*$',s) is not None \
-           or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) is not None
+           or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) \
+           or re.match('^[\[\]]$',s) is not None
 
 def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False,space_within_phrases=False):
     is_phrase = False

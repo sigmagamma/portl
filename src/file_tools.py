@@ -340,9 +340,10 @@ class FileTools:
             os.makedirs(cfg_folder)
         # TODO make this game specific
         for folder in ['resource','scripts','resource\\ui\\basemodui','ui',self.scene_folder]:
-            mod_subfolder = self.get_mod_subfolder(folder)
-            if not os.path.exists(mod_subfolder):
-                os.makedirs(mod_subfolder)
+            if folder is not None:
+                mod_subfolder = self.get_mod_subfolder(folder)
+                if not os.path.exists(mod_subfolder):
+                    os.makedirs(mod_subfolder)
         # see here: https://github.com/sigmagamma/portal-text-size-changer
         sizepatch_folder = self.get_sizepatch_custom_folder()
         if os.path.exists(sizepatch_folder):
