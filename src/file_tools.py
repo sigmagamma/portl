@@ -528,7 +528,10 @@ class FileTools:
                     "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
         translated_lines,scene_map = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
-        tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,insert_newlines=insert_newlines,source_encoding= encoding,prefix=self.captions_prefix,filters=self.captions_filters,basic_formatting=basic_formatting,text_spacings=self.text_spacings)
+        song_mode = file_data.get('song_mode')
+        tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,
+                     insert_newlines=insert_newlines,source_encoding= encoding,prefix=self.captions_prefix,filters=self.captions_filters,
+                     basic_formatting=basic_formatting,text_spacings=self.text_spacings,song_mode=song_mode)
         if dest_extension:
             to_compile_text_path = self.get_to_compile_text_path(file_data)
             from_compile_text_path = self.get_from_compile_text_path(file_data)

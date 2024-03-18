@@ -11,7 +11,7 @@ def is_digit_or_english_with_punctuation(s):
            or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) \
            or re.match('^[\[\]]$',s) is not None
 
-def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False,space_within_phrases=False):
+def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False,space_within_phrases=False,song_mode=False):
     is_phrase = False
     if str(caption).startswith('\"') and str(caption).endswith('\"'):
         is_phrase = True
@@ -30,6 +30,7 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
     italic = False
     linePrefix = ""
     lineSuffix = ""
+    time_text = ""
     for word in array:
         # fixing digits and punctuation
         if language == 'hebrew' and not is_phrase:
@@ -92,6 +93,11 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
             word = word.replace(len_text, "")
             if not basic_formatting:
                 lineSuffix = len_text + lineSuffix
+        elif song_mode:
+            times = re.findall('\[[0-9.]*]', word)
+            if len(times) > 0:
+                time_text = times[0]
+                word = word.replace(time_text, "")
         if word == "":
             continue
         counter_check = counter
@@ -128,10 +134,11 @@ def rearrange_multiple_lines(caption,max_chars,total_chars,language,prefix="",se
         fill = 	""
         # spacing logic
         if total_chars is not None:
-            line_no_tags= re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
+            line_no_tags = re.sub("(<[a-zA-Z0-9:,.]*>)","",line)
+
             fill_count = (total_chars - len(line_no_tags))
             fill = "".zfill(fill_count).replace("0", " ")
-        result += fill   + line + line_seperator
+        result += time_text + fill   + line + line_seperator
     result = prefix + result
     if is_phrase and space_within_phrases:
         result = '"' + result + '"'
@@ -170,7 +177,7 @@ def read_translation_from_csv(csv_path,gender,store):
                 scene_map[scene][speaker]['audiofile'] = line.get('audiofile')
     return translated_lines,scene_map
 
-def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True, filters=None,basic_formatting=False,text_spacings=[]):
+def translate(source, dest, translated_lines, is_captions, max_chars_before_break, total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True, filters=None,basic_formatting=False,text_spacings=[],song_mode=False):
     i = 0
     dest_encoding = 'utf-16'
     if source_encoding == 'utf-8':
@@ -225,7 +232,7 @@ def translate(source, dest, translated_lines, is_captions, max_chars_before_brea
                                         total_chars_in_line = spacing.get('total_chars_in_line')
                                         space_within_phrases = True
                                         break
-                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,"","\\n",insert_newlines=insert_newlines,end_with_space=False,basic_formatting=basic_formatting,space_within_phrases=space_within_phrases)
+                            new_line = rearrange_multiple_lines(translated,max_chars_before_break,total_chars_in_line,language,"","\\n",insert_newlines=insert_newlines,end_with_space=False,basic_formatting=basic_formatting,space_within_phrases=space_within_phrases,song_mode=song_mode)
                         l = l.replace(orig, new_line)
                         if filters:
                             for filter in filters:
