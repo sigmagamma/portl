@@ -1,6 +1,6 @@
 {
   "shortname": "portal2",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "game": "Portal 2",
   "basegame": "portal2",
   "steam_main_folder": "Portal 2",
@@ -25,8 +25,15 @@
   "dlc_compiler" : true,
   "os" : "WIN",
   "vpk_file_name": "pak01_dir.vpk",
+
+  "additional_folders": [
+    "media", "maps"
+  ],
+  "vpk_folders": [
+    {"name": "pak01_dir", "target" : null }
+  ],
   "other_files": [
-    {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": false,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false, "encoding": "utf-8","song_mode": true},
+  {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": false,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false, "encoding": "utf-8","song_mode": true},
     {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
       "encoding": "utf-16"},
         {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "basemodui_scheme","extension": "res","is_captions": false,
@@ -36,5 +43,4 @@
 
   ],
   "vpk_output": true
-
 }

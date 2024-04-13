@@ -15,6 +15,8 @@ from urllib.request import urlopen
 import tkinter as tk
 from tkinter import filedialog
 
+from src.text_tools import TextTools
+
 REPO = "https://github.com/sigmagamma/portl/"
 # this is required due to AV software flagging shutil.move for some reason
 def move(src, dst):
@@ -84,6 +86,7 @@ class FileTools:
                     if self.gender_textures is None:
                         self.gender_textures = []
                     self.additional_folders = data.get('additional_folders')
+                    self.vpk_folders = data.get('vpk_folders')
                     self.additional_configuration = data.get('additional_configuration')
                     if self.additional_folders is None:
                         self.additional_folders = []
@@ -338,12 +341,6 @@ class FileTools:
         cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(cfg_folder):
             os.makedirs(cfg_folder)
-        # TODO make this game specific
-        for folder in ['resource','scripts','resource\\ui\\basemodui','ui',self.scene_folder]:
-            if folder is not None:
-                mod_subfolder = self.get_mod_subfolder(folder)
-                if not os.path.exists(mod_subfolder):
-                    os.makedirs(mod_subfolder)
         # see here: https://github.com/sigmagamma/portal-text-size-changer
         sizepatch_folder = self.get_sizepatch_custom_folder()
         if os.path.exists(sizepatch_folder):
@@ -529,9 +526,18 @@ class FileTools:
         translated_lines,scene_map = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
         song_mode = file_data.get('song_mode')
-        tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,
-                     insert_newlines=insert_newlines,source_encoding= encoding,prefix=self.captions_prefix,filters=self.captions_filters,
-                     basic_formatting=basic_formatting,text_spacings=self.text_spacings,song_mode=song_mode)
+        override = file_data.get('override')
+        if not override:
+            mod_subfolder = self.get_mod_subfolder(file_data.get('folder'))
+            if not os.path.exists(mod_subfolder):
+                os.makedirs(mod_subfolder)
+
+        TextTools(source_other_path,dest_other_path,translated_lines,is_captions,
+                                         self.max_chars_before_break,self.total_chars_in_line,self.language,
+                                        insert_newlines=insert_newlines,source_encoding= encoding,
+                                         prefix=self.captions_prefix,filters=self.captions_filters,
+                                        basic_formatting=basic_formatting,text_spacings=self.text_spacings,
+                                         song_mode=song_mode).translate()
         if dest_extension:
             to_compile_text_path = self.get_to_compile_text_path(file_data)
             from_compile_text_path = self.get_from_compile_text_path(file_data)
@@ -589,13 +595,24 @@ class FileTools:
             src_path = self.get_patch_file_path(filename)
             if os.path.exists(src_path):
                 copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
-        if (not patch) and self.gender is not None:
+        if (not patch) and self.gender is not None and 'materials' in self.additional_folders:
             for texture in self.gender_textures:
                 gender_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+"_"+self.gender+".vtf"
                 if os.path.exists(gender_texture_path):
                     dest_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+".vtf"
                     move(gender_texture_path,dest_texture_path)
-
+        for vpk_details in self.vpk_folders:
+            name = vpk_details.get('name')
+            src_path = self.get_patch_file_path(name)
+            vpk_created = vpk.NewVPK(src_path)
+            target_folder = vpk_details.get('target')
+            if target_folder == None:
+                target_folder = self.mod_folder
+            else:
+                target_folder = self.game_parent_path + "/" + target_folder
+            vpk_created.version = 1
+            vpk_created.save(target_folder+"/"+name+".vpk")
+        #TODO handle gender textures for vpk
     def get_mod_cfg_folder(self):
         return self.mod_folder + "\cfg"
 

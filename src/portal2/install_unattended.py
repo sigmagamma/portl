@@ -2,14 +2,18 @@ from src.file_tools import FileTools
 import sys
 from src import legacy_backup_tools as lbt
 
-def hebrew_ltr_install():
-    ft = FileTools("gamefiles/portal2/Portal2.json", "hebrew", store="Steam",unattended=True)
-    ft.write_files()
-def hebrew_rtl_install():
-    ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", store="Steam",unattended=True)
+# def hebrew_ltr_install():
+#     ft = FileTools("gamefiles/portal2/Portal2.json", "hebrew", "m",store="Steam",unattended=True)
+#     ft.write_files()
+def steam_glados():
+    ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", "m",store="Steam",unattended=True)
     ft.write_files()
 
-def uninstall():
+def steam_mabsuta():
+    ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", "f",store="Steam",unattended=True)
+    ft.write_files()
+
+def steam_uninstall():
     ft = FileTools("gamefiles/portal2/Portal2.json","hebrew", store="Steam",unattended=True)
     ft.remove_mod()
 
