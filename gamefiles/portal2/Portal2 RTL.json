@@ -30,9 +30,12 @@
     "media", "maps"
   ],
   "vpk_folders": [
-    {"name": "pak01_dir", "target" : null }
+    {"source_folder": "game_assets", "target_folder" : null, "target_name":  "pak01_dir"},
+    {"source_folder": "update", "target_folder" : "update", "target_name":  "pak01_dir"}
   ],
   "other_files": [
+          {"name": "credits_coop","folder":"scripts\\vscripts\\credits","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "coop_credits","extension": "nut","is_captions": false,"insert_newlines": false,
+      "encoding": "utf-8"},
   {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": false,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false, "encoding": "utf-8","song_mode": true},
     {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
       "encoding": "utf-16"},

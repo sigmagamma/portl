@@ -72,6 +72,7 @@ class FileTools:
 
                     if os.path.exists(file_path) and os.path.exists(file_path+"\\"+self.basegame):
                         self.main_folder = os.path.basename(file_path)
+                        self.main_path = file_path
                         self.game_parent_path = os.path.dirname(file_path)
                     else:
                         raise Exception("installation cancelled or not a valid game folder")
@@ -602,16 +603,17 @@ class FileTools:
                     dest_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+".vtf"
                     move(gender_texture_path,dest_texture_path)
         for vpk_details in self.vpk_folders:
-            name = vpk_details.get('name')
-            src_path = self.get_patch_file_path(name)
+            source_folder = vpk_details.get('source_folder')
+            target_name = vpk_details.get('target_name')
+            src_path = self.get_patch_file_path(source_folder)
             vpk_created = vpk.NewVPK(src_path)
-            target_folder = vpk_details.get('target')
+            target_folder = vpk_details.get('target_folder')
             if target_folder == None:
                 target_folder = self.mod_folder
             else:
-                target_folder = self.game_parent_path + "/" + target_folder
+                target_folder = self.main_path + "/" + target_folder
             vpk_created.version = 1
-            vpk_created.save(target_folder+"/"+name+".vpk")
+            vpk_created.save(target_folder+"/"+target_name+".vpk")
         #TODO handle gender textures for vpk
     def get_mod_cfg_folder(self):
         return self.mod_folder + "\cfg"
