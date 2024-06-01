@@ -202,6 +202,9 @@ class TextTools:
         not_reversed = translated_line.get('not reversed')
         if translated == 'DELETE' or not_reversed == 'DELETE':
             return
+        if translated == 'EMPTY' or not_reversed == 'EMPTY':
+            source_line = source_line.replace(orig, "")
+            return source_line
         if orig in source_line:
             if not_reversed:
                 source_line = source_line.replace(orig, not_reversed)
