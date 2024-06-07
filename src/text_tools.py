@@ -227,6 +227,9 @@ class TextTools:
                     max_chars_before_break = None
                     total_chars_in_line = None
                     space_within_phrases = False
+                    insert_newlines = self.insert_newlines
+                    if translated_line.get('insert newline') == "FALSE":
+                        insert_newlines = False
                     if spacing_style is not None:
                         for spacing in self.text_spacings:
                             if spacing.get('name') == spacing_style:
@@ -234,7 +237,7 @@ class TextTools:
                                 total_chars_in_line = spacing.get('total_chars_in_line')
                                 break
                     new_line = self.rearrange_multiple_lines(translated, max_chars_before_break, total_chars_in_line, self.language,
-                                                        "", "\\n", insert_newlines=self.insert_newlines, end_with_space=False,
+                                                        "", "\\n", insert_newlines=insert_newlines, end_with_space=False,
                                                         basic_formatting=self.basic_formatting,
                                                         space_within_phrases=space_within_phrases, song_mode=self.song_mode)
                 source_line = extra_prefix + source_line.replace(orig, new_line) + extra_suffix
