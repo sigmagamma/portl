@@ -427,7 +427,12 @@ class FileTools:
         name = file_data.get('name')
         extension = self.get_dest_extension_else_extension(file_data,use_dest)
         folder = file_data.get('folder')
-        return self.get_mod_subfolder(folder)+"\{}{}.{}".format(name,language,extension)
+        local_temporary_parent_folder = file_data.get('local_temporary_parent_folder')
+        if local_temporary_parent_folder is None:
+            target_folder = self.get_mod_subfolder(folder)
+        else:
+            target_folder = self.get_gamefiles_folder()+"\\" + local_temporary_parent_folder +"\\"+folder
+        return target_folder+"\{}{}.{}".format(name,language,extension)
     def get_localized_suffix(self,file_data,language):
         localized = file_data.get('localized')
         if localized:
@@ -506,13 +511,19 @@ class FileTools:
         is_captions = file_data.get('is_captions')
         dest_extension = file_data.get('dest_extension')
         insert_newlines = file_data.get('insert_newlines')
+        vpk_relative_path = file_data.get('vpk_relative_path')
+        local_temporary_parent_folder = file_data.get('local_temporary_parent_folder')
         if insert_newlines is None:
             insert_newlines = True
         language = self.get_localized_suffix(file_data,'english')
         basic_formatting = file_data.get('basic_formatting')
         if is_on_vpk:
             source_other_path = self.get_patch_other_path(file_data,False)
-            self.save_file_from_vpk(folder+"/"+name+language+'.'+extension,source_other_path)
+            if vpk_relative_path is None:
+                vpk_path = self.get_basegame_vpk_path()
+            else:
+                vpk_path = self.main_path + "\\" + vpk_relative_path
+            self.save_file_from_vpk(folder+"/"+name+language+'.'+extension,source_other_path,vpk_path)
         else:
             basegame_other_path = self.get_basegame_english_other_path(file_data)
 
@@ -529,10 +540,12 @@ class FileTools:
         song_mode = file_data.get('song_mode')
         override = file_data.get('override')
         if not override:
-            mod_subfolder = self.get_mod_subfolder(file_data.get('folder'))
-            if not os.path.exists(mod_subfolder):
-                os.makedirs(mod_subfolder)
-
+            if local_temporary_parent_folder is None:
+                target_folder = self.get_mod_subfolder(folder)
+            else:
+                target_folder =  self.get_gamefiles_folder()+"\\" + local_temporary_parent_folder + "\\" + folder
+            if not os.path.exists(target_folder):
+                os.makedirs(target_folder)
         TextTools(source_other_path,dest_other_path,translated_lines,is_captions,
                                          self.max_chars_before_break,self.total_chars_in_line,self.language,
                                         insert_newlines=insert_newlines,source_encoding= encoding,
@@ -553,6 +566,7 @@ class FileTools:
                                cwd=self.get_compiler_resource_folder())
             # TODO generalize this
             compiled_captions_path = self.get_compiled_captions_path(file_data)
+            #TODO make this work for local_temporary_parent_folder
             dest_captions_path = self.get_mod_captions_path(file_data)
             move(compiled_captions_path, dest_captions_path)
             # Let's be nice and also move the uncompiled file to the mod folder
@@ -570,8 +584,7 @@ class FileTools:
     def get_basegame_vpk_path(self):
         return self.get_full_basegame_path() + "\\" + self.vpk_file_name
 
-    def save_file_from_vpk(self,path_in_vpk,path_on_disk):
-        vpk_path = self.get_basegame_vpk_path()
+    def save_file_from_vpk(self,path_in_vpk,path_on_disk,vpk_path):
         if os.path.exists(vpk_path):
             pak = vpk.open(vpk_path)
             pakfile = pak.get_file(path_in_vpk)
@@ -692,6 +705,9 @@ class FileTools:
                 self.write_other_from_patch(file_data)
             if file_data.get('override'):
                 self.backup_basegame_english_other_path(file_data)
+
+        # let's copy the assets again to make sure we got everything
+        self.copy_assets()
 
     ## patch write function
     def write_patch_files(self):

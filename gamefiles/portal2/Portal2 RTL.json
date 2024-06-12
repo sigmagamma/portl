@@ -17,6 +17,11 @@
       "name": "song",
       "max_chars_before_break": 45,
       "total_chars_in_line": 20
+    },
+    {
+      "name": "header_1",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 20
     }
   ],
   "max_chars_before_break": 35,
@@ -40,9 +45,13 @@
     {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
       "encoding": "utf-16"},
         {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "basemodui_scheme","extension": "res","is_captions": false,
-      "encoding": "utf-8"},
+      "encoding": "utf-8","local_temporary_parent_folder":  "update_files"},
     {"name": "portal2","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "portal2","extension": "txt","is_captions": false,
-      "encoding": "utf-16"}
+      "encoding": "utf-16"},
+    {"name": "mainmenu_new","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "mainmenu","extension": "res","is_captions": false,
+      "encoding": "utf-8","vpk_relative_path": "portal2_dlc2\\pak01_dir.vpk","local_temporary_parent_folder":  "game_assets"},
+   {"name": "singleplayer","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "singleplayer","extension": "res","is_captions": false,
+      "encoding": "utf-8","local_temporary_parent_folder":  "game_assets"}
 
   ],
   "vpk_output": true
