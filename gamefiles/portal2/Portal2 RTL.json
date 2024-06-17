@@ -19,9 +19,24 @@
       "total_chars_in_line": 20
     },
     {
+      "name": "mainmenu",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 21
+    },
+    {
       "name": "header_1",
       "max_chars_before_break": 40,
-      "total_chars_in_line": 20
+      "total_chars_in_line": 19
+    },
+    {
+      "name": "chapter",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 24
+    },
+    {
+      "name": "dialogtop",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 14
     }
   ],
   "max_chars_before_break": 35,
@@ -36,7 +51,8 @@
   ],
   "vpk_folders": [
     {"source_folder": "game_assets", "target_folder" : null, "target_name":  "pak01_dir"},
-    {"source_folder": "update_files", "target_folder" : "update", "target_name":  "pak01_dir"}
+    {"source_folder": "update_target", "target_folder" : "update", "target_name":  "pak01_dir",
+    "comment":  "remember to extract the vpk from the game's update folder onto update_target first"}
   ],
   "other_files": [
           {"name": "credits_coop","folder":"scripts\\vscripts\\credits","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "coop_credits","extension": "nut","is_captions": false,"insert_newlines": false,
@@ -44,14 +60,19 @@
   {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": false,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false, "encoding": "utf-8","song_mode": true},
     {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
       "encoding": "utf-16"},
-        {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "basemodui_scheme","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_folder":  "update_files"},
+        {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "basemodui_scheme","extension": "res","is_captions": false,
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "update_target","local_parent_source_folder":  "update_source",
+        "comment":  "remember to put basemodui_scheme.res from the original vpk in update within update_source\\resource"},
     {"name": "portal2","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "portal2","extension": "txt","is_captions": false,
       "encoding": "utf-16"},
+        {"name": "basemodui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "basemodui_english","extension": "txt","is_captions": false,
+      "encoding": "utf-16","local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put basemodui_english.txt from the original portal2_dlc2 in update within portal2_dlc2_source\\resource"},
     {"name": "mainmenu_new","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "mainmenu","extension": "res","is_captions": false,
-      "encoding": "utf-8","vpk_relative_path": "portal2_dlc2\\pak01_dir.vpk","local_temporary_parent_folder":  "game_assets"},
-   {"name": "singleplayer","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "singleplayer","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_folder":  "game_assets"}
+      "encoding": "utf-8","vpk_relative_path": "portal2_dlc2\\pak01_dir.vpk","local_temporary_parent_target_folder":  "game_assets"},
+   {"name": "loadgamedialog","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "loadgamedialog","extension": "res","is_captions": false,
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets"},
+     {"name": "singleplayer","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "singleplayer","extension": "res","is_captions": false,
+      "encoding": "utf-8","vpk_relative_path": "portal2_dlc1\\pak01_dir.vpk","local_temporary_parent_target_folder":  "game_assets"}
 
   ],
   "vpk_output": true

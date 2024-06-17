@@ -427,11 +427,11 @@ class FileTools:
         name = file_data.get('name')
         extension = self.get_dest_extension_else_extension(file_data,use_dest)
         folder = file_data.get('folder')
-        local_temporary_parent_folder = file_data.get('local_temporary_parent_folder')
-        if local_temporary_parent_folder is None:
+        local_temporary_parent_target_folder = file_data.get('local_temporary_parent_target_folder')
+        if local_temporary_parent_target_folder is None:
             target_folder = self.get_mod_subfolder(folder)
         else:
-            target_folder = self.get_gamefiles_folder()+"\\" + local_temporary_parent_folder +"\\"+folder
+            target_folder = self.get_gamefiles_folder()+"\\" + local_temporary_parent_target_folder +"\\"+folder
         return target_folder+"\{}{}.{}".format(name,language,extension)
     def get_localized_suffix(self,file_data,language):
         localized = file_data.get('localized')
@@ -440,6 +440,11 @@ class FileTools:
         return ""
     def get_basegame_english_path(self,file_data,backup_flag):
         folder = self.get_basegame_subfolder(file_data.get('folder'))
+        return self.get_english_path(folder,file_data,backup_flag)
+    def get_local_source_path(self,local_parent_folder,file_data,backup_flag):
+        folder = self.get_gamefiles_folder() + "\\" + local_parent_folder  + "\\" + file_data.get('folder')
+        return self.get_english_path(folder, file_data, backup_flag)
+    def get_english_path(self,folder,file_data,backup_flag):
         language = self.get_localized_suffix(file_data,"english")
         backup = ""
         if backup_flag:
@@ -512,7 +517,8 @@ class FileTools:
         dest_extension = file_data.get('dest_extension')
         insert_newlines = file_data.get('insert_newlines')
         vpk_relative_path = file_data.get('vpk_relative_path')
-        local_temporary_parent_folder = file_data.get('local_temporary_parent_folder')
+        local_parent_source_folder = file_data.get('local_parent_source_folder')
+        local_temporary_parent_target_folder = file_data.get('local_temporary_parent_target_folder')
         if insert_newlines is None:
             insert_newlines = True
         language = self.get_localized_suffix(file_data,'english')
@@ -525,25 +531,27 @@ class FileTools:
                 vpk_path = self.main_path + "\\" + vpk_relative_path
             self.save_file_from_vpk(folder+"/"+name+language+'.'+extension,source_other_path,vpk_path)
         else:
-            basegame_other_path = self.get_basegame_english_other_path(file_data)
-
-            backup_basegame_other_path = self.get_basegame_english_backup_other_path(file_data)
-            if os.path.exists(basegame_other_path):
-                source_other_path = basegame_other_path
-            elif os.path.exists(backup_basegame_other_path):
-                source_other_path = backup_basegame_other_path
+            if local_parent_source_folder is not None:
+                source_other_path = self.get_local_source_path(local_parent_source_folder,file_data,False)
             else:
-                raise Exception(
-                    "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
+                basegame_other_path = self.get_basegame_english_other_path(file_data)
+                backup_basegame_other_path = self.get_basegame_english_backup_other_path(file_data)
+                if os.path.exists(basegame_other_path):
+                    source_other_path = basegame_other_path
+                elif os.path.exists(backup_basegame_other_path):
+                    source_other_path = backup_basegame_other_path
+                else:
+                    raise Exception(
+                        "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
         translated_lines,scene_map = tt.read_translation_from_csv(csv_path,self.gender,self.store)
         encoding = file_data.get('encoding')
         song_mode = file_data.get('song_mode')
         override = file_data.get('override')
         if not override:
-            if local_temporary_parent_folder is None:
+            if local_temporary_parent_target_folder is None:
                 target_folder = self.get_mod_subfolder(folder)
             else:
-                target_folder =  self.get_gamefiles_folder()+"\\" + local_temporary_parent_folder + "\\" + folder
+                target_folder =  self.get_gamefiles_folder()+"\\" + local_temporary_parent_target_folder + "\\" + folder
             if not os.path.exists(target_folder):
                 os.makedirs(target_folder)
         TextTools(source_other_path,dest_other_path,translated_lines,is_captions,
@@ -566,7 +574,7 @@ class FileTools:
                                cwd=self.get_compiler_resource_folder())
             # TODO generalize this
             compiled_captions_path = self.get_compiled_captions_path(file_data)
-            #TODO make this work for local_temporary_parent_folder
+            #TODO make this work for local_temporary_parent_target_folder
             dest_captions_path = self.get_mod_captions_path(file_data)
             move(compiled_captions_path, dest_captions_path)
             # Let's be nice and also move the uncompiled file to the mod folder
