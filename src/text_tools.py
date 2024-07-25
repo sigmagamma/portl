@@ -12,7 +12,7 @@ def is_digit_or_english_with_punctuation(s):
            or re.match('^[\[\]]$',s) is not None
 
 # converts translation into a numbered dictionary
-def read_translation_from_csv(csv_path,gender,store):
+def read_translation_from_csv(csv_path,gender,store,gameos):
     translated_lines = {}
     with open(csv_path, encoding="utf-8-sig") as csvfile:
 
@@ -20,6 +20,10 @@ def read_translation_from_csv(csv_path,gender,store):
         scene_map = {}
         for line in csvreader:
             translated = line.get('actual translation')
+            linux_version = line.get('linux')
+            # lazily supporting only this for now
+            if gameos == 'linux' and translated == 'DELETE' and linux_version == 'KEEP':
+                continue
             if (gender is not None and gender == 'f'):
                 female_version = line.get('female version')
                 if female_version:
@@ -61,9 +65,9 @@ class TextTools:
         self.song_mode = song_mode
 
     # logic for manipulating lines
-    def rearrange_multiple_lines(self,caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False,space_within_phrases=False,song_mode=False):
+    def rearrange_multiple_lines(self,caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False,space_within_phrases=False,song_mode=False,disable_phrase_logic=False):
         is_phrase = False
-        if str(caption).startswith('\"') and (str(caption).endswith('\"') or (str(caption).endswith('\",'))):
+        if ( not disable_phrase_logic ) and str(caption).startswith('\"') and (str(caption).endswith('\"') or (str(caption).endswith('\",'))):
             is_phrase = True
             if space_within_phrases:
                 caption = caption.replace('"', '')
@@ -169,7 +173,7 @@ class TextTools:
                 currentLine = ""
                 counter = 0
 
-            if word != seperator:
+            if word != seperator or insert_newlines is False:
                 currentLine = word + " " + currentLine
         length = len(currentLine)
         if ((not end_with_space) and length != 0 and currentLine[-1] == " "):
@@ -197,6 +201,11 @@ class TextTools:
 
     # calculating parameters for line manipulation and running line manipulation
     def handle_line(self, translated_line, source_line,extra_prefix="",extra_suffix=""):
+        replace_index = translated_line.get('replace_index')
+        if replace_index is None or replace_index == '':
+            replace_index = 0
+        else:
+            replace_index = int(replace_index)
         orig = translated_line['original']
         translated = translated_line.get('actual translation')
         not_reversed = translated_line.get('not reversed')
@@ -207,7 +216,10 @@ class TextTools:
             return source_line
         if orig in source_line:
             if not_reversed:
-                source_line = source_line.replace(orig, not_reversed)
+                if replace_index != 0:
+                    source_line = source_line[0:replace_index] + source_line[replace_index:].replace(orig,not_reversed)
+                else:
+                    source_line = source_line.replace(orig, not_reversed)
                 if self.filters:
                     for filter in self.filters:
                         source_line = source_line.replace(filter, "")
@@ -224,13 +236,23 @@ class TextTools:
                         source_line = source_line.replace(original_speaker, speaker)
                 else:
                     spacing_style = translated_line.get('spacing style')
+                    disable_phrase_logic = False
+                    if translated_line.get('disable_phrase_logic') == "TRUE":
+                        disable_phrase_logic = True
                     max_chars_before_break = None
                     total_chars_in_line = None
                     space_within_phrases = False
                     insert_newlines = self.insert_newlines
                     if translated_line.get('insert newline') == "FALSE":
                         insert_newlines = False
+                    if translated_line.get('insert newline') == "TRUE":
+                        insert_newlines = True
                     if spacing_style is not None:
+                      if "," in spacing_style:
+                        spacings = str(spacing_style).split(",")
+                        max_chars_before_break = int(spacings[0])
+                        total_chars_in_line = int(spacings[1])
+                      else:
                         for spacing in self.text_spacings:
                             if spacing.get('name') == spacing_style:
                                 max_chars_before_break = spacing.get('max_chars_before_break')
@@ -239,8 +261,12 @@ class TextTools:
                     new_line = self.rearrange_multiple_lines(translated, max_chars_before_break, total_chars_in_line, self.language,
                                                         "", "\\n", insert_newlines=insert_newlines, end_with_space=False,
                                                         basic_formatting=self.basic_formatting,
-                                                        space_within_phrases=space_within_phrases, song_mode=self.song_mode)
-                source_line = extra_prefix + source_line.replace(orig, new_line) + extra_suffix
+                                                        space_within_phrases=space_within_phrases, song_mode=self.song_mode,disable_phrase_logic=disable_phrase_logic)
+
+                if replace_index != 0:
+                    source_line = extra_prefix + source_line[0:replace_index] + source_line[replace_index:].replace(orig,new_line) + extra_suffix
+                else:
+                    source_line = extra_prefix + source_line.replace(orig, new_line) + extra_suffix
                 if self.filters:
                     for filter in self.filters:
                         source_line = source_line.replace(filter, "")
@@ -265,8 +291,12 @@ class TextTools:
                 j = j+1
                 upsert = self.translated_lines.get("upsert_"+str(j))
                 if upsert:
+                    linetext = upsert.get('linetext')
+                    if linetext is not None:
+                        linetext = linetext.strip()
+                        upsert['linetext'] = linetext
                     upserts.append(upsert)
-                    upsert_lines.add(upsert.get('linetext'))
+                    upsert_lines.add(linetext)
                 else:
                     break
             for source_line in source_file:
@@ -278,12 +308,13 @@ class TextTools:
                 else:
                     # checking line against remaining upserts
                     popped = None
-                    if source_line.strip() in upsert_lines:
+                    source_line_stripped = source_line.strip().replace("\t","        ")
+                    if source_line_stripped in upsert_lines:
                         replaced_with_upserts = True
                         while upserts:
                             upsert = upserts[0]
                             line_text = upsert.get('linetext')
-                            if line_text == source_line.strip():
+                            if line_text == source_line_stripped:
                                 extra_prefix = upsert.get('speaker')
                                 extra_suffix = ""
                                 if extra_prefix == None:
@@ -291,8 +322,9 @@ class TextTools:
                                 else:
                                     extra_prefix = '\t\t"'+extra_prefix +'"\t\t"'
                                     extra_suffix = '"'
-                                upsert_line = source_line
-                                upsert_line = self.handle_line(upsert,upsert_line,extra_prefix=extra_prefix,extra_suffix=extra_suffix)
+                                upsert_line = self.handle_line(upsert,source_line_stripped,extra_prefix=extra_prefix,extra_suffix=extra_suffix)
+
+                                upsert_line = upsert_line + "\n"
                                 dest_file.write(upsert_line)
                                 popped = upserts.pop(0)
                                 if upsert.get('multi') != 'TRUE':

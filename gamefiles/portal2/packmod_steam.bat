@@ -4,6 +4,7 @@ del /s /q  gamefiles\portal2\dist
 mkdir gamefiles\portal2\dist
 del /s /q  gamefiles\portal2\generic
 mkdir gamefiles\portal2\generic
+mkdir gamefiles\portal2\generic\update
 del /s /q gamefiles\portal2\bin
 mkdir gamefiles\portal2\bin
 
@@ -16,9 +17,8 @@ set nsisbinpath="C:\Program Files (x86)\NSIS\Bin"
 call gamefiles\portal2\uninstallmod_steam.bat
 for %%I in (glados mabsuta) do call gamefiles\portal2\packmod_generic.bat %%I
 for %%I in (cfg scripts resource media maps) do robocopy "%modpath%\%%I" gamefiles\portal2\generic\portal2_dlc3\%%I /e
-%nsisbinpath%\GenPat.exe  "C:\projects\portalhebrew\gamefiles\portal2\pak01_dir_orig.vpk" "C:\Program Files (x86)\Steam\steamapps\common\Portal 2\update\pak01_dir.vpk"  C:\projects\portalhebrew\gamefiles\portal2\update\pak01_dir.vpk.patch /R
+copy "%modpath%..\update\pak01_dir.vpk" gamefiles\portal2\generic\update\pak01_dir.vpk
 copy "%modpath%\portl.txt" gamefiles\portal2\generic\portal2_dlc3\portl.txt
-copy "%modpath%\pak01_dir.vpk"  gamefiles\portal2\generic\portal2_dlc3\pak01_dir.vpk
 
 cd gamefiles\portal2
 %nsisbinpath%\makensis.exe portal2.nsi

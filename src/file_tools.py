@@ -1,9 +1,10 @@
+import datetime
 import math
 import os
 import sys
 import time
 import winreg
-from shutil import copyfile,copy,rmtree
+from shutil import copyfile,copy,rmtree,copytree
 from os import path
 from distutils.dir_util import copy_tree
 import vpk
@@ -29,7 +30,7 @@ def move_tree(src, dst):
     copy_tree(src, dst)
     rmtree(src)
 class FileTools:
-    def __init__(self, game_filename,language,gender=None,store='Steam',unattended=False):
+    def __init__(self, game_filename,language,gender=None,store='Steam',unattended=False,gameos='WIN'):
 
         if (game_filename is not None):
             with open(self.get_patch_gamedata(game_filename),'r') as game_data_file:
@@ -38,10 +39,7 @@ class FileTools:
                     self.game = data['game']
 
                     # OS details
-                    self.os = data.get('os')
-                    if self.os != 'WIN':
-                        raise Exception(
-                            "currently only Windows is supported")
+                    self.gameos = gameos
 
                     # game path
                     self.game_parent_path = None
@@ -88,6 +86,8 @@ class FileTools:
                         self.gender_textures = []
                     self.additional_folders = data.get('additional_folders')
                     self.vpk_folders = data.get('vpk_folders')
+                    if self.vpk_folders is None:
+                        self.vpk_folders = []
                     self.additional_configuration = data.get('additional_configuration')
                     if self.additional_folders is None:
                         self.additional_folders = []
@@ -163,6 +163,8 @@ class FileTools:
                         self.text_spacings = []
                     self.speech_folder = data.get('speech_folder')
                     self.scene_folder = data.get('scene_folder')
+                    self.filter_files = data.get('filter_files')
+                    self.filter_out_files = data.get('filter_out_files')
 
     ##Steam/Epic logic
 
@@ -428,8 +430,12 @@ class FileTools:
         extension = self.get_dest_extension_else_extension(file_data,use_dest)
         folder = file_data.get('folder')
         local_temporary_parent_target_folder = file_data.get('local_temporary_parent_target_folder')
-        if local_temporary_parent_target_folder is None:
+        alternative_parent_target_folder = file_data.get('alternative_parent_target_folder')
+
+        if local_temporary_parent_target_folder is None and alternative_parent_target_folder is None:
             target_folder = self.get_mod_subfolder(folder)
+        elif alternative_parent_target_folder is not None:
+            target_folder = self.get_full_game_path() + "\\" + alternative_parent_target_folder + "\\" + folder
         else:
             target_folder = self.get_gamefiles_folder()+"\\" + local_temporary_parent_target_folder +"\\"+folder
         return target_folder+"\{}{}.{}".format(name,language,extension)
@@ -543,7 +549,7 @@ class FileTools:
                 else:
                     raise Exception(
                         "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
-        translated_lines,scene_map = tt.read_translation_from_csv(csv_path,self.gender,self.store)
+        translated_lines,scene_map = tt.read_translation_from_csv(csv_path, self.gender, self.store, self.gameos)
         encoding = file_data.get('encoding')
         song_mode = file_data.get('song_mode')
         override = file_data.get('override')
@@ -626,8 +632,15 @@ class FileTools:
         for vpk_details in self.vpk_folders:
             source_folder = vpk_details.get('source_folder')
             target_name = vpk_details.get('target_name')
-            src_path = self.get_patch_file_path(source_folder)
-            vpk_created = vpk.NewVPK(src_path)
+            temp_src_path =  self.get_patch_file_path("temp_vpk")
+            rmtree(temp_src_path,ignore_errors=True)
+            copytree(self.get_patch_file_path(source_folder),temp_src_path)
+            if self.gender is not None:
+                gender_path = self.get_patch_file_path(self.gender + "_" + source_folder)
+                if os.path.exists(gender_path):
+                    copytree(gender_path,temp_src_path,dirs_exist_ok=True)
+
+            vpk_created = vpk.NewVPK(temp_src_path)
             target_folder = vpk_details.get('target_folder')
             if target_folder == None:
                 target_folder = self.mod_folder
@@ -635,6 +648,7 @@ class FileTools:
                 target_folder = self.main_path + "/" + target_folder
             vpk_created.version = 1
             vpk_created.save(target_folder+"/"+target_name+".vpk")
+            rmtree(temp_src_path)
         #TODO handle gender textures for vpk
     def get_mod_cfg_folder(self):
         return self.mod_folder + "\cfg"
@@ -663,9 +677,10 @@ class FileTools:
     def get_original_localization_lang(self):
         src_config_path = self.get_basegame_cfg_path('config.cfg')
         lang = self.get_lang_from_cfg(src_config_path)
-        # using a non-official localization as the language to override was a mistake
+        # using a non-official localization as the language to override in old versions was a mistake
         # might not be able to correct it, but can avenge it
-        if lang == '' or lang == 'hebrew':
+        # dfd_english is some sort of bizzare override from mods
+        if lang == '' or lang == 'hebrew' or lang == 'dfd_English':
             lang = 'english'
         return lang
 
@@ -694,6 +709,10 @@ class FileTools:
         self.copy_assets()
 
         for file_data in self.other_files:
+            if self.filter_files and file_data.get('name') not in self.filter_files:
+                continue
+            if self.filter_out_files and file_data.get('name') in self.filter_out_files:
+                continue
             file_store = file_data.get('store')
             if file_store and file_store != self.store:
                 continue
@@ -716,7 +735,7 @@ class FileTools:
 
         # let's copy the assets again to make sure we got everything
         self.copy_assets()
-
+        print(datetime.datetime.now())
     ## patch write function
     def write_patch_files(self):
         self.create_mod_folders()

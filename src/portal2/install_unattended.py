@@ -5,12 +5,20 @@ from src import legacy_backup_tools as lbt
 # def hebrew_ltr_install():
 #     ft = FileTools("gamefiles/portal2/Portal2.json", "hebrew", "m",store="Steam",unattended=True)
 #     ft.write_files()
-def steam_glados():
+def steam_glados_WIN():
     ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", "m",store="Steam",unattended=True)
     ft.write_files()
 
-def steam_mabsuta():
+def steam_mabsuta_WIN():
     ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", "f",store="Steam",unattended=True)
+    ft.write_files()
+
+def steam_glados_linux():
+    ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", "m",store="Steam",unattended=True,gameos="linux")
+    ft.write_files()
+
+def steam_mabsuta_linux():
+    ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", "f",store="Steam",unattended=True,gameos="linux")
     ft.write_files()
 
 def steam_uninstall():
