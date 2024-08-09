@@ -1,6 +1,6 @@
 {
   "shortname": "portal2",
-  "version": "0.9.4-beta",
+  "version": "0.9.4",
   "game": "Portal 2",
   "basegame": "portal2",
   "steam_main_folder": "Portal 2",
@@ -51,7 +51,7 @@
     {
       "name": "chapter_subtitle",
       "max_chars_before_break": 40,
-      "total_chars_in_line": 38
+      "total_chars_in_line": 35
     },
     {
       "name": "dialogtop",

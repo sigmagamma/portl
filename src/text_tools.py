@@ -21,14 +21,17 @@ def read_translation_from_csv(csv_path,gender,store,gameos):
         for line in csvreader:
             translated = line.get('actual translation')
             linux_version = line.get('linux')
-            # lazily supporting only this for now
-            if gameos == 'linux' and translated == 'DELETE' and linux_version == 'KEEP':
+            # lazily supporting only cancelling or not reversed for linux
+            if gameos == 'linux' and linux_version == 'KEEP':
                 continue
             if (gender is not None and gender == 'f'):
                 female_version = line.get('female version')
                 if female_version:
                     line['actual translation'] = female_version
             not_reversed = line.get('not reversed')
+            if gameos == 'linux' and linux_version is not None and linux_version != '':
+                not_reversed = linux_version
+                line['not reversed'] = linux_version
             if not translated and not not_reversed:
                 continue
             if store+"_number" in csvreader.fieldnames and line[store+"_number"]:

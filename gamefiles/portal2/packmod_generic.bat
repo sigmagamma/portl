@@ -36,7 +36,10 @@ for %%J in (linux WIN) do (
 
 move "%modpath%resource\subtitles_english.dat" gamefiles\portal2\%robot%\portal2_dlc3\resource
 move "%modpath%resource\subtitles_english.txt" gamefiles\portal2\%robot%\portal2_dlc3\resource
+move "%modpath%resource\portal2_english.txt" gamefiles\portal2\%robot%\portal2_dlc3\resource
+move "%modpath%resource\closecaption_english.dat" gamefiles\portal2\%robot%\portal2_dlc3\resource
+move "%modpath%resource\closecaption_english.txt" gamefiles\portal2\%robot%\portal2_dlc3\resource
+move "%modpath%\..\update\resource\basemodui_tu_english.txt" gamefiles\portal2\%robot%\update\resource
 move "%modpath%pak01_dir.vpk" gamefiles\portal2\%robot%\portal2_dlc3
-copy "%modpath%\..\update\resource\basemodui_tu_english.txt" gamefiles\portal2\%robot%\update\resource
 
 
