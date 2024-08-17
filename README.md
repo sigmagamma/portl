@@ -2,8 +2,9 @@
 Source engine translation framework with support for right-to-left languages.
 
 Currently, Portal, The Stanley Parable (2013) and Black Mesa Arabic are supported.
-Current working branch is [feat-stanley-demo](https://github.com/sigmagamma/portpyinsl/tree/feat-stanley-demo). If you want 
-to start working on a new game, checkout that branch and then create a new one out of it. 
+No current working branch, let's give it some rest. If you want 
+to start working on a new game, checkout master and then create a new one out of it. 
+Portal 2 is working in master.
 Portal is currently working in feat-portal-folder-picker (and the portal release branches),
 Stanley is working in its release branch, untested in feat-black-mesa.
 Snapshot branch for latest Portal release is [portal-0.9.1](https://github.com/sigmagamma/portl/tree/portal-0.9.1)
@@ -12,7 +13,7 @@ see https://github.com/sigmagamma/portl/issues/6 for details on other games.
 
 
 This project was originally created for the Portal 1 Hebrew fan translation, details on which (in Hebrew) you can find 
-here:
+here, including installation:
 
 https://docs.google.com/document/d/1CYy4ddqIiKt0RwiUZftUVhPl0Pv8gTgZl8HHrvQCkF8/edit?usp=sharing
 
@@ -20,7 +21,7 @@ Or in English here:
 
 https://steamcommunity.com/sharedfiles/filedetails/?id=2554472476
 
-Stanley Parable details (in Hebrew):
+Stanley Parable details, including installation (in Hebrew):
 https://docs.google.com/document/d/1lsCQosS-TDPFxHi6mnZCE653AfrbqW5MhDCbnV-U_Ds/edit?usp=sharing
 
 details in English:
@@ -31,17 +32,38 @@ https://docs.google.com/document/d/1Yyc_eQwug51asbru8EZ4m6JrIgBErdMdJhBaW--I6kQ/
 
 ## What this does
 * The program takes translation files and text files for Source games and generates content for the relevant language,
- reversing RTL text if necessary so that the text is readable. Support for right-to-left alignment of the text is limited.
-* The program installs the content into the mod folder. In some cases where the mod cannot override the base game folder 
-the file in the base game folder is moved to a backup.
-* The installer also allows removing the mod and restoring the backup
-* The installer doubles as a tool to generate the required content for easier installation later.
-* The installer now copies the folders "materials" and "sound" to the mod folder
+ reversing RTL text if necessary so that the text is readable. Support for right-to-left alignment of the text works for
+ some of the games.
+* The program installs the content into the mod folder, and sometimes overwrites existing content.
+* Installers and zips are generated using batch files that rely on the content created using the program.
+* The NSIS installer also backs up the files that will be overwritten.
 
-## Windows Hebrew installation for Portal
-See releases, also see the guide above.
+## Development setup - Portal 2
+The following part is relevant to developers who want to work on the game translation.
+1. Get Portal 2:
+https://store.steampowered.com/app/620/Portal_2/
+2. Download the Portal 2 Authoring tools (I'm pretty sure that's required)
+3. Install Python 3.11 
+4. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
+5. git clone https://github.com/sigmagamma/portl.git
+6. Open a project in the created folder, create a virtual environment, and install the requirements from 
+requirements.txt. 
+7. You will need a seprately distributed file named The `Portal2 RTL private.json` under gamefiles/portal2 including the 
+link to the translation sheet.
+8. Run copyoriginalsources.bat. Should be run from the folder above gamefiles. 
+9. Get GCFScape. https://nemstools.github.io/pages/GCFScape-Download.html
+10. Go over `Portal2 RTL.json`, and look for the files which have a "local_parent_source_folder" field. create those folders under gamefiles\portal2, and then copy the files from the vpks using gcfscape as instructed there.
+11. Patch the game in Windows using the release and get bin\vguimatsurface.dll, put it in gamefiles\portal2. Then uninstall the patch.
+12. Put the windows vids under media, and the linux media files under linux\media
+13. Put all relevant textures under game_assets\materials. Put "Glados" variant textures under m_game_assets\materials, and Mabsuta variant textures under m_game_assets
+14. Extract update\pak1_dir.vpk to gamefiles\portal2\update_target
+15. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. 
+`portal2/install_unattended.py` has the various installation functions. Make sure the working directory is above gamefiles.
+16. packmod_steam.bat (again, run from one dir above gamefiles) produces the installation files and zips. it uses portal2.nsi which is the NSIS installer configuration, and 7-zip which should be in "c:\Program Files\7-Zip\7z.exe"
 
-## Development setup - Portal
+When in doubt, verify game files from Steam and start over. 
+## Development setup - Portal 1
+The following part is relevant to developers who want to work on the game translation.
 1. Get Portal: 
 https://store.steampowered.com/app/400/Portal/
 2. Install Python 3.11 
@@ -61,7 +83,7 @@ the game to work.
 9. If you want to work on the right-aligned version, follow similar instructions with 
 `install_portal_2007_heb_win_rtl.py`,  and see additional procedure below.
 
-## Right alignment instructions
+## Right alignment instructions - Portal 1
 This branch contains code that supports right alignment for the captions (not for the song). For this to work correctly:
 The installer that does this is `install_portal_2007_heb_win_rtl.py`.
 
@@ -74,12 +96,12 @@ This process is required as the game does not support native right to left align
 the font for Hebrew characters.
 
 
-# creating releases
+# creating releases - Portal 1
 
 packmod_2007.bat and packmod_rtx currently pack zip files, and also exes using pyinstaller.
 The spec files define pyinstaller behavior
 
-Pyinstaller is a very fragile solution that's currently working on a crutch. We plan on replacing it with NSIS.
+Pyinstaller is a very fragile solution that's currently working on a crutch. It is repla
 If you still want to make pyinstaller work, Use this guide:
 https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resolved-b33842bd3184
 
@@ -151,19 +173,26 @@ in the chosen language - if not, try manually applying the following settings in
 the game-specific json is an attempt to centralize all localization-related configuration into a single file.
 Rather than use conditional logic based on game within the code, we keep all related properties for each game
 within that file.
+Configuration grew a lot in portal 2,
 
 * game -  name of the game main folder . example "Portal"
 * shortname - name of the game for versioning
 * version - version of distribution
 * basegame - the name of inner central game folder. example "portal"
-* other_files - files that need translation or reconfiguration from sheets
+* other_files - files that need translation or reconfiguration from sheets (see below)
+* filter_files, filter_out_files - these are lists of file names to include/exclude files, used for debugging
 * max_chars_before_break - This determines the length of each line before portl puts a <cr> to create a new one.
+* total_chars_in_line - this is the total length of the line in order to allow right-alignment.
+* text_spacings - this is a collection of templates with the two properties above for repeated use in the sheets
 * mod_type - for old games like Portal use "custom". For later games use "dlc".
-* os - future use for other OS support
-* vpk_file_name - should be the dir file in the basegame folder.
+* os - sort of deprecated, but keep as WIN in any case
+* vpk_file_name - should be the dir file in the basegame folder. Just the filename.
+* vpk_folders - this tells the program where to build the target VPKs and from what. null target_folder means this will be created in the mod folder.
 * compiler_game_service_path - If the game has no caption compiler, then this is the steam path under which the main game folder is found
 * compiler_game - name of the main folder for the compiler
 * compiler_game_path - additional path after the steam folder and into the basegame folder, such as \\Black Mesa\\bms
+* captions_prefix - This gets prefixed to every subtitle, we use <B> to make Courier New look better
+
 
 other_files reference:
 * name - basic filename without directory, language or suffix
@@ -178,6 +207,8 @@ other_files reference:
 * dest_extension - the target extension, if different 
 * encoding - the source encoding for the game file
 * insert_newlines - are lines separated using a new line
+* local_temporary_parent_target_folder - where to put the target file for VPK packing
+* local_parent_source_folder - with files that are in VPK, we first manually extract them here in order to maintain the base file unchanged
 Deprecated:
 * os - deprecated use to determine how to change configuration in the res file such as text size. 
 * caption_file_name - the prefix for the subtitle file. For example if the file is closecaption_english.txt then this will be "closecaption".
