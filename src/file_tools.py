@@ -1,19 +1,22 @@
+import datetime
 import math
 import os
 import sys
 import time
 import winreg
-from shutil import copyfile,copy,rmtree
+from shutil import copyfile,copy,rmtree,copytree
 from os import path
 from distutils.dir_util import copy_tree
 import vpk
-
+import src.sound_tools as sound_tools
 import src.text_tools as tt
 import subprocess
 import json
 from urllib.request import urlopen
 import tkinter as tk
 from tkinter import filedialog
+
+from src.text_tools import TextTools
 
 REPO = "https://github.com/sigmagamma/portl/"
 # this is required due to AV software flagging shutil.move for some reason
@@ -27,7 +30,7 @@ def move_tree(src, dst):
     copy_tree(src, dst)
     rmtree(src)
 class FileTools:
-    def __init__(self, game_filename,language,gender=None,store='Steam',unattended=False):
+    def __init__(self, game_filename,language,gender=None,store='Steam',unattended=False,gameos='WIN'):
 
         if (game_filename is not None):
             with open(self.get_patch_gamedata(game_filename),'r') as game_data_file:
@@ -36,10 +39,7 @@ class FileTools:
                     self.game = data['game']
 
                     # OS details
-                    self.os = data.get('os')
-                    if self.os != 'WIN':
-                        raise Exception(
-                            "currently only Windows is supported")
+                    self.gameos = gameos
 
                     # game path
                     self.game_parent_path = None
@@ -56,6 +56,7 @@ class FileTools:
                                 path_guess = steam_path + "\\" + steam_main_folder
                     if unattended:
                         file_path = path_guess
+
                     else:
                         if path_guess is None:
                             action_text = "choose"
@@ -69,6 +70,7 @@ class FileTools:
 
                     if os.path.exists(file_path) and os.path.exists(file_path+"\\"+self.basegame):
                         self.main_folder = os.path.basename(file_path)
+                        self.main_path = file_path
                         self.game_parent_path = os.path.dirname(file_path)
                     else:
                         raise Exception("installation cancelled or not a valid game folder")
@@ -83,6 +85,10 @@ class FileTools:
                     if self.gender_textures is None:
                         self.gender_textures = []
                     self.additional_folders = data.get('additional_folders')
+                    self.vpk_folders = data.get('vpk_folders')
+                    if self.vpk_folders is None:
+                        self.vpk_folders = []
+                    self.additional_configuration = data.get('additional_configuration')
                     if self.additional_folders is None:
                         self.additional_folders = []
                     #language details
@@ -123,6 +129,7 @@ class FileTools:
                         self.mod_folder = self.get_custom_folder()
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
+                    self.dlc_compiler = data.get('dlc_compiler')
                     self.not_deletable = data.get('not_deletable')
                     if not self.not_deletable:
                         self.not_deletable = []
@@ -151,6 +158,13 @@ class FileTools:
 
                     # CFG disable
                     self.disable_cfg = data.get('disable_cfg')
+                    self.text_spacings = data.get('text_spacings')
+                    if self.text_spacings is None:
+                        self.text_spacings = []
+                    self.speech_folder = data.get('speech_folder')
+                    self.scene_folder = data.get('scene_folder')
+                    self.filter_files = data.get('filter_files')
+                    self.filter_out_files = data.get('filter_out_files')
 
     ##Steam/Epic logic
 
@@ -263,9 +277,6 @@ class FileTools:
     def get_basegame_cache_path(self):
         return self.get_basegame_cache_folder()+"\_master.cache"
 
-    def get_basegame_resource_folder(self):
-        return self.get_full_basegame_path() + "\\resource"
-
     def get_basegame_subfolder(self,subfolder):
         return self.get_full_basegame_path() + "\\"+subfolder
 
@@ -328,16 +339,11 @@ class FileTools:
         if self.gender is not None:
             gender_text = " " + self.gender
         with open(self.get_mod_version_path(),'w') as file:
-            file.write(self.shortname+"-"+self.version+" "+rtl_text+ " " + self.store + gender_text + "\n"+ REPO)
+            file.write(self.shortname+"-"+self.version+" "+rtl_text+ " " + self.store + gender_text + " " + self.gameos + "\n"+ REPO)
     def create_mod_folders(self):
         cfg_folder = self.get_mod_cfg_folder()
         if not os.path.exists(cfg_folder):
             os.makedirs(cfg_folder)
-        # TODO make this game specific
-        for folder in ['resource','scripts','resource\\ui\\basemodui','ui']:
-            mod_subfolder = self.get_mod_subfolder(folder)
-            if not os.path.exists(mod_subfolder):
-                os.makedirs(mod_subfolder)
         # see here: https://github.com/sigmagamma/portal-text-size-changer
         sizepatch_folder = self.get_sizepatch_custom_folder()
         if os.path.exists(sizepatch_folder):
@@ -348,10 +354,11 @@ class FileTools:
             if (not self.unattended) and not os.path.exists(basegame_cache_path):
                 input("Note: You'll have to start the game, get to the loading screen, wait for a while, and then restart it. Press any key.")
             else:
-                mod_cache_folder = self.get_mod_cache_folder()
-                if not os.path.exists(mod_cache_folder):
-                    os.makedirs(mod_cache_folder)
-                copy(basegame_cache_path,mod_cache_folder)
+                if os.path.exists(basegame_cache_path):
+                    mod_cache_folder = self.get_mod_cache_folder()
+                    if not os.path.exists(mod_cache_folder):
+                        os.makedirs(mod_cache_folder)
+                    copy(basegame_cache_path,mod_cache_folder)
     def remove_mod_folder(self):
         if not os.path.exists(self.mod_folder):
             return
@@ -394,9 +401,15 @@ class FileTools:
         return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'), self.target_language)
 
     def get_compiled_captions_path(self,file_data):
+        if self.dlc_compiler:
+            return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'), self.language)
         return self.get_compiler_resource_folder()+"\{}_{}.dat".format(file_data.get('name'),self.language)
 
     def get_to_compile_text_path(self,file_data):
+        return self.get_compiler_resource_folder()+"\{}_{}.txt".format(file_data.get('name'),self.language)
+    def get_from_compile_text_path(self,file_data):
+        if self.dlc_compiler:
+            return "{}_{}.txt".format(file_data.get('name'),self.language)
         return self.get_compiler_resource_folder()+"\{}_{}.txt".format(file_data.get('name'),self.language)
 
     def get_mod_captions_text_path(self,file_data):
@@ -416,7 +429,16 @@ class FileTools:
         name = file_data.get('name')
         extension = self.get_dest_extension_else_extension(file_data,use_dest)
         folder = file_data.get('folder')
-        return self.get_mod_subfolder(folder)+"\{}{}.{}".format(name,language,extension)
+        local_temporary_parent_target_folder = file_data.get('local_temporary_parent_target_folder')
+        alternative_parent_target_folder = file_data.get('alternative_parent_target_folder')
+
+        if local_temporary_parent_target_folder is None and alternative_parent_target_folder is None:
+            target_folder = self.get_mod_subfolder(folder)
+        elif alternative_parent_target_folder is not None:
+            target_folder = self.get_full_game_path() + "\\" + alternative_parent_target_folder + "\\" + folder
+        else:
+            target_folder = self.get_gamefiles_folder()+"\\" + local_temporary_parent_target_folder +"\\"+folder
+        return target_folder+"\{}{}.{}".format(name,language,extension)
     def get_localized_suffix(self,file_data,language):
         localized = file_data.get('localized')
         if localized:
@@ -424,6 +446,11 @@ class FileTools:
         return ""
     def get_basegame_english_path(self,file_data,backup_flag):
         folder = self.get_basegame_subfolder(file_data.get('folder'))
+        return self.get_english_path(folder,file_data,backup_flag)
+    def get_local_source_path(self,local_parent_folder,file_data,backup_flag):
+        folder = self.get_gamefiles_folder() + "\\" + local_parent_folder  + "\\" + file_data.get('folder')
+        return self.get_english_path(folder, file_data, backup_flag)
+    def get_english_path(self,folder,file_data,backup_flag):
         language = self.get_localized_suffix(file_data,"english")
         backup = ""
         if backup_flag:
@@ -495,34 +522,65 @@ class FileTools:
         is_captions = file_data.get('is_captions')
         dest_extension = file_data.get('dest_extension')
         insert_newlines = file_data.get('insert_newlines')
+        vpk_relative_path = file_data.get('vpk_relative_path')
+        local_parent_source_folder = file_data.get('local_parent_source_folder')
+        local_temporary_parent_target_folder = file_data.get('local_temporary_parent_target_folder')
         if insert_newlines is None:
             insert_newlines = True
         language = self.get_localized_suffix(file_data,'english')
         basic_formatting = file_data.get('basic_formatting')
         if is_on_vpk:
             source_other_path = self.get_patch_other_path(file_data,False)
-            self.save_file_from_vpk(folder+"/"+name+language+'.'+extension,source_other_path)
-        else:
-            basegame_other_path = self.get_basegame_english_other_path(file_data)
-
-            backup_basegame_other_path = self.get_basegame_english_backup_other_path(file_data)
-            if os.path.exists(basegame_other_path):
-                source_other_path = basegame_other_path
-            elif os.path.exists(backup_basegame_other_path):
-                source_other_path = backup_basegame_other_path
+            if vpk_relative_path is None:
+                vpk_path = self.get_basegame_vpk_path()
             else:
-                raise Exception(
-                    "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
-        translated_lines = tt.read_translation_from_csv(csv_path,self.gender,self.store)
+                vpk_path = self.main_path + "\\" + vpk_relative_path
+            self.save_file_from_vpk(folder+"/"+name+language+'.'+extension,source_other_path,vpk_path)
+        else:
+            if local_parent_source_folder is not None:
+                source_other_path = self.get_local_source_path(local_parent_source_folder,file_data,False)
+            else:
+                basegame_other_path = self.get_basegame_english_other_path(file_data)
+                backup_basegame_other_path = self.get_basegame_english_backup_other_path(file_data)
+                if os.path.exists(basegame_other_path):
+                    source_other_path = basegame_other_path
+                elif os.path.exists(backup_basegame_other_path):
+                    source_other_path = backup_basegame_other_path
+                else:
+                    raise Exception(
+                        "file " + basegame_other_path + " or " + backup_basegame_other_path + " don't exist. Verify game files integrity")
+        translated_lines,scene_map = tt.read_translation_from_csv(csv_path, self.gender, self.store, self.gameos)
         encoding = file_data.get('encoding')
-        tt.translate(source_other_path,dest_other_path,translated_lines,is_captions,self.max_chars_before_break,self.total_chars_in_line,self.language,insert_newlines=insert_newlines,source_encoding= encoding,prefix=self.captions_prefix,filters=self.captions_filters,basic_formatting=basic_formatting)
+        song_mode = file_data.get('song_mode')
+        override = file_data.get('override')
+        if not override:
+            if local_temporary_parent_target_folder is None:
+                target_folder = self.get_mod_subfolder(folder)
+            else:
+                target_folder =  self.get_gamefiles_folder()+"\\" + local_temporary_parent_target_folder + "\\" + folder
+            if not os.path.exists(target_folder):
+                os.makedirs(target_folder)
+        TextTools(source_other_path,dest_other_path,translated_lines,is_captions,
+                                         self.max_chars_before_break,self.total_chars_in_line,self.language,
+                                        insert_newlines=insert_newlines,source_encoding= encoding,
+                                         prefix=self.captions_prefix,filters=self.captions_filters,
+                                        basic_formatting=basic_formatting,text_spacings=self.text_spacings,
+                                         song_mode=song_mode).translate()
         if dest_extension:
             to_compile_text_path = self.get_to_compile_text_path(file_data)
+            from_compile_text_path = self.get_from_compile_text_path(file_data)
             move(dest_other_path, to_compile_text_path)
+
             # this works because "translated path" is also the file name of to_compile_text_path
-            subprocess.run([self.compiler_path, to_compile_text_path], cwd=self.get_compiler_resource_folder())
+            if self.dlc_compiler:
+                dlc_folder, dlc_number = self.search_dlc_folders()
+                subprocess.check_output([self.compiler_path, from_compile_text_path,"-d",str(dlc_number)], cwd=self.get_compiler_resource_folder())
+            else:
+                subprocess.run([self.compiler_path, from_compile_text_path],
+                               cwd=self.get_compiler_resource_folder())
             # TODO generalize this
             compiled_captions_path = self.get_compiled_captions_path(file_data)
+            #TODO make this work for local_temporary_parent_target_folder
             dest_captions_path = self.get_mod_captions_path(file_data)
             move(compiled_captions_path, dest_captions_path)
             # Let's be nice and also move the uncompiled file to the mod folder
@@ -530,12 +588,17 @@ class FileTools:
             move(to_compile_text_path, dest_captions_text_path)
         if is_on_vpk:
             os.remove(source_other_path)
+        if scene_map:
+            for scene_filename,scene in scene_map.items():
+                speech_folder = self.get_mod_subfolder(self.speech_folder)
+                source_scene_filename = os.path.join(self.get_basegame_subfolder(self.scene_folder),scene_filename)
+                target_scene_filename = os.path.join(self.get_mod_subfolder(self.scene_folder),scene_filename)
+                sound_tools.rewrite_scene(speech_folder,source_scene_filename,target_scene_filename,scene)
 
     def get_basegame_vpk_path(self):
         return self.get_full_basegame_path() + "\\" + self.vpk_file_name
 
-    def save_file_from_vpk(self,path_in_vpk,path_on_disk):
-        vpk_path = self.get_basegame_vpk_path()
+    def save_file_from_vpk(self,path_in_vpk,path_on_disk,vpk_path):
         if os.path.exists(vpk_path):
             pak = vpk.open(vpk_path)
             pakfile = pak.get_file(path_in_vpk)
@@ -560,13 +623,33 @@ class FileTools:
             src_path = self.get_patch_file_path(filename)
             if os.path.exists(src_path):
                 copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
-        if (not patch) and self.gender is not None:
+        if (not patch) and self.gender is not None and 'materials' in self.additional_folders:
             for texture in self.gender_textures:
                 gender_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+"_"+self.gender+".vtf"
                 if os.path.exists(gender_texture_path):
                     dest_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+".vtf"
                     move(gender_texture_path,dest_texture_path)
+        for vpk_details in self.vpk_folders:
+            source_folder = vpk_details.get('source_folder')
+            target_name = vpk_details.get('target_name')
+            temp_src_path =  self.get_patch_file_path("temp_vpk")
+            rmtree(temp_src_path,ignore_errors=True)
+            copytree(self.get_patch_file_path(source_folder),temp_src_path)
+            if self.gender is not None:
+                gender_path = self.get_patch_file_path(self.gender + "_" + source_folder)
+                if os.path.exists(gender_path):
+                    copytree(gender_path,temp_src_path,dirs_exist_ok=True)
 
+            vpk_created = vpk.NewVPK(temp_src_path)
+            target_folder = vpk_details.get('target_folder')
+            if target_folder == None:
+                target_folder = self.mod_folder
+            else:
+                target_folder = self.main_path + "/" + target_folder
+            vpk_created.version = 1
+            vpk_created.save(target_folder+"/"+target_name+".vpk")
+            rmtree(temp_src_path)
+        #TODO handle gender textures for vpk
     def get_mod_cfg_folder(self):
         return self.mod_folder + "\cfg"
 
@@ -594,17 +677,21 @@ class FileTools:
     def get_original_localization_lang(self):
         src_config_path = self.get_basegame_cfg_path('config.cfg')
         lang = self.get_lang_from_cfg(src_config_path)
-        # using a non-official localization as the language to override was a mistake
+        # using a non-official localization as the language to override in old versions was a mistake
         # might not be able to correct it, but can avenge it
-        if lang == '' or lang == 'hebrew':
+        # dfd_english is some sort of bizzare override from mods
+        if lang == '' or lang == 'hebrew' or lang == 'dfd_English':
             lang = 'english'
         return lang
 
     def write_autoexec_cfg(self):
+        #TODO move this to spreadsheet
         with open(self.get_mod_cfg_path('autoexec.cfg'), 'w') as file:
             file.write('cc_subtitles "1"\n')
             file.write('cc_lang "' + self.target_language + '"\n')
-            file.write('closecaption "1"')
+            file.write('closecaption "1"' + '"\n')
+            if self.additional_configuration:
+                file.write(self.additional_configuration)
 
     def get_csv_from_url(self,filename,url):
         response = urlopen(url)
@@ -618,8 +705,14 @@ class FileTools:
         self.create_mod_folders()
         if (not self.disable_cfg):
             self.write_autoexec_cfg()
+        # need to copy assets first since scenes are based on sounds
+        self.copy_assets()
 
         for file_data in self.other_files:
+            if self.filter_files and file_data.get('name') not in self.filter_files:
+                continue
+            if self.filter_out_files and file_data.get('name') in self.filter_out_files:
+                continue
             file_store = file_data.get('store')
             if file_store and file_store != self.store:
                 continue
@@ -639,8 +732,10 @@ class FileTools:
                 self.write_other_from_patch(file_data)
             if file_data.get('override'):
                 self.backup_basegame_english_other_path(file_data)
-        self.copy_assets()
 
+        # let's copy the assets again to make sure we got everything
+        self.copy_assets()
+        print(datetime.datetime.now())
     ## patch write function
     def write_patch_files(self):
         self.create_mod_folders()
