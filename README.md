@@ -45,7 +45,7 @@ https://store.steampowered.com/app/620/Portal_2/
 2. Download the Portal 2 Authoring tools from Steam. Otherwise compilation will fail later.
 3. Install Python 3.11 
 4. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/). Notice to install the community edition.
-5. git clone https://github.com/sigmagamma/portl.git. Don't use subfolders that have spaces in them.
+5. git clone https://github.com/sigmagamma/portl.git. Don't use target folders that have spaces in them.
 6. Open a project in the created folder, create a virtual environment, and install the requirements from 
 requirements.txt. 
 7. You will need a seprately distributed file named The `Portal2 RTL private.json` under gamefiles/portal2 including the 
