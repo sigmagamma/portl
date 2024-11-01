@@ -101,7 +101,7 @@ the font for Hebrew characters.
 packmod_2007.bat and packmod_rtx currently pack zip files, and also exes using pyinstaller.
 The spec files define pyinstaller behavior
 
-Pyinstaller is a very fragile solution that's currently working on a crutch. It is repla
+Pyinstaller is a very fragile solution that's currently working on a crutch. It is replaced with NSIS in recent releases.
 If you still want to make pyinstaller work, Use this guide:
 https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resolved-b33842bd3184
 
