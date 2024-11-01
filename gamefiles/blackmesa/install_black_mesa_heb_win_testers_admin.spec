@@ -9,8 +9,8 @@ a = Analysis(
     pathex=['..\\..\\'],
     binaries=[],
     datas=[
-    ('Black Mesa Hebrew.json', 'src\gamefiles\\blackmesa'),
-    ('Black Mesa Hebrew private.json', 'src\gamefiles\\blackmesa')],
+    ('Black Mesa Hebrew RTL.json', 'src\gamefiles\\blackmesa'),
+    ('Black Mesa Hebrew RTL private.json', 'src\gamefiles\\blackmesa')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

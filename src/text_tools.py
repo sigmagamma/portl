@@ -36,7 +36,7 @@ def read_translation_from_csv(csv_path,gender,store,gameos):
                 continue
             if store+"_number" in csvreader.fieldnames and line[store+"_number"]:
                 line['number'] = line[store+"_number"]
-            if line['number'] is not None:
+            if line.get('number') is not None:
                 translated_lines[line['number']] = line
             scene = line.get('scene')
             if scene is not None and scene != '':
