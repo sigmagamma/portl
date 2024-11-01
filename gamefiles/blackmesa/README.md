@@ -6,7 +6,7 @@ https://store.steampowered.com/app/362890/Black_Mesa/
 2. Install Python 3.11 
 3. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/). Notice to install the community edition.
 4. git clone https://github.com/sigmagamma/portl.git . Don't use target folders that have spaces in them.
-5. Open a project in the created folder, create a virtual environment, switch to branch feat-infraת and install the requirements from 
+5. Open a project in the created folder, create a virtual environment, switch to branch feat-infra, and install the requirements from 
 requirements.txt. 
 6. You will need a separately distributed file named The `gamefiles/blackmesa/Black Mesa Hebrew RTL private.json` including the 
 link to the translation sheet.
