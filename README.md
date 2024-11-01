@@ -42,15 +42,15 @@ https://docs.google.com/document/d/1Yyc_eQwug51asbru8EZ4m6JrIgBErdMdJhBaW--I6kQ/
 The following part is relevant to developers who want to work on the game translation.
 1. Get Portal 2:
 https://store.steampowered.com/app/620/Portal_2/
-2. Download the Portal 2 Authoring tools (I'm pretty sure that's required)
+2. Download the Portal 2 Authoring tools from Steam. Otherwise compilation will fail later.
 3. Install Python 3.11 
-4. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/)
-5. git clone https://github.com/sigmagamma/portl.git
+4. Get an IDE for editing python such as [Pycharm](https://www.jetbrains.com/pycharm/). Notice to install the community edition.
+5. git clone https://github.com/sigmagamma/portl.git. Don't use subfolders that have spaces in them.
 6. Open a project in the created folder, create a virtual environment, and install the requirements from 
 requirements.txt. 
 7. You will need a seprately distributed file named The `Portal2 RTL private.json` under gamefiles/portal2 including the 
 link to the translation sheet.
-8. Run copyoriginalsources.bat. Should be run from the folder above gamefiles. 
+8. Run copyoriginalsources.bat. Should be run from the folder above gamefiles (the main project folder)
 9. Get GCFScape. https://nemstools.github.io/pages/GCFScape-Download.html
 10. Go over `Portal2 RTL.json`, and look for the files which have a "local_parent_source_folder" field. create those folders under gamefiles\portal2, and then copy the files from the vpks using gcfscape as instructed there.
 11. Patch the game in Windows using the release and get bin\vguimatsurface.dll, put it in gamefiles\portal2. Then uninstall the patch.
@@ -58,8 +58,9 @@ link to the translation sheet.
 13. Put all relevant textures under game_assets\materials. Put "Glados" variant textures under m_game_assets\materials, and Mabsuta variant textures under m_game_assets
 14. Extract update\pak1_dir.vpk to gamefiles\portal2\update_target
 15. `text_tools.py` contains the text transformation logic, while `file_tools.py` contains filesystem logistics. 
-`portal2/install_unattended.py` has the various installation functions. Make sure the working directory is above gamefiles.
-16. packmod_steam.bat (again, run from one dir above gamefiles) produces the installation files and zips. it uses portal2.nsi which is the NSIS installer configuration, and 7-zip which should be in "c:\Program Files\7-Zip\7z.exe"
+`portal2/install_unattended.py` has the various installation functions - **this creates the mod folder and patches existing folders**. Create a run configuration for this, Make sure the working directory is the main project folder (above gamefiles), and run it.
+16. If the run fails, add the line "gameguid": "e3503975-ec67-4485-82bf-2a23baa1e8ba" to the properties in `Portal2 RTL.json`. 
+17. packmod_steam.bat (again, run from one dir above gamefiles) produces the installation files and zips. it uses portal2.nsi which is the NSIS installer configuration, and 7-zip which should be in "c:\Program Files\7-Zip\7z.exe"
 
 When in doubt, verify game files from Steam and start over. 
 ## Development setup - Portal 1
