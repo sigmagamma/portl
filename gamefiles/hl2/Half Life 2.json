@@ -1,0 +1,32 @@
+{
+  "shortname": "hl2",
+  "version": "0.9.5",
+  "game": "Portal 2",
+  "basegame": "hl2",
+  "steam_main_folder": "Half-Life 2",
+
+  "captions_prefix": "<B>",
+  "text_spacings": [
+  ],
+  "max_chars_before_break": 35,
+  "mod_type": "custom",
+  "dlc_compiler" : false,
+  "os" : "WIN",
+  "vpk_file_name": "pak01_dir.vpk",
+
+  "additional_folders": [
+  ],
+  "vpk_folders": [
+  ],
+
+  "filter_files": [],
+  "filter_out_files": [],
+  "other_files": [
+  {"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "closecaption","extension": "txt","dest_extension":"dat","is_captions": true,
+      "encoding": "utf-16"},
+
+  {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "clientscheme","extension": "res","is_captions": false,
+      "encoding": "utf-8","alternative_parent_source_folder":  "hl2_complete"}
+  ],
+  "vpk_output": false
+}

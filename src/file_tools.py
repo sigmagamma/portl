@@ -450,6 +450,11 @@ class FileTools:
     def get_local_source_path(self,local_parent_folder,file_data,backup_flag):
         folder = self.get_gamefiles_folder() + "\\" + local_parent_folder  + "\\" + file_data.get('folder')
         return self.get_english_path(folder, file_data, backup_flag)
+    def get_alternative_source_path(self,alternative_parent_folder,file_data,backup_flag):
+        folder = self.get_full_game_path() + "\\" + alternative_parent_folder  + "\\" + file_data.get('folder')
+        return self.get_english_path(folder, file_data, backup_flag)
+
+
     def get_english_path(self,folder,file_data,backup_flag):
         language = self.get_localized_suffix(file_data,"english")
         backup = ""
@@ -524,6 +529,7 @@ class FileTools:
         insert_newlines = file_data.get('insert_newlines')
         vpk_relative_path = file_data.get('vpk_relative_path')
         local_parent_source_folder = file_data.get('local_parent_source_folder')
+        alternative_parent_source_folder = file_data.get('alternative_parent_source_folder')
         local_temporary_parent_target_folder = file_data.get('local_temporary_parent_target_folder')
         if insert_newlines is None:
             insert_newlines = True
@@ -539,6 +545,8 @@ class FileTools:
         else:
             if local_parent_source_folder is not None:
                 source_other_path = self.get_local_source_path(local_parent_source_folder,file_data,False)
+            elif alternative_parent_source_folder is not None:
+                source_other_path = self.get_alternative_source_path(alternative_parent_source_folder, file_data, False)
             else:
                 basegame_other_path = self.get_basegame_english_other_path(file_data)
                 backup_basegame_other_path = self.get_basegame_english_backup_other_path(file_data)
