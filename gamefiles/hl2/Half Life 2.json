@@ -1,7 +1,7 @@
 {
   "shortname": "hl2",
   "version": "0.9.5",
-  "game": "Portal 2",
+  "game": "Half Life 2",
   "basegame": "hl2",
   "steam_main_folder": "Half-Life 2",
 
@@ -9,6 +9,7 @@
   "text_spacings": [
   ],
   "max_chars_before_break": 35,
+  "total_chars_in_line": 43,
   "mod_type": "custom",
   "dlc_compiler" : false,
   "os" : "WIN",
@@ -26,7 +27,9 @@
       "encoding": "utf-16"},
 
   {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "clientscheme","extension": "res","is_captions": false,
-      "encoding": "utf-8","alternative_parent_source_folder":  "hl2_complete"}
+      "encoding": "utf-8","local_parent_source_folder":  "hl2_complete_source",
+    "alternative_parent_target_folder": "hl2_complete"
+  }
   ],
   "vpk_output": false
 }

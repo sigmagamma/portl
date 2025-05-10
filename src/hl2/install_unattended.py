@@ -6,7 +6,7 @@ def steam_install():
     ft.write_files()
 
 def steam_uninstall():
-    ft = FileTools("gamefiles/portal2/Half Life 2.json","uarabic", store="Steam",unattended=True)
+    ft = FileTools("gamefiles/hl2/Half Life 2.json","uarabic", store="Steam",unattended=True)
     ft.remove_mod()
 
 if __name__ == '__main__':
