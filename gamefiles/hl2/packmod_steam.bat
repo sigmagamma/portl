@@ -17,11 +17,10 @@ call gamefiles\hl2\uninstallmod_steam.bat
 
 
 venv\Scripts\python.exe -c "from src.hl2.install_unattended import steam_install;steam_install()"
-
-robocopy "%modpath%\resource" gamefiles\hl2\custom\portl\resource /e
+robocopy "%modpath%\resource" gamefiles\hl2\hl2\custom\portl\resource /e
+robocopy "%modpath%\cfg" gamefiles\hl2\hl2\custom\portl\cfg /e
 copy "%completepath%resource\clientscheme.res" gamefiles\hl2\hl2_complete\resource\clientscheme.res
 copy "%modpath%\portl.txt" gamefiles\hl2\hl2\portl.txt
-
 cd gamefiles\hl2
 %nsisbinpath%\makensis.exe hl2.nsi
 move hl2-arabic-installer.exe dist
