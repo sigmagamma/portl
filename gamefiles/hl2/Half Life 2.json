@@ -6,6 +6,7 @@
   "steam_main_folder": "Half-Life 2",
 
   "captions_prefix": "<B>",
+  "captions_filters": ["<I>"],
   "text_spacings": [
   ],
   "max_chars_before_break": 35,
@@ -29,7 +30,8 @@
   {"name": "clientscheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "clientscheme","extension": "res","is_captions": false,
       "encoding": "utf-8","local_parent_source_folder":  "hl2_complete_source",
     "alternative_parent_target_folder": "hl2_complete"
-  }
+  },
+     {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": false,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false, "encoding": "utf-8","song_mode": true}
   ],
   "vpk_output": false
 }
