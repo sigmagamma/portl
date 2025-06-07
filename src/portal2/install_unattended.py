@@ -8,6 +8,9 @@ from src import legacy_backup_tools as lbt
 def steam_glados_WIN():
     ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", "m",store="Steam",unattended=True)
     ft.write_files()
+def arabic_steam_glados_WIN():
+    ft = FileTools("gamefiles/portal2/Portal2 RTL Arabic.json", "uarabic", "m",store="Steam",unattended=True)
+    ft.write_files()
 
 def steam_mabsuta_WIN():
     ft = FileTools("gamefiles/portal2/Portal2 RTL.json", "hebrew", "f",store="Steam",unattended=True)
