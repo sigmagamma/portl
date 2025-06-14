@@ -50,8 +50,8 @@
     },
     {
       "name": "chapter_subtitle",
-      "max_chars_before_break": 40,
-      "total_chars_in_line": 35
+      "max_chars_before_break": 41,
+      "total_chars_in_line": 36
     },
     {
       "name": "dialogtop",
@@ -87,7 +87,7 @@
     "media", "maps"
   ],
   "vpk_folders": [
-    {"source_folder": "game_assets", "target_folder" : null, "target_name":  "pak01_dir"},
+    {"source_folder": "game_assets_arabic", "target_folder" : null, "target_name":  "pak01_dir"},
     {"source_folder": "update_target",  "target_folder" : "update", "target_name":  "pak01_dir",
     "comment":  "remember to extract the update vpk from the game's update folder onto update_target first"}
   ],
@@ -114,31 +114,31 @@
       "encoding": "utf-16",  "insert_newlines":  false,"alternative_parent_target_folder":  "update","local_parent_source_folder":  "update_source",
         "comment":  "remember to put basemodui_tu_english.txt from the original update\\resource folder within update_source\\resource"},
     {"name": "mainmenu_new","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "mainmenu","extension": "res","is_captions": false,
-      "encoding": "utf-8","vpk_relative_path": "portal2_dlc2\\pak01_dir.vpk","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false},
+      "encoding": "utf-8","vpk_relative_path": "portal2_dlc2\\pak01_dir.vpk","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false},
    {"name": "loadgamedialog","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "loadgamedialog","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false},
      {"name": "singleplayer","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "singleplayer","extension": "res","is_captions": false,
-      "encoding": "utf-8","vpk_relative_path": "portal2_dlc1\\pak01_dir.vpk","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false},
+      "encoding": "utf-8","vpk_relative_path": "portal2_dlc1\\pak01_dir.vpk","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false},
      {"name": "options","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "options","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false},
       {"name": "audio","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "audio","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false},
       {"name": "keyboardmouse","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "keyboardmouse","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false},
       {"name": "video","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "video","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false,"local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put video.res from the original portal2_dlc2\\pak01_dir.vpk within portal2_dlc2_source\\resource\\ui\\basemodui"},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false,"local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put video.res from the original portal2_dlc2\\pak01_dir.vpk within portal2_dlc2_source\\resource\\ui\\basemodui"},
 
       {"name": "extras","folder":"scripts","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "extras","extension": "txt","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false,"local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put extras.txt from the original portal2_dlc2\\pak01_dir.vpk within portal2_dlc2_source\\scripts"},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false,"local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put extras.txt from the original portal2_dlc2\\pak01_dir.vpk within portal2_dlc2_source\\scripts"},
      {"name": "kb_act","folder":"scripts","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "kb_act","extension": "lst","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false,"local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put kb_act.lst from the original portal2_dlc2\\pak01_dir.vpk within portal2_dlc2_source\\scripts"},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false,"local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put kb_act.lst from the original portal2_dlc2\\pak01_dir.vpk within portal2_dlc2_source\\scripts"},
 
     {"name": "gameui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "gameui","extension": "txt","is_captions": false,
       "encoding": "utf-16","insert_newlines": false},
     {"name": "coopmode","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "coopmode","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false,"local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put coopmode.res from the original portal2_dlc2\\pak01_dir.vpk within portal2_dlc2_source\\resource\\ui\\basemodui"},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false,"local_parent_source_folder":  "portal2_dlc2_source",  "comment":  "remember to put coopmode.res from the original portal2_dlc2\\pak01_dir.vpk within portal2_dlc2_source\\resource\\ui\\basemodui"},
       {"name": "advancedvideo","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": true, "translation_sheet": "advancedvideo","extension": "res","is_captions": false,
-      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets","insert_newlines": false},
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "game_assets_arabic","insert_newlines": false},
      {"name": "ingamemainmenu","folder":"resource/ui/basemodui","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "ingamemainmenu","extension": "res","is_captions": false,
       "encoding": "utf-8","insert_newlines": false,"local_temporary_parent_target_folder":  "update_target","local_parent_source_folder":  "update_source",
      "comment":  "remember to put ingamemainmenu.res from the original vpk in update within update_source\\resource\\ui\\basemodui"},

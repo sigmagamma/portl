@@ -1,0 +1,112 @@
+{
+  "shortname": "portal2",
+  "version": "0.9.6",
+  "game": "Portal 2",
+  "basegame": "portal2",
+  "steam_main_folder": "Portal 2",
+
+  "captions_prefix": "<B>",
+  "text_spacings": [
+    {
+      "name": "cheaptitles",
+      "max_chars_before_break": 26,
+      "total_chars_in_line": 34
+    },
+
+    {
+      "name": "song",
+      "max_chars_before_break": 45,
+      "total_chars_in_line": 20
+    },
+    {
+      "name": "mainmenu",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 21
+    },
+    {
+      "name": "header_1",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 19
+    },
+    {
+      "name": "keys",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 20
+    },
+        {
+      "name": "keys_titles",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 18
+    },
+    {
+      "name": "wide_menu",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 21
+    },
+    {
+      "name": "chapter",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 27
+    },
+    {
+      "name": "chapter_subtitle",
+      "max_chars_before_break": 41,
+      "total_chars_in_line": 36
+    },
+    {
+      "name": "dialogtop",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 14
+    },
+        {
+      "name": "confirmation",
+      "max_chars_before_break": 23,
+      "total_chars_in_line": 30
+    }
+    ,
+        {
+      "name": "belowimage",
+      "max_chars_before_break": 16,
+      "total_chars_in_line": 18
+    },
+
+    {
+      "name": "puzzlemenu",
+      "max_chars_before_break": 40,
+      "total_chars_in_line": 16
+    }
+  ],
+  "max_chars_before_break": 35,
+  "total_chars_in_line": 43,
+  "mod_type": "dlc",
+  "dlc_compiler" : true,
+  "os" : "WIN",
+  "vpk_file_name": "pak01_dir.vpk",
+
+  "additional_folders": [
+    "media", "maps"
+  ],
+  "vpk_folders": [
+    {"source_folder": "update_target",  "target_folder" : "update", "target_name":  "pak01_dir",
+    "comment":  "remember to extract the update vpk from the game's update folder onto update_target first"}
+  ],
+
+  "filter_files": [],
+  "filter_out_files": [],
+  "other_files": [
+          {"name": "credits_coop","folder":"scripts\\vscripts\\credits","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "coop_credits","extension": "nut","is_captions": false,"insert_newlines": false,
+      "encoding": "utf-8"},
+  {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": false,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false, "encoding": "utf-8","song_mode": true},
+    {"name": "subtitles","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "subtitles","extension": "txt","dest_extension":"dat","is_captions": true,
+      "encoding": "utf-16"},
+       {"name": "closecaption","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "closecaption","extension": "txt","dest_extension":"dat","is_captions": true,
+      "encoding": "utf-16"},
+        {"name": "basemodui_scheme","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "basemodui_scheme","extension": "res","is_captions": false,
+      "encoding": "utf-8","local_temporary_parent_target_folder":  "update_target","local_parent_source_folder":  "update_source",
+        "comment":  "remember to put basemodui_scheme.res from the original update\\pak01_dir.vpk within update_source\\resource"},
+    {"name": "portal2","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "portal2","extension": "txt","is_captions": false,
+      "encoding": "utf-16"}
+
+  ],
+  "vpk_output": true
+}
