@@ -31,7 +31,22 @@
       "encoding": "utf-8","local_parent_source_folder":  "hl2_complete_source",
     "alternative_parent_target_folder": "hl2_complete"
   },
-     {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": false,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false, "encoding": "utf-8","song_mode": true}
+     {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": false,"translation_sheet": "credits","extension": "txt","is_captions": false,"insert_newlines": false, "encoding": "utf-8","song_mode": true},
+
+    {"name": "gameui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "gameui","extension": "txt","is_captions": false,
+      "encoding": "utf-16","insert_newlines": false},
+
+    {"name": "valve","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "valve","extension": "txt","is_captions": false,
+      "encoding": "utf-16","insert_newlines": false},
+
+    {"name": "lostcoast","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "lostcoast","extension": "txt","is_captions": false,
+      "encoding": "utf-16","insert_newlines": false, "alternative_parent_source_folder":"lostcoast"},
+
+    {"name": "ep2","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "ep2","extension": "txt","is_captions": false,
+      "encoding": "utf-16","insert_newlines": false, "alternative_parent_source_folder":"ep2"},
+
+    {"name": "episodic","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "episodic","extension": "txt","is_captions": false,
+      "encoding": "utf-16","insert_newlines": false, "alternative_parent_source_folder":"episodic"}
   ],
   "vpk_output": false
 }
