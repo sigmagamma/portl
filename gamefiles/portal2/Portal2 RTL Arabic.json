@@ -10,7 +10,7 @@
     {
       "name": "cheaptitles",
       "max_chars_before_break": 26,
-      "total_chars_in_line": 34
+      "total_chars_in_line": 55
     },
 
     {
@@ -84,7 +84,7 @@
   "vpk_file_name": "pak01_dir.vpk",
 
   "additional_folders": [
-    "media", "maps"
+    "maps"
   ],
   "vpk_folders": [
     {"source_folder": "game_assets_arabic", "target_folder" : null, "target_name":  "pak01_dir"},
