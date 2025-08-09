@@ -92,7 +92,7 @@
     "comment":  "remember to extract the update vpk from the game's update folder onto update_target first"}
   ],
 
-  "filter_files": ["basemodui","basemodui_scheme"],
+  "filter_files": [],
   "filter_out_files": [],
   "other_files": [
           {"name": "credits_coop","folder":"scripts\\vscripts\\credits","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "coop_credits","extension": "nut","is_captions": false,"insert_newlines": false,
