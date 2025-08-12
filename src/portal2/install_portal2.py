@@ -5,12 +5,11 @@ def install_portal2(filename,language,store,sheet,patch):
         if answer in ['y','u']:
             print('Please select folder. This may appear in a separate window.')
         if answer == 'y':
-            if sheet:
-                ft = FileTools(filename, language,sheet=sheet,store=store)
-                if patch:
-                    ft.write_patch_files()
-                else:
-                    ft.write_files()
+            ft = FileTools(filename, language, sheet=sheet, store=store)
+            if patch:
+                ft.write_patch_files()
+            else:
+                ft.write_files()
         elif answer == 'u':
             ft = FileTools(filename,language,store=store)
             ft.remove_mod()
