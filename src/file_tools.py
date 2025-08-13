@@ -30,7 +30,7 @@ def move_tree(src, dst):
     copy_tree(src, dst)
     rmtree(src)
 class FileTools:
-    def __init__(self, game_filename,language,gender=None,store='Steam',unattended=False,gameos='WIN'):
+    def __init__(self, game_filename,language,gender=None,store='Steam',sheet=None,unattended=False,gameos='WIN'):
 
         if (game_filename is not None):
             with open(self.get_patch_gamedata(game_filename),'r') as game_data_file:
@@ -163,7 +163,10 @@ class FileTools:
                         self.text_spacings = []
                     self.speech_folder = data.get('speech_folder')
                     self.scene_folder = data.get('scene_folder')
-                    self.filter_files = data.get('filter_files')
+                    if sheet:
+                        self.filter_files = [sheet]
+                    else:
+                        self.filter_files = data.get('filter_files')
                     self.filter_out_files = data.get('filter_out_files')
 
     ##Steam/Epic logic
@@ -437,7 +440,7 @@ class FileTools:
         elif alternative_parent_target_folder is not None:
             target_folder = self.get_full_game_path() + "\\" + alternative_parent_target_folder + "\\" + folder
         else:
-            target_folder = self.get_gamefiles_folder()+"\\" + local_temporary_parent_target_folder +"\\"+folder
+            target_folder = self.get_local_temporary_target_folder(file_data)
         return target_folder+"\{}{}.{}".format(name,language,extension)
     def get_localized_suffix(self,file_data,language):
         localized = file_data.get('localized')
@@ -449,7 +452,18 @@ class FileTools:
         return self.get_english_path(folder,file_data,backup_flag)
     def get_local_source_path(self,local_parent_folder,file_data,backup_flag):
         folder = self.get_gamefiles_folder() + "\\" + local_parent_folder  + "\\" + file_data.get('folder')
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            folder = path.abspath(path.join(path.dirname(__file__), folder))
         return self.get_english_path(folder, file_data, backup_flag)
+
+    def get_local_temporary_target_folder(self, file_data):
+        local_parent_target_folder = file_data.get('local_temporary_parent_target_folder')
+        folder = self.get_gamefiles_folder() + "\\" + local_parent_target_folder  + "\\" + file_data.get('folder')
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            folder = path.abspath(path.join(path.dirname(__file__), folder))
+        return folder
+
+
     def get_alternative_source_path(self,alternative_parent_folder,file_data,backup_flag):
         folder = self.get_full_game_path() + "\\" + alternative_parent_folder  + "\\" + file_data.get('folder')
         return self.get_english_path(folder, file_data, backup_flag)
@@ -565,7 +579,7 @@ class FileTools:
             if local_temporary_parent_target_folder is None:
                 target_folder = self.get_mod_subfolder(folder)
             else:
-                target_folder =  self.get_gamefiles_folder()+"\\" + local_temporary_parent_target_folder + "\\" + folder
+                target_folder = self.get_local_temporary_target_folder(file_data)
             if not os.path.exists(target_folder):
                 os.makedirs(target_folder)
         TextTools(source_other_path,dest_other_path,translated_lines,is_captions,
