@@ -30,7 +30,7 @@ def move_tree(src, dst):
     copy_tree(src, dst)
     rmtree(src)
 class FileTools:
-    def __init__(self, game_filename,language,gender=None,store='Steam',unattended=False,gameos='WIN'):
+    def __init__(self, game_filename,language,gender=None,store='Steam',sheet=None,unattended=False,gameos='WIN'):
 
         if (game_filename is not None):
             with open(self.get_patch_gamedata(game_filename),'r') as game_data_file:
@@ -165,7 +165,10 @@ class FileTools:
                         self.text_spacings = []
                     self.speech_folder = data.get('speech_folder')
                     self.scene_folder = data.get('scene_folder')
-                    self.filter_files = data.get('filter_files')
+                    if sheet:
+                        self.filter_files = [sheet]
+                    else:
+                        self.filter_files = data.get('filter_files')
                     self.filter_out_files = data.get('filter_out_files')
 
     ##Steam/Epic logic
