@@ -129,6 +129,8 @@ class FileTools:
                         self.mod_folder = self.get_custom_folder()
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
+                    # elif mod_type == 'sourcemod':
+                    #     self.mod_folder = self.get_sourcemod_folder()
                     self.dlc_compiler = data.get('dlc_compiler')
                     self.not_deletable = data.get('not_deletable')
                     if not self.not_deletable:

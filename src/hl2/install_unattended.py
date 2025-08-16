@@ -5,6 +5,10 @@ def steam_install():
     ft = FileTools("gamefiles/hl2/Half Life 2.json", "uarabic", "m",store="Steam",unattended=True)
     ft.write_files()
 
+def steam_install_testers():
+    ft = FileTools("gamefiles/hl2/Half Life 2 testers.json", "uarabic", "m",store="Steam",unattended=True)
+    ft.write_files()
+
 def steam_uninstall():
     ft = FileTools("gamefiles/hl2/Half Life 2.json","uarabic", store="Steam",unattended=True)
     ft.remove_mod()
