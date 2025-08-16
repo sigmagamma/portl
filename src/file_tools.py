@@ -129,8 +129,8 @@ class FileTools:
                         self.mod_folder = self.get_custom_folder()
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
-                    elif mod_type == 'sourcemod':
-                        self.mod_folder = self.get_sourcemod_folder()
+                    # elif mod_type == 'sourcemod':
+                    #     self.mod_folder = self.get_sourcemod_folder()
                     self.dlc_compiler = data.get('dlc_compiler')
                     self.not_deletable = data.get('not_deletable')
                     if not self.not_deletable:
@@ -299,13 +299,6 @@ class FileTools:
                 return folder,dlc_seq
         return None,dlc_seq
     def get_dlc_folder(self):
-        folder,number = self.search_dlc_folders()
-        if folder is not None:
-            return folder
-        number = number + 1
-        return self.get_full_basegame_path() + "_dlc" + str(number)
-
-    def get_sourcemod_folder(self):
         folder,number = self.search_dlc_folders()
         if folder is not None:
             return folder
