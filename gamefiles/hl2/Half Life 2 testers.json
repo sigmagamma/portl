@@ -36,7 +36,7 @@
       "encoding": "utf-16","insert_newlines": false},
 
     {"name": "valve","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "valve","extension": "txt","is_captions": false,
-      "encoding": "utf-16","insert_newlines": false},
+      "encoding": "utf-16","insert_newlines": false,"local_parent_source_folder":"hl2_source","alternative_parent_target_folder": "hl2"},
 
     {"name": "lostcoast","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "lostcoast","extension": "txt","is_captions": false,
       "encoding": "utf-16","insert_newlines": false, "local_parent_source_folder":"lostcoast_source","alternative_parent_target_folder": "lostcoast"},
@@ -47,7 +47,14 @@
     {"name": "episodic","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "episodic","extension": "txt","is_captions": false,
       "encoding": "utf-16","insert_newlines": false, "local_parent_source_folder":"episodic_source","alternative_parent_target_folder": "episodic"},
    {"name": "vgui","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "vgui","extension": "txt","is_captions": false,
-      "encoding": "utf-16","insert_newlines": false, "local_parent_source_folder":"platform_source","alternative_parent_target_folder": "platform"}
+      "encoding": "utf-16","insert_newlines": false, "local_parent_source_folder":"platform_source","alternative_parent_target_folder": "platform"},
+
+  {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true, "vpk_relative_path": "episodic\\ep1_pak_dir.vpk","translation_sheet": "credits_ep1","extension": "txt","is_captions": false,
+  "encoding": "utf-8","insert_newlines": false, "alternative_parent_target_folder": "episodic"},
+
+  {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true, "vpk_relative_path": "ep2\\ep2_pak_dir.vpk","translation_sheet": "credits_ep2","extension": "txt","is_captions": false,
+  "encoding": "utf-8","insert_newlines": false, "alternative_parent_target_folder": "ep2"}
+
 
 
   ],

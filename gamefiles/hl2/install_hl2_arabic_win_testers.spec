@@ -32,6 +32,7 @@ exe = EXE(
     Tree('lostcoast_source', prefix='src\\gamefiles\\hl2\\lostcoast_source\\'),
     Tree('episodic_source', prefix='src\\gamefiles\\hl2\\episodic_source\\'),
     Tree('platform_source', prefix='src\\gamefiles\\hl2\\platform_source\\'),
+    Tree('hl2_source', prefix='src\\gamefiles\\hl2\\hl2_source\\'),
     a.zipfiles,
     a.datas,
     [],

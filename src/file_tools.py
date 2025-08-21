@@ -465,11 +465,11 @@ class FileTools:
             folder = path.abspath(path.join(path.dirname(__file__), folder))
         return folder
 
-
-    def get_alternative_source_path(self,alternative_parent_folder,file_data,backup_flag):
-        folder = self.get_full_game_path() + "\\" + alternative_parent_folder  + "\\" + file_data.get('folder')
+    def get_alternative_parent_folder(self, alternative_parent_folder, file_data):
+        return self.get_full_game_path() + "\\" + alternative_parent_folder  + "\\" + file_data.get('folder')
+    def get_alternative_parent_path(self, alternative_parent_folder, file_data, backup_flag):
+        folder = self.get_alternative_parent_folder(alternative_parent_folder,file_data)
         return self.get_english_path(folder, file_data, backup_flag)
-
 
     def get_english_path(self,folder,file_data,backup_flag):
         language = self.get_localized_suffix(file_data,"english")
@@ -547,6 +547,8 @@ class FileTools:
         local_parent_source_folder = file_data.get('local_parent_source_folder')
         alternative_parent_source_folder = file_data.get('alternative_parent_source_folder')
         local_temporary_parent_target_folder = file_data.get('local_temporary_parent_target_folder')
+        alternative_parent_target_folder = file_data.get('alternative_parent_target_folder')
+
         if insert_newlines is None:
             insert_newlines = True
         language = self.get_localized_suffix(file_data,'english')
@@ -562,7 +564,7 @@ class FileTools:
             if local_parent_source_folder is not None:
                 source_other_path = self.get_local_source_path(local_parent_source_folder,file_data,False)
             elif alternative_parent_source_folder is not None:
-                source_other_path = self.get_alternative_source_path(alternative_parent_source_folder, file_data, False)
+                source_other_path = self.get_alternative_parent_path(alternative_parent_source_folder, file_data, False)
             else:
                 basegame_other_path = self.get_basegame_english_other_path(file_data)
                 backup_basegame_other_path = self.get_basegame_english_backup_other_path(file_data)
@@ -578,10 +580,12 @@ class FileTools:
         song_mode = file_data.get('song_mode')
         override = file_data.get('override')
         if not override:
-            if local_temporary_parent_target_folder is None:
-                target_folder = self.get_mod_subfolder(folder)
-            else:
+            if local_temporary_parent_target_folder is not None:
                 target_folder = self.get_local_temporary_target_folder(file_data)
+            elif alternative_parent_target_folder is not None:
+                target_folder = self.get_alternative_parent_folder(alternative_parent_target_folder,file_data)
+            else:
+                target_folder = self.get_mod_subfolder(folder)
             if not os.path.exists(target_folder):
                 os.makedirs(target_folder)
         TextTools(source_other_path,dest_other_path,translated_lines,is_captions,
