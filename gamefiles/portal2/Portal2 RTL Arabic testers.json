@@ -51,7 +51,7 @@
     {
       "name": "chapter_subtitle",
       "max_chars_before_break": 41,
-      "total_chars_in_line": 36
+      "total_chars_in_line": 35
     },
     {
       "name": "dialogtop",
