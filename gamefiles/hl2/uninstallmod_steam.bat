@@ -18,6 +18,7 @@ copy gamefiles\hl2\ep2_source\resource\ep2_english.txt "%ep2path%\resource\ep2_e
 copy gamefiles\hl2\episodic_source\resource\episodic_english.txt "%episodicpath%\resource\episodic_english.txt"
 copy gamefiles\hl2\platform_source\resource\vgui_english.txt "%platformpath%\resource\vgui_english.txt"
 copy gamefiles\hl2\hl2_source\resource\valve_english.txt "%hl2path%\resource\valve_english.txt"
+copy gamefiles\hl2\hl2_source\resource\valve_english.txt "%hl2path%\resource\hl2_english.txt"
 del /s /q "%ep2path%\scripts
 rmdir "%ep2path%\scripts
 del /s /q "%episodicpath%\scripts"

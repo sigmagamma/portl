@@ -53,8 +53,12 @@
   "encoding": "utf-8","insert_newlines": false, "alternative_parent_target_folder": "episodic"},
 
   {"name": "credits","folder":"scripts","localized": false,"override": false,"is_on_vpk": true, "vpk_relative_path": "ep2\\ep2_pak_dir.vpk","translation_sheet": "credits_ep2","extension": "txt","is_captions": false,
-  "encoding": "utf-8","insert_newlines": false, "alternative_parent_target_folder": "ep2"}
+  "encoding": "utf-8","insert_newlines": false, "alternative_parent_target_folder": "ep2"},
 
+  {"name": "hl2","folder":"resource","localized": true,"override": false,"is_on_vpk": false, "translation_sheet": "hl2","extension": "txt","is_captions": false,
+  "encoding": "utf-16","insert_newlines": false,"local_parent_source_folder":"hl2_source","alternative_parent_target_folder": "hl2"},
+ {"name": "OptionsSubMouse","folder":"resource","localized": false,"override": false,"is_on_vpk": false, "translation_sheet": "OptionsSubMouse","extension": "res","is_captions": false,
+  "encoding": "utf-8","insert_newlines": false}
 
 
   ],
