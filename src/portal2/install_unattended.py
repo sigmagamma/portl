@@ -11,6 +11,9 @@ def steam_glados_WIN():
 def arabic_steam_glados_WIN():
     ft = FileTools("gamefiles/portal2/Portal2 RTL Arabic.json", "uarabic", "m",store="Steam",unattended=True)
     ft.write_files()
+def arabic_steam_glados_linux():
+    ft = FileTools("gamefiles/portal2/Portal2 RTL Arabic.json", "uarabic", "m",store="Steam",unattended=True,gameos="linux")
+    ft.write_files()
 
 def arabic_steam_glados_WIN_testers():
     ft = FileTools("gamefiles/portal2/Portal2 RTL Arabic testers.json", "uarabic", "m", store="Steam", unattended=True)
