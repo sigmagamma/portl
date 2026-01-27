@@ -170,6 +170,7 @@ class FileTools:
                     else:
                         self.filter_files = data.get('filter_files')
                     self.filter_out_files = data.get('filter_out_files')
+                    self.closecaption_mode = data.get('closecaption_mode')
 
     ##Steam/Epic logic
 
@@ -717,7 +718,10 @@ class FileTools:
         with open(self.get_mod_cfg_path('autoexec.cfg'), 'w') as file:
             file.write('cc_subtitles "1"\n')
             file.write('cc_lang "' + self.target_language + '"\n')
-            file.write('closecaption "1"' + '"\n')
+            cc_value = "1"
+            if self.closecaption_mode:
+                cc_value = self.closecaption_mode
+            file.write('closecaption "' + cc_value + '"\n')
             if self.additional_configuration:
                 file.write(self.additional_configuration)
 
