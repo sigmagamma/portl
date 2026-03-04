@@ -169,6 +169,9 @@ in the chosen language - if not, try manually applying the following settings in
 (runnable by using \`): `cc_lang uarabic` and `cc_subtitles 1` . Notice that reapplying the patch requires a restart of 
 9. the game to work.
 
+## Additional notes
+* The template here: https://github.com/sigmagamma/portl/blob/main/gamefiles/portal/Portal%20translation%20-%20closecaption%20-%20template.csv is a template for a sheet in a Google Sheets instance which would be addressed in the json file. You can look at the json files in the game folders - such as this one for Portal - https://github.com/sigmagamma/portl/blob/main/gamefiles/portal/Portal%202007%20RTL.json -  to understand how sheets are addressed. A single Google Sheets instance can contain multiple sheets for several game files.
+* Additionally, you will need to tell portl where the Google sheets instance is. This is done using an additional json, which has the same name as the first one, with the suffix private, so for instance "Portal 2007 RTL private.json". This json would have a single property called "translation_url", which will contain the sheet url in the format "https://docs.google.com/spreadsheets/d/id/gviz/tq?tqx=out:csv&sheet=", where "id" is the sheet id. 
 
 ## Configuration reference
 the game-specific json is an attempt to centralize all localization-related configuration into a single file.
