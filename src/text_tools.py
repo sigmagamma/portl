@@ -320,12 +320,16 @@ class TextTools:
                             line_text = upsert.get('linetext')
                             if line_text == source_line_stripped:
                                 extra_prefix = upsert.get('speaker')
-                                extra_suffix = ""
+                                extra_suffix = upsert.get('suffix')
                                 if extra_prefix == None:
                                     extra_prefix = ""
                                 else:
                                     extra_prefix = '\t\t"'+extra_prefix +'"\t\t"'
-                                    extra_suffix = '"'
+                                if extra_suffix == None:
+                                    extra_suffix = ""
+                                else:
+                                    extra_suffix = '\t\t"'+extra_suffix +'"'
+
                                 upsert_line = self.handle_line(upsert,source_line_stripped,extra_prefix=extra_prefix,extra_suffix=extra_suffix)
 
                                 upsert_line = upsert_line + "\n"
