@@ -115,6 +115,7 @@ class FileTools:
                         self.compiler_game_parent_path = self.game_parent_path
                         self.compiler_basegame_path = self.basegame_path
                         self.compiler_main_folder = self.main_folder
+                    self.p2ce_compiler = data.get('p2ce_compiler')
                     self.compiler_path = self.get_compiler_path()
                     # self.english_captions_text_path = data.get('english_captions_text_path')
                     # if self.english_captions_text_path is None:
@@ -125,10 +126,14 @@ class FileTools:
                     # mod folder logic
                     mod_type = data.get('mod_type')
                     self.mod_type = mod_type
+                    self.anchor_not_reversed_punctuation = mod_type == 'p2ce'
+                    self.p2ce_addons_folder = data.get('p2ce_addons_folder')
                     if mod_type == 'custom':
                         self.mod_folder = self.get_custom_folder()
                     elif mod_type == 'dlc':
                         self.mod_folder = self.get_dlc_folder()
+                    elif mod_type == 'p2ce':
+                        self.mod_folder = self.get_p2ce_mod_folder()
                     # elif mod_type == 'sourcemod':
                     #     self.mod_folder = self.get_sourcemod_folder()
                     self.dlc_compiler = data.get('dlc_compiler')
@@ -312,6 +317,9 @@ class FileTools:
     def get_custom_folder(self):
         return self.get_custom_parent_folder()+"\portl"
 
+    def get_p2ce_mod_folder(self):
+        return self.p2ce_addons_folder + "\portl"
+
     def get_sizepatch_custom_folder(self):
         return self.get_custom_parent_folder()+"\sizepatch"
 
@@ -398,18 +406,24 @@ class FileTools:
         return self.compiler_game_parent_path + self.compiler_basegame_path + "\\resource"
 
     def get_compiler_path(self):
+        if self.p2ce_compiler:
+            return self.p2ce_compiler
         return self.compiler_game_parent_path + \
                "\{}\\bin\captioncompiler.exe".format(self.compiler_main_folder)
 
     ## Close Captions logic
 
     def get_mod_captions_path(self,file_data):
-        return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'), self.target_language)
+        extension = "kv3" if self.p2ce_compiler else "dat"
+        return self.get_mod_resource_folder() + "\{}_{}.{}".format(file_data.get('name'), self.target_language, extension)
 
     def get_compiled_captions_path(self,file_data):
+        extension = "kv3" if self.p2ce_compiler else "dat"
+        if self.p2ce_compiler:
+            return os.path.dirname(self.compiler_path) + "\{}_{}.{}".format(file_data.get('name'), self.language, extension)
         if self.dlc_compiler:
-            return self.get_mod_resource_folder() + "\{}_{}.dat".format(file_data.get('name'), self.language)
-        return self.get_compiler_resource_folder()+"\{}_{}.dat".format(file_data.get('name'),self.language)
+            return self.get_mod_resource_folder() + "\{}_{}.{}".format(file_data.get('name'), self.language, extension)
+        return self.get_compiler_resource_folder()+"\{}_{}.{}".format(file_data.get('name'),self.language, extension)
 
     def get_to_compile_text_path(self,file_data):
         return self.get_compiler_resource_folder()+"\{}_{}.txt".format(file_data.get('name'),self.language)
@@ -594,14 +608,27 @@ class FileTools:
                                         insert_newlines=insert_newlines,source_encoding= encoding,
                                          prefix=self.captions_prefix,filters=self.captions_filters,
                                         basic_formatting=basic_formatting,text_spacings=self.text_spacings,
-                                         song_mode=song_mode).translate()
+                                         song_mode=song_mode,
+                                         anchor_not_reversed_punctuation=self.anchor_not_reversed_punctuation).translate()
         if dest_extension:
             to_compile_text_path = self.get_to_compile_text_path(file_data)
             from_compile_text_path = self.get_from_compile_text_path(file_data)
             move(dest_other_path, to_compile_text_path)
 
             # this works because "translated path" is also the file name of to_compile_text_path
-            if self.dlc_compiler:
+            if self.p2ce_compiler:
+                compiler_cmd = [self.compiler_path, from_compile_text_path]
+
+                # Some external p2ce compiler scripts end with interactive read/pause.
+                # DEVNULL makes stdin EOF immediately so the process won't wait.
+                subprocess.run(
+                    compiler_cmd,
+                    cwd=os.path.dirname(self.compiler_path),
+                    stdin=subprocess.DEVNULL,
+                    shell=True,
+                    check=True
+                )
+            elif self.dlc_compiler:
                 dlc_folder, dlc_number = self.search_dlc_folders()
                 subprocess.check_output([self.compiler_path, from_compile_text_path,"-d",str(dlc_number)], cwd=self.get_compiler_resource_folder())
             else:
