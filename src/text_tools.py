@@ -12,6 +12,24 @@ def is_digit_or_english_with_punctuation(s):
            or re.match('^[!.?,،\'\]]{1,}[\da-zA-Z\u0660-\u0669]+(?:-[\da-zA-Z\u0660-\u0669])*[!.?,،\'\]]{1,}$',s) \
            or re.match('^[\[\]]$',s) is not None
 
+PUNCT = r'[!.?،؟؛\u061f\u061b]'
+RLM = '\u200f'
+LRM = '\u200e'
+
+def _direction_mark_for_language(language):
+    if language in ('hebrew', 'uarabic'):
+        return RLM
+    return LRM
+
+def anchor_not_reversed_punctuation(text, language='hebrew'):
+    mark = _direction_mark_for_language(language)
+    escaped_mark = re.escape(mark)
+    return re.sub(
+        rf'({PUNCT})(?!{escaped_mark})(\s*)$',
+        rf'\1{mark}\2',
+        text,
+    )
+
 # converts translation into a numbered dictionary
 def read_translation_from_csv(csv_path,gender,store,gameos):
     translated_lines = {}
@@ -52,7 +70,8 @@ def read_translation_from_csv(csv_path,gender,store,gameos):
 class TextTools:
     def __init__(self, source, dest, translated_lines, is_captions, max_chars_before_break,
                  total_chars_in_line, language, source_encoding, prefix="",insert_newlines=True,
-                 filters=None,basic_formatting=False,text_spacings=[],song_mode=False):
+                 filters=None,basic_formatting=False,text_spacings=[],song_mode=False,
+                 anchor_not_reversed_punctuation=False):
         self.source = source
         self.dest = dest
         self.translated_lines = translated_lines
@@ -67,6 +86,7 @@ class TextTools:
         self.basic_formatting = basic_formatting
         self.text_spacings = text_spacings
         self.song_mode = song_mode
+        self.anchor_not_reversed_punctuation = anchor_not_reversed_punctuation
 
     # logic for manipulating lines
     def rearrange_multiple_lines(self,caption,max_chars,total_chars,language,prefix="",seperator="<cr>",insert_newlines=True,end_with_space=True,basic_formatting=False,space_within_phrases=False,song_mode=False,disable_phrase_logic=False):
@@ -204,7 +224,7 @@ class TextTools:
 
 
     # calculating parameters for line manipulation and running line manipulation
-    def handle_line(self, translated_line, source_line,extra_prefix="",extra_suffix=""):
+    def handle_line(self, translated_line, source_line, extra_prefix="",extra_suffix=""):
         replace_index = translated_line.get('replace_index')
         if replace_index is None or replace_index == '':
             replace_index = 0
@@ -220,6 +240,11 @@ class TextTools:
             return source_line
         if orig in source_line:
             if not_reversed:
+                # Ugly "in" hack
+                if self.is_captions and orig != not_reversed and self.prefix not in not_reversed:
+                    not_reversed = self.prefix + not_reversed
+                if self.anchor_not_reversed_punctuation:
+                    not_reversed = anchor_not_reversed_punctuation(not_reversed, self.language)
                 if replace_index != 0:
                     source_line = source_line[0:replace_index] + source_line[replace_index:].replace(orig,not_reversed)
                 else:
@@ -308,7 +333,7 @@ class TextTools:
                 replaced_with_upserts = False
                 translated_line = self.translated_lines.get(str(i))
                 if translated_line is not None:
-                    source_line = self.handle_line(translated_line,source_line)
+                    source_line = self.handle_line(translated_line, source_line)
                 else:
                     # checking line against remaining upserts
                     popped = None
