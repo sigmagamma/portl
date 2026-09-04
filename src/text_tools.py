@@ -126,7 +126,7 @@ class TextTools:
                     word = get_display(word)
                 counter += len(shortword) + 1
             # italicize logic - we wrap each word in italic tags from the moment an italic appears until it doesn't
-            if basic_formatting:
+            if basic_formatting and language == "uarabic":
                 if word == "<I>":
                     continue
                 word = word.replace("<I>", "")
@@ -344,16 +344,14 @@ class TextTools:
                             upsert = upserts[0]
                             line_text = upsert.get('linetext')
                             if line_text == source_line_stripped:
+                                #TODO for black mesa, the default extra suffix is "", or '\t\t"'+extra_suffix +'"' if it's filled
                                 extra_prefix = upsert.get('speaker')
-                                extra_suffix = upsert.get('suffix')
+                                extra_suffix = ""
                                 if extra_prefix == None:
                                     extra_prefix = ""
                                 else:
                                     extra_prefix = '\t\t"'+extra_prefix +'"\t\t"'
-                                if extra_suffix == None:
-                                    extra_suffix = ""
-                                else:
-                                    extra_suffix = '\t\t"'+extra_suffix +'"'
+                                    extra_suffix = '"'
 
                                 upsert_line = self.handle_line(upsert,source_line_stripped,extra_prefix=extra_prefix,extra_suffix=extra_suffix)
 

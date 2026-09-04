@@ -24,4 +24,22 @@ robocopy gamefiles\portal2\game_assets_arabic\media gamefiles\portal2\generic\po
 cd gamefiles\portal2
 %nsisbinpath%\makensis.exe portal2_arabic.nsi
 move portal-2-arabic-installer.exe dist_arabic
+
+mkdir -p tempzip\portal2_dlc3
+mkdir -p tempzip\update
+mkdir -p tempzip\update\resource
+copy "%modpath%\portl.txt" tempzip\portal2_dlc3\portl.txt
+copy "%modpath%\pak01_dir.vpk" tempzip\portal2_dlc3\pak01_dir.vpk
+copy "%modpath%..\update\resource\basemodui_tu_english.txt" tempzip\update\resource\basemodui_tu_english.txt
+copy "%modpath%..\update\pak01_dir.vpk" tempzip\update\pak01_dir.vpk
+copy gamefiles\portal2\Winexe\arabic-readme.txt tempzip
+cd tempzip
+start "" "c:\Program Files\7-Zip\7z.exe" a ..\gamefiles\portal2\dist_arabic\portal2-arabic.zip *
+:: wait 5 seconds. Seriously.
+ping 192.0.2.2 -n 1 -w 10000 > nul
+cd ..
+del /s /q tempzip
+rmdir /s /q tempzip
+
+
 cd ..\..
