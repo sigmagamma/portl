@@ -7,13 +7,13 @@ mkdir gamefiles\portal2\%robot%\portal2_dlc3
 mkdir gamefiles\portal2\%robot%\portal2_dlc3\resource
 mkdir gamefiles\portal2\%robot%\update
 mkdir gamefiles\portal2\%robot%\update\resource
-for %%J in (linux WIN) do (
+for %%J in (linux-steamdeck WIN) do (
     mkdir -p tempzip\portal2_dlc3
     mkdir -p tempzip\update
     mkdir -p tempzip\update\resource
     venv\Scripts\python.exe -c "from src.portal2.install_unattended import %store%_%robot%_%%J;%store%_%robot%_%%J()"
     for %%I in (cfg scripts resource media maps) do robocopy "%modpath%\%%I" tempzip\portal2_dlc3\%%I /e
-    if "%%J" == "linux" (
+    if "%%J" == "linux-steamdeck" (
       copy gamefiles\portal2\linux\media\sp_credits_bg.bik tempzip\portal2_dlc3\media\sp_credits_bg.bik
     )
     copy "%modpath%\portl.txt" tempzip\portal2_dlc3\portl.txt
