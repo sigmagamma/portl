@@ -85,12 +85,16 @@ class FileTools:
                     if self.gender_textures is None:
                         self.gender_textures = []
                     self.additional_folders = data.get('additional_folders')
+                    self.additional_folders_targets = data.get('additional_folders_targets')
+
                     self.vpk_folders = data.get('vpk_folders')
                     if self.vpk_folders is None:
                         self.vpk_folders = []
                     self.additional_configuration = data.get('additional_configuration')
                     if self.additional_folders is None:
                         self.additional_folders = []
+                    if self.additional_folders_targets is None:
+                        self.additional_folders_targets = []
                     #language details
                     change_language = data.get('change_language')
                     if change_language:
@@ -675,11 +679,13 @@ class FileTools:
         return filename
 
     def copy_assets(self,patch=False):
+        index = 0
         for filename in self.additional_folders:
             src_path = self.get_patch_file_path(filename)
+            target_filename = filename if not self.additional_folders_targets else self.additional_folders_targets[index]
             if os.path.exists(src_path):
-                copy_tree(src_path,self.get_mod_asset_path(filename),preserve_mode=0)
-        if (not patch) and self.gender is not None and 'materials' in self.additional_folders:
+                copy_tree(src_path,self.get_mod_asset_path(target_filename),preserve_mode=0)
+        if (not patch) and self.gender is not None and 'materials' in self.additional_folders or 'materials' in self.additional_folders_targets:
             for texture in self.gender_textures:
                 gender_texture_path = self.get_mod_asset_path("materials")+"\\"+texture+"_"+self.gender+".vtf"
                 if os.path.exists(gender_texture_path):

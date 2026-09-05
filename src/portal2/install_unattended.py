@@ -16,6 +16,9 @@ def arabic_steam_glados_WIN():
 def arabic_p2ce():
     ft = FileTools("gamefiles/portal2/Portal2 p2ce Arabic.json", "uarabic", "m",store="Steam",unattended=True)
     ft.write_files()
+def hebrew_p2ce():
+    ft = FileTools("gamefiles/portal2/Portal2 p2ce Hebrew.json", "hebrew", "m",store="Steam",unattended=True)
+    ft.write_files()
 def arabic_steam_glados_linux():
     ft = FileTools("gamefiles/portal2/Portal2 RTL Arabic.json", "uarabic", "m",store="Steam",unattended=True,gameos="linux")
     ft.write_files()
